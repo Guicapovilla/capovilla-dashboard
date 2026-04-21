@@ -25,10 +25,11 @@
     .sug-legacy { font-size: .75rem; color: #666; font-family: monospace; }
 
     .status-badge { font-size: .75rem; padding: .25rem .6rem; border-radius: 999px; text-transform: uppercase; letter-spacing: .5px; }
-    .status-gerada       { background: #1e3a5f; color: #93c5fd; }
-    .status-aprovada     { background: #1e4f2c; color: #86efac; }
-    .status-em_producao  { background: #5c3a0a; color: #fcd34d; }
-    .status-publicada    { background: #3d1e5f; color: #c4b5fd; }
+    .status-ideia        { background: #1e3a5f; color: #93c5fd; }
+    .status-planejado    { background: #1e4f2c; color: #86efac; }
+    .status-gravando     { background: #5c3a0a; color: #fcd34d; }
+    .status-edicao       { background: #4a2c5c; color: #d8b4fe; }
+    .status-publicado    { background: #3d1e5f; color: #c4b5fd; }
     .status-rejeitada    { background: #5c1e1e; color: #fca5a5; }
 
     .sug-motivo { color: #b8b8c2; font-size: .9rem; line-height: 1.5; max-height: 4.5rem; overflow: hidden; margin: .5rem 0; white-space: pre-wrap; }
@@ -82,10 +83,11 @@
 
   <div class="filter-bar" id="filter-bar">
     <button data-filter="todos" class="active">Todos</button>
-    <button data-filter="gerada">Gerada</button>
-    <button data-filter="aprovada">Aprovada</button>
-    <button data-filter="em_producao">Em produção</button>
-    <button data-filter="publicada">Publicada</button>
+    <button data-filter="ideia">Ideia</button>
+    <button data-filter="planejado">Planejado</button>
+    <button data-filter="gravando">Gravando</button>
+    <button data-filter="edicao">Edição</button>
+    <button data-filter="publicado">Publicado</button>
     <button data-filter="rejeitada">Rejeitada</button>
   </div>
 
@@ -104,10 +106,11 @@
       <input type="text" id="edit-tema">
       <label>Status</label>
       <select id="edit-status">
-        <option value="gerada">Gerada</option>
-        <option value="aprovada">Aprovada</option>
-        <option value="em_producao">Em produção</option>
-        <option value="publicada">Publicada</option>
+        <option value="ideia">Ideia</option>
+        <option value="planejado">Planejado</option>
+        <option value="gravando">Gravando</option>
+        <option value="edicao">Edição</option>
+        <option value="publicado">Publicado</option>
         <option value="rejeitada">Rejeitada</option>
       </select>
       <label>Data de publicação prevista</label>
@@ -250,8 +253,8 @@
           </div>` : ''}
           <div class="sug-actions">
             <button class="action" onclick="abrirEditor('${s.id}')">✏️ Editar</button>
-            <button class="action" onclick="mudarStatus('${s.id}', 'aprovada')">✓ Aprovar</button>
-            <button class="action" onclick="mudarStatus('${s.id}', 'em_producao')">🎬 Em produção</button>
+            <button class="action" onclick="mudarStatus('${s.id}', 'planejado')">📋 Planejar</button>
+            <button class="action" onclick="mudarStatus('${s.id}', 'gravando')">🎬 Gravar</button>
             <button class="action danger" onclick="mudarStatus('${s.id}', 'rejeitada')">✕ Rejeitar</button>
             <button class="action danger" onclick="apagarSugestao('${s.id}')">🗑️ Apagar</button>
             <button class="action primary" onclick="gerarScript('${s.id}')">🧠 Gerar script</button>
@@ -372,7 +375,7 @@
         titulo_sugerido: titulo,
         tema: tema || titulo,
         motivo: motivo || null,
-        status: 'gerada',
+        status: 'ideia',
       };
       const { error } = await db.from('sugestoes').insert([payload]);
       if (error) return toast('Erro: ' + error.message, 'error');
@@ -516,7 +519,7 @@ Para cada sugestão, retorne EXATAMENTE este formato JSON (e APENAS o JSON, sem 
           titulo_sugerido: s.titulo_sugerido?.substring(0, 200),
           tema: s.tema?.substring(0, 200),
           motivo: s.motivo,
-          status: 'gerada',
+          status: 'ideia',
         }));
         const { error } = await db.from('sugestoes').insert(payload);
         if (error) throw error;

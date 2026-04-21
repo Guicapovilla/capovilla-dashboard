@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cronograma — Capovilla Dashboard</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 1400px; margin: 2rem auto; padding: 0 1rem; background: #0f0f14; color: #e6e6ea; }
+    h1, h2 { color: #fff; }
+    h1 { border-bottom: 2px solid #333; padding-bottom: .5rem; }
+    h2 { margin-top: 2.5rem; font-size: 1.3rem; }
+    nav { margin-bottom: 2rem; }
+    nav a { color: #60a5fa; margin-right: 1rem; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+
+    /* Kanban */
+    .kanban { display: grid; grid-template-columns: repeat(5, 1fr); gap: .75rem; margin-bottom: 2rem; }
+    .col { background: #1a1a22; border: 1px solid #2a2a35; border-radius: 8px; padding: .75rem; min-height: 400px; }
+    .col-header { font-weight: 600; color: #fff; margin-bottom: .75rem; padding-bottom: .5rem; border-bottom: 1px solid #2a2a35; display: flex; justify-content: space-between; align-items: center; }
+    .col-count { font-size: .75rem; color: #888; background: #0f0f14; padding: .15rem .5rem; border-radius: 999px; }
+
+    .card { background: #0f0f14; border: 1px solid #2a2a35; border-radius: 6px; padding: .6rem; margin-bottom: .5rem; cursor: grab; font-size: .85rem; color: #e6e6ea; line-height: 1.4; }
+    .card:active { cursor: grabbing; }
+    .card.ghost { opacity: 0.4; }
+    .card .legacy { font-size: .7rem; color: #666; margin-top: .25rem; font-family: monospace; }
+    .card .tag { font-size: .65rem; padding: .1rem .35rem; border-radius: 3px; margin-top: .3rem; display: inline-block; }
+    .card .script-tag { background: #1e4f2c; color: #86efac; }
+
+    /* Calendário */
+    .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .calendar-nav button { background: #2a2a35; color: #e6e6ea; border: 1px solid #3a3a45; padding: .4rem .8rem; border-radius: 4px; cursor: pointer; }
+    .calendar-nav button:hover { background: #3a3a45; }
+    .calendar-title { color: #fff; font-weight: 600; font-size: 1.1rem; }
+    .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; background: #2a2a35; border: 1px solid #2a2a35; border-radius: 4px; overflow: hidden; }
+    .cal-header { background: #1a1a22; padding: .5rem; font-size: .75rem; color: #888; text-align: center; text-transform: uppercase; }
+    .cal-day { background: #0f0f14; min-height: 90px; padding: .4rem; font-size: .85rem; position: relative; }
+    .cal-day.other-month { opacity: 0.4; }
+    .cal-day.today { background: #1e2a3f; }
+    .cal-day .day-num { color: #888; font-size: .8rem; margin-bottom: .3rem; }
+    .cal-day .event { background: #2563eb; color: white; font-size: .7rem; padding: .15rem .3rem; border-radius: 3px; margin-bottom: .15rem; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cal-day .event:hover { background: #1d4ed8; }
+
+    /* Vídeos publicados */
+    .videos-table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: #1a1a22; border: 1px solid #2a2a35; border-radius: 8px; overflow: hidden; }
+    .videos-table th, .videos-table td { padding: .6rem; text-align: left; border-bottom: 1px solid #2a2a35; font-size: .9rem; }
+    .videos-table th { color: #888; font-size: .75rem; text-transform: uppercase; font-weight: normal; background: #15151b; }
+    .videos-table td { color: #e6e6ea; }
+    .videos-table tr:last-child td { border-bottom: none; }
+    .btn-sm { background: #2a2a35; color: #e6e6ea; border: 1px solid #3a3a45; padding: .3rem .6rem; border-radius: 4px; cursor: pointer; font-size: .75rem; }
+    .btn-sm:hover { background: #3a3a45; }
+    .btn-sm.primary { background: #2563eb; border-color: #2563eb; color: white; }
+    .btn-sm.success { background: #1e4f2c; border-color: #2a8f52; color: #86efac; }
+
+    /* Modal */
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.8); z-index: 100; align-items: center; justify-content: center; }
+    .modal-bg.show { display: flex; }
+    .modal { background: #1a1a22; border: 1px solid #2a2a35; border-radius: 8px; padding: 1.5rem; max-width: 600px; width: 90%; max-height: 85vh; overflow-y: auto; }
+    .modal h3 { margin-top: 0; color: #fff; }
+    .modal label { display: block; font-size: .85rem; color: #888; margin-top: .75rem; margin-bottom: .25rem; text-transform: uppercase; }
+    .modal input, .modal select { width: 100%; background: #0f0f14; color: #e6e6ea; border: 1px solid #2a2a35; border-radius: 4px; padding: .5rem; font-family: inherit; font-size: .95rem; box-sizing: border-box; }
+    .modal .btn-row { display: flex; gap: .5rem; justify-content: flex-end; margin-top: 1.5rem; }
+    .modal button { background: #2a2a35; color: #e6e6ea; border: 1px solid #3a3a45; padding: .5rem 1rem; border-radius: 4px; cursor: pointer; }
+    .modal button.primary { background: #2563eb; border-color: #2563eb; color: white; }
+
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: #1e3a5f; color: #93c5fd; padding: .75rem 1.25rem; border-radius: 4px; border: 1px solid #2a5f93; z-index: 200; display: none; }
+    .toast.show { display: block; }
+    .toast.success { background: #1e4f2c; color: #86efac; border-color: #2a8f52; }
+    .toast.error { background: #5c1e1e; color: #fca5a5; border-color: #8f2a2a; }
+    .loading { color: #888; font-style: italic; padding: 1rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">📊 Resumo</a>
+    <a href="sugestoes.html">💡 Sugestões</a>
+    <a href="cronograma.html">📅 Cronograma</a>
+    <a href="configuracoes.html">⚙️ Configurações</a>
+  </nav>
+
+  <h1>📅 Cronograma</h1>
+
+  <h2>Kanban de produção</h2>
+  <div class="kanban" id="kanban">
+    <div class="loading">Carregando kanban…</div>
+  </div>
+
+  <h2>Calendário de publicação</h2>
+  <div class="calendar-nav">
+    <button onclick="mudarMes(-1)">◀ Anterior</button>
+    <div class="calendar-title" id="cal-title">—</div>
+    <button onclick="mudarMes(1)">Próximo ▶</button>
+  </div>
+  <div class="calendar" id="calendar">
+    <div class="loading">Carregando calendário…</div>
+  </div>
+
+  <h2>Últimos vídeos publicados</h2>
+  <div id="videos-lista">
+    <div class="loading">Carregando vídeos…</div>
+  </div>
+
+  <!-- Modal linkar sugestão a vídeo -->
+  <div class="modal-bg" id="modal-link">
+    <div class="modal">
+      <h3>Linkar sugestão ao vídeo</h3>
+      <div id="link-video-info" style="color:#888;margin-bottom:.75rem;font-size:.9rem;"></div>
+      <input type="hidden" id="link-video-id">
+      <label>Escolha a sugestão que originou esse vídeo</label>
+      <select id="link-sugestao-select">
+        <option value="">— nenhuma —</option>
+      </select>
+      <div class="btn-row">
+        <button onclick="fecharModal('modal-link')">Cancelar</button>
+        <button class="primary" onclick="salvarLink()">Linkar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal agendar sugestão num dia -->
+  <div class="modal-bg" id="modal-agendar">
+    <div class="modal">
+      <h3>Agendar sugestão</h3>
+      <div id="agendar-data-info" style="color:#888;margin-bottom:.75rem;font-size:.9rem;"></div>
+      <input type="hidden" id="agendar-data">
+      <label>Qual sugestão agendar para esse dia?</label>
+      <select id="agendar-sugestao-select">
+        <option value="">— nenhuma —</option>
+      </select>
+      <div class="btn-row">
+        <button onclick="fecharModal('modal-agendar')">Cancelar</button>
+        <button class="primary" onclick="salvarAgendamento()">Agendar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://ryspohcflrxjwwghvvqc.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_OzoD3gbIn4GoJ6szjwdkhw_KFGAGNsh';
+
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const COLUNAS = [
+      { status: 'ideia',     titulo: '💡 Ideia' },
+      { status: 'planejado', titulo: '📋 Planejado' },
+      { status: 'gravando',  titulo: '🎬 Gravando' },
+      { status: 'edicao',    titulo: '✂️ Edição' },
+      { status: 'publicado', titulo: '✅ Publicado' },
+    ];
+
+    let cacheSugestoes = [];
+    let cacheVideos = [];
+    let mesAtual = new Date(); mesAtual.setDate(1);
+
+    const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    const DIAS_SEM = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    const escapeHtml = s => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const fmtData = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
+
+    function toast(msg, tipo = 'info') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'toast show ' + tipo;
+      setTimeout(() => el.classList.remove('show'), 3500);
+    }
+
+    function fecharModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    // ========================================================
+    // Kanban
+    // ========================================================
+    async function carregarKanban() {
+      const { data, error } = await db.from('sugestoes').select('*').order('created_at', { ascending: false });
+      if (error) { document.getElementById('kanban').innerHTML = `<div class="loading">Erro: ${error.message}</div>`; return; }
+      cacheSugestoes = data || [];
+      renderizarKanban();
+    }
+
+    function renderizarKanban() {
+      const k = document.getElementById('kanban');
+      k.innerHTML = COLUNAS.map(col => {
+        const cards = cacheSugestoes.filter(s => s.status === col.status);
+        return `
+          <div class="col">
+            <div class="col-header">
+              <span>${col.titulo}</span>
+              <span class="col-count">${cards.length}</span>
+            </div>
+            <div class="col-body" data-status="${col.status}">
+              ${cards.map(c => `
+                <div class="card" data-id="${c.id}" title="${escapeHtml(c.motivo || '')}">
+                  <div>${escapeHtml(c.titulo_sugerido || c.tema || 'Sem título')}</div>
+                  <div class="legacy">${escapeHtml(c.legacy_id || c.id.substring(0,8))}</div>
+                  ${c.script ? '<span class="tag script-tag">📜 Script</span>' : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Ativa drag-and-drop em cada coluna
+      document.querySelectorAll('.col-body').forEach(el => {
+        new Sortable(el, {
+          group: 'kanban',
+          animation: 150,
+          ghostClass: 'ghost',
+          onEnd: async (evt) => {
+            const id = evt.item.dataset.id;
+            const novoStatus = evt.to.dataset.status;
+            const { error } = await db.from('sugestoes').update({ status: novoStatus }).eq('id', id);
+            if (error) {
+              toast('Erro ao mover: ' + error.message, 'error');
+              carregarKanban(); // reverte visualmente
+            } else {
+              toast(`Movido pra ${novoStatus}`, 'success');
+              // atualiza cache local sem refetch
+              const s = cacheSugestoes.find(x => x.id === id);
+              if (s) s.status = novoStatus;
+              // atualiza contadores
+              COLUNAS.forEach(c => {
+                const el = document.querySelector(`[data-status="${c.status}"]`)?.closest('.col')?.querySelector('.col-count');
+                if (el) el.textContent = cacheSugestoes.filter(s => s.status === c.status).length;
+              });
+            }
+          }
+        });
+      });
+    }
+
+    // ========================================================
+    // Calendário
+    // ========================================================
+    function renderizarCalendario() {
+      const titulo = document.getElementById('cal-title');
+      titulo.textContent = `${MESES[mesAtual.getMonth()]} ${mesAtual.getFullYear()}`;
+
+      const primeiroDia = new Date(mesAtual);
+      const ultimoDia = new Date(mesAtual.getFullYear(), mesAtual.getMonth() + 1, 0);
+      const diaSemanaInicio = primeiroDia.getDay();
+      const totalDias = ultimoDia.getDate();
+      const hoje = new Date(); hoje.setHours(0,0,0,0);
+
+      const eventosPorDia = {};
+      cacheSugestoes.forEach(s => {
+        if (s.data_publicacao_prevista) {
+          const d = s.data_publicacao_prevista;
+          eventosPorDia[d] = eventosPorDia[d] || [];
+          eventosPorDia[d].push(s);
+        }
+      });
+
+      let html = DIAS_SEM.map(d => `<div class="cal-header">${d}</div>`).join('');
+
+      // dias do mês anterior (vazios)
+      for (let i = 0; i < diaSemanaInicio; i++) {
+        html += '<div class="cal-day other-month"></div>';
+      }
+
+      // dias do mês
+      for (let d = 1; d <= totalDias; d++) {
+        const dataObj = new Date(mesAtual.getFullYear(), mesAtual.getMonth(), d);
+        const isoData = dataObj.toISOString().slice(0, 10);
+        const isToday = dataObj.getTime() === hoje.getTime();
+        const eventos = eventosPorDia[isoData] || [];
+        const eventosHtml = eventos.slice(0, 2).map(e =>
+          `<div class="event" title="${escapeHtml(e.titulo_sugerido)}">${escapeHtml(e.titulo_sugerido?.substring(0, 20))}</div>`
+        ).join('');
+        const maisEventos = eventos.length > 2 ? `<div style="font-size:.7rem;color:#888;">+${eventos.length - 2}</div>` : '';
+        html += `
+          <div class="cal-day ${isToday ? 'today' : ''}" onclick="abrirAgendar('${isoData}')">
+            <div class="day-num">${d}</div>
+            ${eventosHtml}${maisEventos}
+          </div>
+        `;
+      }
+
+      document.getElementById('calendar').innerHTML = html;
+    }
+
+    function mudarMes(delta) {
+      mesAtual.setMonth(mesAtual.getMonth() + delta);
+      renderizarCalendario();
+    }
+
+    function abrirAgendar(isoData) {
+      document.getElementById('agendar-data').value = isoData;
+      document.getElementById('agendar-data-info').textContent = `Data: ${fmtData(isoData)}`;
+      const sel = document.getElementById('agendar-sugestao-select');
+      sel.innerHTML = '<option value="">— nenhuma —</option>' + cacheSugestoes
+        .filter(s => !['publicado', 'rejeitada'].includes(s.status))
+        .map(s => `<option value="${s.id}">${escapeHtml(s.titulo_sugerido || s.tema)} (${s.status})</option>`)
+        .join('');
+      document.getElementById('modal-agendar').classList.add('show');
+    }
+
+    async function salvarAgendamento() {
+      const data = document.getElementById('agendar-data').value;
+      const id = document.getElementById('agendar-sugestao-select').value;
+      if (!id) return toast('Escolha uma sugestão', 'error');
+      const { error } = await db.from('sugestoes').update({ data_publicacao_prevista: data }).eq('id', id);
+      if (error) return toast('Erro: ' + error.message, 'error');
+      const s = cacheSugestoes.find(x => x.id === id);
+      if (s) s.data_publicacao_prevista = data;
+      fecharModal('modal-agendar');
+      toast('Sugestão agendada', 'success');
+      renderizarCalendario();
+    }
+
+    // ========================================================
+    // Vídeos publicados + linkar slug
+    // ========================================================
+    async function carregarVideos() {
+      const { data, error } = await db
+        .from('videos')
+        .select('video_id, titulo, console, data_publicacao, slug_sugestao_id')
+        .order('data_publicacao', { ascending: false })
+        .limit(20);
+      if (error) { document.getElementById('videos-lista').innerHTML = `<div class="loading">Erro: ${error.message}</div>`; return; }
+      cacheVideos = data || [];
+      renderizarVideos();
+    }
+
+    function renderizarVideos() {
+      const sugestoesMap = Object.fromEntries(cacheSugestoes.map(s => [s.id, s]));
+      const rows = cacheVideos.map(v => {
+        const sugestao = v.slug_sugestao_id ? sugestoesMap[v.slug_sugestao_id] : null;
+        const vinculoCol = sugestao
+          ? `<span style="color:#86efac;font-size:.8rem;">✓ ${escapeHtml(sugestao.legacy_id || sugestao.id.substring(0,8))}</span>`
+          : `<button class="btn-sm primary" onclick="abrirLink('${v.video_id}')">🔗 Linkar</button>`;
+        const dt = v.data_publicacao ? new Date(v.data_publicacao).toLocaleDateString('pt-BR') : '—';
+        return `
+          <tr>
+            <td>${dt}</td>
+            <td>${escapeHtml(v.titulo)}</td>
+            <td>${escapeHtml(v.console)}</td>
+            <td>${vinculoCol}</td>
+          </tr>
+        `;
+      }).join('');
+      document.getElementById('videos-lista').innerHTML = `
+        <table class="videos-table">
+          <thead><tr><th>Publicado</th><th>Título</th><th>Console</th><th>Sugestão de origem</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function abrirLink(videoId) {
+      const v = cacheVideos.find(x => x.video_id === videoId);
+      document.getElementById('link-video-id').value = videoId;
+      document.getElementById('link-video-info').textContent = v.titulo;
+      const sel = document.getElementById('link-sugestao-select');
+      // sugestões ainda não vinculadas a nenhum vídeo
+      const disponiveis = cacheSugestoes.filter(s => !s.video_id_vinculado);
+      sel.innerHTML = '<option value="">— nenhuma —</option>' + disponiveis
+        .map(s => `<option value="${s.id}">${escapeHtml(s.titulo_sugerido || s.tema)} [${s.status}]</option>`)
+        .join('');
+      document.getElementById('modal-link').classList.add('show');
+    }
+
+    async function salvarLink() {
+      const videoId = document.getElementById('link-video-id').value;
+      const sugestaoId = document.getElementById('link-sugestao-select').value;
+      if (!sugestaoId) return toast('Escolha uma sugestão', 'error');
+
+      // Atualiza ambos os lados do vínculo
+      const { error: e1 } = await db.from('videos')
+        .update({ slug_sugestao_id: sugestaoId })
+        .eq('video_id', videoId);
+      if (e1) return toast('Erro ao linkar vídeo: ' + e1.message, 'error');
+
+      const { error: e2 } = await db.from('sugestoes')
+        .update({ video_id_vinculado: videoId, status: 'publicado' })
+        .eq('id', sugestaoId);
+      if (e2) return toast('Erro ao linkar sugestão: ' + e2.message, 'error');
+
+      fecharModal('modal-link');
+      toast('Vínculo criado! Loop de aprendizado fechado 🎉', 'success');
+      await carregarTudo();
+    }
+
+    // ========================================================
+    // Boot
+    // ========================================================
+    async function carregarTudo() {
+      await carregarKanban();
+      renderizarCalendario();
+      await carregarVideos();
+    }
+
+    document.querySelectorAll('.modal-bg').forEach(bg => {
+      bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('show'); });
+    });
+
+    carregarTudo();
+  </script>
+</body>
+</html>
