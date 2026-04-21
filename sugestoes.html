@@ -12,6 +12,13 @@
     nav a { color: #60a5fa; margin-right: 1rem; text-decoration: none; }
     nav a:hover { text-decoration: underline; }
 
+    .toolbar { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .toolbar button { background: #2563eb; color: white; border: none; padding: .6rem 1rem; border-radius: 4px; cursor: pointer; font-size: .9rem; font-weight: 500; }
+    .toolbar button:hover { background: #1d4ed8; }
+    .toolbar button:disabled { opacity: .5; cursor: wait; }
+    .toolbar button.secondary { background: #2a2a35; border: 1px solid #3a3a45; }
+    .toolbar button.secondary:hover { background: #3a3a45; }
+
     .sug-card { background: #1a1a22; border: 1px solid #2a2a35; border-radius: 8px; padding: 1.25rem; margin: 1rem 0; }
     .sug-header { display: flex; justify-content: space-between; align-items: start; gap: 1rem; margin-bottom: .75rem; }
     .sug-titulo { font-size: 1.15rem; font-weight: 600; color: #fff; flex: 1; }
@@ -24,7 +31,7 @@
     .status-publicada    { background: #3d1e5f; color: #c4b5fd; }
     .status-rejeitada    { background: #5c1e1e; color: #fca5a5; }
 
-    .sug-motivo { color: #b8b8c2; font-size: .9rem; line-height: 1.5; max-height: 4.5rem; overflow: hidden; position: relative; margin: .5rem 0; }
+    .sug-motivo { color: #b8b8c2; font-size: .9rem; line-height: 1.5; max-height: 4.5rem; overflow: hidden; margin: .5rem 0; white-space: pre-wrap; }
     .sug-motivo.expanded { max-height: none; }
     .expand-btn { background: none; border: none; color: #60a5fa; cursor: pointer; font-size: .85rem; padding: 0; margin-top: .25rem; }
 
@@ -40,22 +47,22 @@
     .filter-bar button { background: #1a1a22; color: #888; border: 1px solid #2a2a35; padding: .4rem .8rem; border-radius: 4px; cursor: pointer; font-size: .85rem; }
     .filter-bar button.active { background: #2563eb; color: white; border-color: #2563eb; }
 
-    .editor-modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.8); z-index: 100; align-items: center; justify-content: center; }
-    .editor-modal-bg.show { display: flex; }
-    .editor-modal { background: #1a1a22; border: 1px solid #2a2a35; border-radius: 8px; padding: 1.5rem; max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; }
-    .editor-modal h3 { margin-top: 0; color: #fff; }
-    .editor-modal label { display: block; font-size: .85rem; color: #888; margin-top: .75rem; margin-bottom: .25rem; text-transform: uppercase; }
-    .editor-modal input, .editor-modal textarea, .editor-modal select { width: 100%; background: #0f0f14; color: #e6e6ea; border: 1px solid #2a2a35; border-radius: 4px; padding: .5rem; font-family: inherit; font-size: .95rem; box-sizing: border-box; }
-    .editor-modal textarea { min-height: 120px; resize: vertical; }
-    .editor-modal .btn-row { display: flex; gap: .5rem; justify-content: flex-end; margin-top: 1.5rem; }
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.8); z-index: 100; align-items: center; justify-content: center; }
+    .modal-bg.show { display: flex; }
+    .modal { background: #1a1a22; border: 1px solid #2a2a35; border-radius: 8px; padding: 1.5rem; max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; }
+    .modal h3 { margin-top: 0; color: #fff; }
+    .modal label { display: block; font-size: .85rem; color: #888; margin-top: .75rem; margin-bottom: .25rem; text-transform: uppercase; }
+    .modal input, .modal textarea, .modal select { width: 100%; background: #0f0f14; color: #e6e6ea; border: 1px solid #2a2a35; border-radius: 4px; padding: .5rem; font-family: inherit; font-size: .95rem; box-sizing: border-box; }
+    .modal textarea { min-height: 120px; resize: vertical; }
+    .modal .btn-row { display: flex; gap: .5rem; justify-content: flex-end; margin-top: 1.5rem; }
 
     .loading { color: #888; font-style: italic; }
     .erro { color: #f87171; background: #2a1515; padding: .5rem 1rem; border-radius: 4px; border: 1px solid #552222; }
     .empty { color: #888; text-align: center; padding: 2rem; font-style: italic; }
-
-    .thumb { width: 120px; height: 68px; background: #2a2a35; border-radius: 4px; object-fit: cover; flex-shrink: 0; }
-    .sug-row { display: flex; gap: 1rem; align-items: start; }
-    .sug-body { flex: 1; min-width: 0; }
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: #1e3a5f; color: #93c5fd; padding: .75rem 1.25rem; border-radius: 4px; border: 1px solid #2a5f93; z-index: 200; display: none; }
+    .toast.show { display: block; }
+    .toast.success { background: #1e4f2c; color: #86efac; border-color: #2a8f52; }
+    .toast.error { background: #5c1e1e; color: #fca5a5; border-color: #8f2a2a; }
   </style>
 </head>
 <body>
@@ -67,6 +74,11 @@
   </nav>
 
   <h1>💡 Sugestões da semana</h1>
+
+  <div class="toolbar">
+    <button onclick="abrirNovaSugestao()">➕ Nova sugestão manual</button>
+    <button onclick="gerarSugestoesIA()" id="btn-gerar-ia">🔄 Gerar 2 sugestões com IA</button>
+  </div>
 
   <div class="filter-bar" id="filter-bar">
     <button data-filter="todos" class="active">Todos</button>
@@ -82,17 +94,14 @@
   </div>
 
   <!-- Modal de edição -->
-  <div class="editor-modal-bg" id="modal">
-    <div class="editor-modal">
+  <div class="modal-bg" id="modal-edit">
+    <div class="modal">
       <h3>Editar sugestão</h3>
       <input type="hidden" id="edit-id">
-
       <label>Título sugerido</label>
       <input type="text" id="edit-titulo">
-
       <label>Tema / Conceito</label>
       <input type="text" id="edit-tema">
-
       <label>Status</label>
       <select id="edit-status">
         <option value="gerada">Gerada</option>
@@ -101,30 +110,55 @@
         <option value="publicada">Publicada</option>
         <option value="rejeitada">Rejeitada</option>
       </select>
-
       <label>Data de publicação prevista</label>
       <input type="date" id="edit-data">
-
       <label>Motivo / Raciocínio</label>
       <textarea id="edit-motivo"></textarea>
-
       <label>Script</label>
-      <textarea id="edit-script" style="min-height: 200px;"></textarea>
-
+      <textarea id="edit-script" style="min-height: 250px;"></textarea>
       <div class="btn-row">
-        <button class="action" onclick="fecharModal()">Cancelar</button>
+        <button class="action" onclick="fecharModal('modal-edit')">Cancelar</button>
         <button class="action primary" onclick="salvarEdicao()">Salvar</button>
       </div>
     </div>
   </div>
 
+  <!-- Modal nova sugestão manual -->
+  <div class="modal-bg" id="modal-nova">
+    <div class="modal">
+      <h3>Nova sugestão manual</h3>
+      <label>Título da ideia</label>
+      <input type="text" id="nova-titulo" placeholder="Ex: Comprei o PS3 destravado na Shopee">
+      <label>Tema / Contexto</label>
+      <input type="text" id="nova-tema" placeholder="Ex: PS3 destravado, nostalgia lan house">
+      <label>Motivo / Raciocínio (opcional)</label>
+      <textarea id="nova-motivo" placeholder="Por que fazer esse vídeo? Dados, ângulo, oportunidade..."></textarea>
+      <div class="btn-row">
+        <button class="action" onclick="fecharModal('modal-nova')">Cancelar</button>
+        <button class="action primary" onclick="salvarNovaSugestao()">Criar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de feedback -->
+  <div class="toast" id="toast"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // ============================================
-    // CONFIG - cole a MESMA anon/publishable key que usou no index.html
+    // CONFIG
     // ============================================
     const SUPABASE_URL = 'https://ryspohcflrxjwwghvvqc.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_OzoD3gbIn4GoJ6szjwdkhw_KFGAGNsh';
+
+    // ⚠️ O DASHBOARD_SECRET fica VISÍVEL no JS do navegador.
+    // Isso é aceitável porque:
+    // 1. O dashboard é privado por obscuridade (URL só você conhece)
+    // 2. O secret só dá acesso ao endpoint, não aos dados
+    // 3. Vercel + Anthropic têm limite de gasto configurado
+    // Pra proteção real, ativar Supabase Auth no Ciclo 2.
+    const API_URL = 'https://capovilla-api.vercel.app/api/claude';
+    const DASHBOARD_SECRET = 'capovilla-dashboard-2026-secreto-aleatorio-x7k9m2p4';
 
     const { createClient } = supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -133,13 +167,37 @@
     let filtroAtivo = 'todos';
 
     // ============================================
-    // Utilitários
+    // Helpers
     // ============================================
     const fmtData = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
     const escapeHtml = s => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+    function toast(msg, tipo = 'info') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'toast show ' + tipo;
+      setTimeout(() => el.classList.remove('show'), 4000);
+    }
+
+    async function callClaude(prompt, maxTokens = 2000, systemPrompt = null) {
+      const body = { prompt, max_tokens: maxTokens };
+      if (systemPrompt) body.system = systemPrompt;
+
+      const resp = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-dashboard-secret': DASHBOARD_SECRET,
+        },
+        body: JSON.stringify(body),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+      return data.text;
+    }
+
     // ============================================
-    // Carregar lista
+    // Listagem
     // ============================================
     async function carregar() {
       const { data, error } = await db
@@ -168,29 +226,23 @@
 
       lista.innerHTML = filtradas.map(s => `
         <div class="sug-card" data-id="${s.id}">
-          <div class="sug-row">
-            <div class="sug-body">
-              <div class="sug-header">
-                <div>
-                  <div class="sug-titulo">${escapeHtml(s.titulo_sugerido || s.tema || 'Sem título')}</div>
-                  <div class="sug-legacy">${escapeHtml(s.legacy_id || s.id.substring(0,8))} · ${fmtData(s.data_publicacao_prevista)}</div>
-                </div>
-                <span class="status-badge status-${s.status}">${s.status}</span>
-              </div>
-              <div class="sug-motivo" id="motivo-${s.id}">
-                ${escapeHtml(s.motivo || 'Sem raciocínio registrado.')}
-              </div>
-              ${(s.motivo || '').length > 200
-                ? `<button class="expand-btn" onclick="toggleMotivo('${s.id}')">Ver completo ▾</button>`
-                : ''}
-              <div class="sug-actions">
-                <button class="action" onclick="abrirEditor('${s.id}')">✏️ Editar</button>
-                <button class="action" onclick="mudarStatus('${s.id}', 'aprovada')">✓ Aprovar</button>
-                <button class="action" onclick="mudarStatus('${s.id}', 'em_producao')">🎬 Em produção</button>
-                <button class="action danger" onclick="mudarStatus('${s.id}', 'rejeitada')">✕ Rejeitar</button>
-                <button class="action primary" onclick="gerarScript('${s.id}')">🧠 Gerar script</button>
-              </div>
+          <div class="sug-header">
+            <div>
+              <div class="sug-titulo">${escapeHtml(s.titulo_sugerido || s.tema || 'Sem título')}</div>
+              <div class="sug-legacy">${escapeHtml(s.legacy_id || s.id.substring(0,8))} · ${fmtData(s.data_publicacao_prevista)}</div>
             </div>
+            <span class="status-badge status-${s.status}">${s.status}</span>
+          </div>
+          <div class="sug-motivo" id="motivo-${s.id}">${escapeHtml(s.motivo || 'Sem raciocínio registrado.')}</div>
+          ${(s.motivo || '').length > 200 ? `<button class="expand-btn" onclick="toggleMotivo('${s.id}')">Ver completo ▾</button>` : ''}
+          ${s.script ? `<div style="margin-top:.5rem;font-size:.8rem;color:#86efac;">📜 Script pronto (${s.script.length} chars)</div>` : ''}
+          <div class="sug-actions">
+            <button class="action" onclick="abrirEditor('${s.id}')">✏️ Editar</button>
+            <button class="action" onclick="mudarStatus('${s.id}', 'aprovada')">✓ Aprovar</button>
+            <button class="action" onclick="mudarStatus('${s.id}', 'em_producao')">🎬 Em produção</button>
+            <button class="action danger" onclick="mudarStatus('${s.id}', 'rejeitada')">✕ Rejeitar</button>
+            <button class="action danger" onclick="apagarSugestao('${s.id}')">🗑️ Apagar</button>
+            <button class="action primary" onclick="gerarScript('${s.id}')">🧠 Gerar script</button>
           </div>
         </div>
       `).join('');
@@ -214,14 +266,25 @@
     // ============================================
     // Ações rápidas
     // ============================================
+    async function apagarSugestao(id) {
+      const s = cachesugestoes.find(x => x.id === id);
+      if (!s) return;
+      if (!confirm(`Apagar permanentemente "${s.titulo_sugerido}"?`)) return;
+      const { error } = await db.from('sugestoes').delete().eq('id', id);
+      if (error) return toast('Erro: ' + error.message, 'error');
+      toast('Sugestão apagada', 'success');
+      await carregar();
+    }
+
     async function mudarStatus(id, novoStatus) {
       const { error } = await db.from('sugestoes').update({ status: novoStatus }).eq('id', id);
-      if (error) return alert('Erro: ' + error.message);
+      if (error) return toast('Erro: ' + error.message, 'error');
+      toast(`Status atualizado para ${novoStatus}`, 'success');
       await carregar();
     }
 
     // ============================================
-    // Modal de edição
+    // Modal edição
     // ============================================
     function abrirEditor(id) {
       const s = cachesugestoes.find(x => x.id === id);
@@ -233,11 +296,11 @@
       document.getElementById('edit-data').value = s.data_publicacao_prevista || '';
       document.getElementById('edit-motivo').value = s.motivo || '';
       document.getElementById('edit-script').value = s.script || '';
-      document.getElementById('modal').classList.add('show');
+      document.getElementById('modal-edit').classList.add('show');
     }
 
-    function fecharModal() {
-      document.getElementById('modal').classList.remove('show');
+    function fecharModal(id) {
+      document.getElementById(id).classList.remove('show');
     }
 
     async function salvarEdicao() {
@@ -251,21 +314,197 @@
         script: document.getElementById('edit-script').value || null,
       };
       const { error } = await db.from('sugestoes').update(payload).eq('id', id);
-      if (error) return alert('Erro: ' + error.message);
-      fecharModal();
+      if (error) return toast('Erro: ' + error.message, 'error');
+      fecharModal('modal-edit');
+      toast('Sugestão atualizada', 'success');
       await carregar();
     }
 
     // ============================================
-    // Gerar script — placeholder (Parte B implementa chamada ao Claude)
+    // Nova sugestão manual
+    // ============================================
+    function abrirNovaSugestao() {
+      document.getElementById('nova-titulo').value = '';
+      document.getElementById('nova-tema').value = '';
+      document.getElementById('nova-motivo').value = '';
+      document.getElementById('modal-nova').classList.add('show');
+    }
+
+    async function salvarNovaSugestao() {
+      const titulo = document.getElementById('nova-titulo').value.trim();
+      const tema = document.getElementById('nova-tema').value.trim();
+      const motivo = document.getElementById('nova-motivo').value.trim();
+
+      if (!titulo) return toast('Título é obrigatório', 'error');
+
+      const payload = {
+        legacy_id: `MANUAL-${Date.now()}`,
+        titulo_sugerido: titulo,
+        tema: tema || titulo,
+        motivo: motivo || null,
+        status: 'gerada',
+      };
+      const { error } = await db.from('sugestoes').insert([payload]);
+      if (error) return toast('Erro: ' + error.message, 'error');
+      fecharModal('modal-nova');
+      toast('Sugestão criada', 'success');
+      await carregar();
+    }
+
+    // ============================================
+    // Gerar script via Claude
     // ============================================
     async function gerarScript(id) {
-      alert('Geração de script via Claude ainda não implementada. Vem na Parte B desta tela.');
+      const s = cachesugestoes.find(x => x.id === id);
+      if (!s) return;
+
+      if (!confirm(`Gerar script para:\n\n"${s.titulo_sugerido}"\n\nIsso consome tokens da Anthropic. Continuar?`)) return;
+
+      toast('🧠 Gerando script... aguarde ~15s', 'info');
+
+      const systemPrompt = `Você é um roteirista de YouTube especializado em canal brasileiro sobre games e retrô. O criador é Guilherme Capovilla (@guilhermecapovilla), 29 anos, tom emocional/nostálgico, não técnico. Adultos brasileiros gamers, 28-40 anos. RPM alto vem de vídeos de Switch Lite destravado. Linguagem: fala direta, primeira pessoa, gatilhos de nostalgia e culpa ("videogame como autocuidado"). Aberturas são storytelling pessoal, não "fala galera".`;
+
+      const prompt = `Escreva um roteiro completo para este vídeo de YouTube do canal do Guilherme Capovilla.
+
+TÍTULO: ${s.titulo_sugerido}
+TEMA: ${s.tema || '(não definido)'}
+
+CONTEXTO/RACIOCÍNIO DA IDEIA:
+${s.motivo || '(sem contexto adicional)'}
+
+Estrutura do roteiro:
+- ABERTURA (30-45s): gancho emocional/nostálgico em primeira pessoa, sem "fala galera". Já entrega a promessa do vídeo.
+- DESENVOLVIMENTO (dividido em 3-5 blocos): cada bloco com título interno, duração estimada e texto corrido do que falar.
+- CTA INTERMEDIÁRIO: 1 menção de like/inscreva no meio do vídeo, integrada na conversa.
+- CONVERSÃO (se houver produto Shopee relacionado): apresentação do produto sem ser forçada, com link de afiliado mencionado naturalmente.
+- FECHAMENTO: resume o que foi mostrado e deixa gancho emocional final pro espectador.
+
+Formato: markdown. Use **negrito** pros títulos dos blocos. Duração total alvo: 8-12 minutos.`;
+
+      try {
+        const script = await callClaude(prompt, 4000, systemPrompt);
+        const { error } = await db.from('sugestoes')
+          .update({ script, status: 'aprovada' })
+          .eq('id', id);
+        if (error) throw error;
+        toast('✅ Script gerado e salvo!', 'success');
+        await carregar();
+      } catch (err) {
+        toast('Erro: ' + err.message, 'error');
+      }
+    }
+
+    // ============================================
+    // Gerar 2 sugestões com IA
+    // ============================================
+    async function gerarSugestoesIA() {
+      const btn = document.getElementById('btn-gerar-ia');
+      btn.disabled = true;
+      btn.textContent = '🔄 Gerando...';
+      toast('🧠 Coletando contexto + chamando Claude... aguarde ~20s', 'info');
+
+      try {
+        // 1. Busca top 10 vídeos do canal por receita recente
+        const { data: metricas } = await db
+          .from('videos_metricas')
+          .select('video_id, views, rpm, receita_estimada')
+          .order('receita_estimada', { ascending: false })
+          .limit(10);
+
+        const ids = metricas.map(m => m.video_id);
+        const { data: videos } = await db
+          .from('videos')
+          .select('video_id, titulo, console')
+          .in('video_id', ids);
+        const vMap = Object.fromEntries(videos.map(v => [v.video_id, v]));
+
+        const topVideos = metricas.map(m => {
+          const v = vMap[m.video_id] || {};
+          return `- "${v.titulo}" (${v.console}) — ${m.views} views, R$${m.rpm?.toFixed(2)} RPM, R$${m.receita_estimada?.toFixed(2)} receita`;
+        }).join('\n');
+
+        // 2. Busca top vídeos de concorrentes
+        const { data: concVids } = await db
+          .from('concorrentes_videos')
+          .select('titulo, views, concorrentes(nome)')
+          .order('views', { ascending: false })
+          .limit(15);
+
+        const topConc = concVids.map(v =>
+          `- "${v.titulo}" (${v.concorrentes?.nome || '?'}) — ${v.views} views`
+        ).join('\n');
+
+        // 3. Últimas sugestões pra evitar repetir
+        const { data: ultimas } = await db
+          .from('sugestoes')
+          .select('titulo_sugerido')
+          .order('created_at', { ascending: false })
+          .limit(10);
+        const ultimasStr = ultimas.map(s => `- ${s.titulo_sugerido}`).join('\n');
+
+        // 4. Monta prompt
+        const systemPrompt = `Você é um curador editorial para o canal YouTube @guilhermecapovilla (games/retrô, Brasil, adultos 28-40 anos). Foco em conteúdo emocional/nostálgico, não técnico. RPM histórico mostra: Switch Lite destravado = RPM R$295+, PS4/PS3 destravado = bom para views e receita. Concorrentes técnicos dominam o nicho, a LACUNA é lifestyle/rotina/emocional.`;
+
+        const prompt = `Gere **exatamente 2 sugestões** de novos vídeos para o canal.
+
+TOP VÍDEOS DO CANAL (últimos dados):
+${topVideos}
+
+TOP VÍDEOS DOS CONCORRENTES (últimos 15):
+${topConc}
+
+ÚLTIMAS SUGESTÕES JÁ GERADAS (NÃO REPETIR):
+${ultimasStr}
+
+Para cada sugestão, retorne EXATAMENTE este formato JSON (e APENAS o JSON, sem explicação antes/depois):
+
+[
+  {
+    "titulo_sugerido": "título chamativo, até 70 chars",
+    "tema": "tema central em 3-5 palavras",
+    "motivo": "raciocínio: por que essa sugestão agora, que concorrente provou demanda, qual lacuna ocupa, qual ângulo emocional/nostálgico. 150-300 palavras."
+  },
+  { ... }
+]`;
+
+        const resposta = await callClaude(prompt, 3000, systemPrompt);
+
+        // 5. Extrai JSON
+        let sugestoesNovas;
+        try {
+          const jsonMatch = resposta.match(/\[[\s\S]*\]/);
+          if (!jsonMatch) throw new Error('JSON não encontrado na resposta');
+          sugestoesNovas = JSON.parse(jsonMatch[0]);
+        } catch (e) {
+          console.error('Resposta do Claude:', resposta);
+          throw new Error('Claude não retornou JSON válido. Veja o console (F12).');
+        }
+
+        // 6. Insere no Supabase
+        const payload = sugestoesNovas.map((s, i) => ({
+          legacy_id: `IA-${Date.now()}-${i + 1}`,
+          titulo_sugerido: s.titulo_sugerido?.substring(0, 200),
+          tema: s.tema?.substring(0, 200),
+          motivo: s.motivo,
+          status: 'gerada',
+        }));
+        const { error } = await db.from('sugestoes').insert(payload);
+        if (error) throw error;
+
+        toast(`✅ ${payload.length} sugestões criadas!`, 'success');
+        await carregar();
+      } catch (err) {
+        console.error(err);
+        toast('Erro: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🔄 Gerar 2 sugestões com IA';
+      }
     }
 
     // Fechar modal ao clicar fora
-    document.getElementById('modal').addEventListener('click', e => {
-      if (e.target.id === 'modal') fecharModal();
+    document.querySelectorAll('.modal-bg').forEach(bg => {
+      bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('show'); });
     });
 
     // Boot
