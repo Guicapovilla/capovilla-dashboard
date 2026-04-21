@@ -139,7 +139,17 @@
       </div>
     </div>
   </div>
-
+  <!-- Modal visualizar script -->
+  <div class="modal-bg" id="modal-script">
+    <div class="modal" style="max-width: 900px;">
+      <h3 id="script-titulo">Script</h3>
+      <div style="display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap;">
+        <button class="action primary" onclick="copiarScript()">📋 Copiar</button>
+        <button class="action" onclick="fecharModal('modal-script')">Fechar</button>
+      </div>
+      <pre id="script-conteudo" style="background:#0f0f14;color:#e6e6ea;border:1px solid #2a2a35;border-radius:4px;padding:1rem;max-height:60vh;overflow-y:auto;white-space:pre-wrap;font-family:inherit;font-size:.9rem;line-height:1.5;"></pre>
+    </div>
+  </div>
   <!-- Toast de feedback -->
   <div class="toast" id="toast"></div>
 
@@ -235,7 +245,9 @@
           </div>
           <div class="sug-motivo" id="motivo-${s.id}">${escapeHtml(s.motivo || 'Sem raciocínio registrado.')}</div>
           ${(s.motivo || '').length > 200 ? `<button class="expand-btn" onclick="toggleMotivo('${s.id}')">Ver completo ▾</button>` : ''}
-          ${s.script ? `<div style="margin-top:.5rem;font-size:.8rem;color:#86efac;">📜 Script pronto (${s.script.length} chars)</div>` : ''}
+          ${s.script ? `<div style="margin-top:.5rem;">
+            <button class="action" onclick="verScript('${s.id}')" style="color:#86efac;border-color:#2a8f52;">📜 Ver script (${s.script.length} chars)</button>
+          </div>` : ''}
           <div class="sug-actions">
             <button class="action" onclick="abrirEditor('${s.id}')">✏️ Editar</button>
             <button class="action" onclick="mudarStatus('${s.id}', 'aprovada')">✓ Aprovar</button>
@@ -266,7 +278,25 @@
     // ============================================
     // Ações rápidas
     // ============================================
-    async function apagarSugestao(id) {
+    
+    function verScript(id) {
+      const s = cachesugestoes.find(x => x.id === id);
+      if (!s || !s.script) return toast('Script ainda não foi gerado', 'error');
+      document.getElementById('script-titulo').textContent = '📜 ' + (s.titulo_sugerido || 'Script');
+      document.getElementById('script-conteudo').textContent = s.script;
+      document.getElementById('modal-script').classList.add('show');
+    }
+
+    async function copiarScript() {
+      const texto = document.getElementById('script-conteudo').textContent;
+      try {
+        await navigator.clipboard.writeText(texto);
+        toast('Script copiado pra área de transferência', 'success');
+      } catch (e) {
+        toast('Não foi possível copiar: ' + e.message, 'error');
+      }
+    }
+   async function apagarSugestao(id) {
       const s = cachesugestoes.find(x => x.id === id);
       if (!s) return;
       if (!confirm(`Apagar permanentemente "${s.titulo_sugerido}"?`)) return;
