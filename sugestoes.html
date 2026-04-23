@@ -16,15 +16,49 @@
     .toolbar button { background: #2563eb; color: white; border: none; padding: .6rem 1rem; border-radius: 4px; cursor: pointer; font-size: .9rem; font-weight: 500; }
     .toolbar button:hover { background: #1d4ed8; }
     .toolbar button:disabled { opacity: .5; cursor: wait; }
-    .toolbar button.secondary { background: #2a2a35; border: 1px solid #3a3a45; }
-    .toolbar button.secondary:hover { background: #3a3a45; }
 
-    .sug-card { background: #1a1a22; border: 1px solid #2a2a35; border-radius: 8px; padding: 1.25rem; margin: 1rem 0; }
+    .focus-panel {
+      background: #15151b; border: 1px solid #2a2a35; border-radius: 8px;
+      padding: .75rem 1rem; margin-bottom: 1rem;
+    }
+    .focus-header {
+      display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+      font-size: .9rem; color: #b8b8c2;
+    }
+    .focus-header:hover { color: #fff; }
+    .focus-header .arrow { transition: transform .2s; }
+    .focus-header.open .arrow { transform: rotate(90deg); }
+    .focus-body { display: none; padding-top: .75rem; border-top: 1px solid #2a2a35; margin-top: .75rem; }
+    .focus-body.open { display: block; }
+    .focus-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .5rem; margin-top: .5rem; }
+    .focus-chip {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .5rem .75rem; background: #0f0f14; border: 1px solid #2a2a35;
+      border-radius: 4px; cursor: pointer; font-size: .85rem;
+    }
+    .focus-chip:hover { border-color: #3a3a45; }
+    .focus-chip.checked { border-color: #2563eb; background: #1a2340; color: #93c5fd; }
+    .focus-chip input { margin: 0; }
+    .focus-hint { font-size: .8rem; color: #666; margin-top: .5rem; font-style: italic; }
+
+    .sug-card { background: #1a1a22; border: 1px solid #2a2a35; border-radius: 8px; padding: 1.25rem; margin: 1rem 0; position: relative; }
     .sug-header { display: flex; justify-content: space-between; align-items: start; gap: 1rem; margin-bottom: .75rem; }
-    .sug-titulo { font-size: 1.15rem; font-weight: 600; color: #fff; flex: 1; }
-    .sug-legacy { font-size: .75rem; color: #666; font-family: monospace; }
+    .sug-titulo { font-size: 1.15rem; font-weight: 600; color: #fff; flex: 1; padding-right: 5rem; }
+    .sug-legacy { font-size: .75rem; color: #666; font-family: monospace; margin-top: .25rem; }
 
-    .status-badge { font-size: .75rem; padding: .25rem .6rem; border-radius: 999px; text-transform: uppercase; letter-spacing: .5px; }
+    .card-actions-corner {
+      position: absolute; top: .9rem; right: 1rem;
+      display: flex; gap: .4rem;
+    }
+    .icon-btn {
+      background: transparent; border: 1px solid #2a2a35; color: #666;
+      width: 32px; height: 32px; border-radius: 6px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: .9rem;
+    }
+    .icon-btn:hover { color: #60a5fa; border-color: #60a5fa; }
+    .icon-btn.danger:hover { color: #fca5a5; border-color: #7f1d1d; }
+
+    .status-badge { font-size: .75rem; padding: .25rem .6rem; border-radius: 999px; text-transform: uppercase; letter-spacing: .5px; display: inline-block; }
     .status-ideia        { background: #1e3a5f; color: #93c5fd; }
     .status-planejado    { background: #1e4f2c; color: #86efac; }
     .status-gravando     { background: #5c3a0a; color: #fcd34d; }
@@ -32,17 +66,43 @@
     .status-publicado    { background: #3d1e5f; color: #c4b5fd; }
     .status-rejeitada    { background: #5c1e1e; color: #fca5a5; }
 
+    .console-tag {
+      display: inline-block; font-size: .7rem; background: #1a2340; color: #93c5fd;
+      padding: .15rem .5rem; border-radius: 3px; margin-right: .3rem; margin-top: .3rem;
+    }
+
     .sug-motivo { color: #b8b8c2; font-size: .9rem; line-height: 1.5; max-height: 4.5rem; overflow: hidden; margin: .5rem 0; white-space: pre-wrap; }
     .sug-motivo.expanded { max-height: none; }
     .expand-btn { background: none; border: none; color: #60a5fa; cursor: pointer; font-size: .85rem; padding: 0; margin-top: .25rem; }
 
-    .sug-actions { display: flex; gap: .5rem; margin-top: .75rem; flex-wrap: wrap; }
-    button.action { background: #2a2a35; color: #e6e6ea; border: 1px solid #3a3a45; padding: .4rem .8rem; border-radius: 4px; cursor: pointer; font-size: .85rem; }
-    button.action:hover { background: #3a3a45; }
-    button.primary { background: #2563eb; border-color: #2563eb; color: white; }
-    button.primary:hover { background: #1d4ed8; }
-    button.danger { background: transparent; border-color: #7f1d1d; color: #fca5a5; }
-    button.danger:hover { background: #3d0a0a; }
+    .feedback-tag {
+      margin-top: .5rem; padding: .4rem .6rem; background: #2a1515; border-left: 3px solid #7f1d1d;
+      border-radius: 4px; font-size: .85rem; color: #fca5a5;
+    }
+    .feedback-tag strong { color: #fecaca; }
+
+    .sug-actions {
+      display: flex; gap: .5rem; margin-top: 1rem; flex-wrap: wrap;
+      padding-top: 1rem; border-top: 1px solid #2a2a35;
+    }
+    button.btn-aprovar {
+      background: #1e4f2c; color: #86efac; border: 1px solid #2a8f52;
+      padding: .55rem 1.1rem; border-radius: 4px; cursor: pointer; font-size: .9rem; font-weight: 500;
+    }
+    button.btn-aprovar:hover { background: #2a8f52; color: white; }
+    button.btn-aprovar:disabled { opacity: .5; cursor: wait; }
+    button.btn-rejeitar {
+      background: transparent; color: #fca5a5; border: 1px solid #7f1d1d;
+      padding: .55rem 1.1rem; border-radius: 4px; cursor: pointer; font-size: .9rem;
+    }
+    button.btn-rejeitar:hover { background: #3d0a0a; }
+
+    .script-preview { margin-top: .75rem; }
+    .script-preview button {
+      background: #1e4f2c; color: #86efac; border: 1px solid #2a8f52;
+      padding: .35rem .7rem; border-radius: 4px; cursor: pointer; font-size: .8rem;
+    }
+    .script-preview button:hover { background: #2a8f52; color: white; }
 
     .filter-bar { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
     .filter-bar button { background: #1a1a22; color: #888; border: 1px solid #2a2a35; padding: .4rem .8rem; border-radius: 4px; cursor: pointer; font-size: .85rem; }
@@ -53,9 +113,21 @@
     .modal { background: #1a1a22; border: 1px solid #2a2a35; border-radius: 8px; padding: 1.5rem; max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; }
     .modal h3 { margin-top: 0; color: #fff; }
     .modal label { display: block; font-size: .85rem; color: #888; margin-top: .75rem; margin-bottom: .25rem; text-transform: uppercase; }
-    .modal input, .modal textarea, .modal select { width: 100%; background: #0f0f14; color: #e6e6ea; border: 1px solid #2a2a35; border-radius: 4px; padding: .5rem; font-family: inherit; font-size: .95rem; box-sizing: border-box; }
+    .modal input[type=text], .modal input[type=date], .modal textarea, .modal select { width: 100%; background: #0f0f14; color: #e6e6ea; border: 1px solid #2a2a35; border-radius: 4px; padding: .5rem; font-family: inherit; font-size: .95rem; box-sizing: border-box; }
     .modal textarea { min-height: 120px; resize: vertical; }
     .modal .btn-row { display: flex; gap: .5rem; justify-content: flex-end; margin-top: 1.5rem; }
+    .modal button.action { background: #2a2a35; color: #e6e6ea; border: 1px solid #3a3a45; padding: .5rem 1rem; border-radius: 4px; cursor: pointer; }
+    .modal button.action:hover { background: #3a3a45; }
+    .modal button.primary { background: #2563eb; border-color: #2563eb; color: white; }
+    .modal button.primary:hover { background: #1d4ed8; }
+    .modal button.danger { background: #7f1d1d; border-color: #7f1d1d; color: white; }
+    .modal button.danger:hover { background: #991b1b; }
+
+    .radio-group { display: flex; flex-direction: column; gap: .5rem; margin-top: .5rem; }
+    .radio-opt { display: flex; align-items: center; gap: .5rem; padding: .5rem; background: #0f0f14; border: 1px solid #2a2a35; border-radius: 4px; cursor: pointer; }
+    .radio-opt:hover { background: #15151b; border-color: #3a3a45; }
+    .radio-opt input[type=radio] { margin: 0; width: auto; }
+    .radio-opt.checked { border-color: #7f1d1d; background: #1a0f0f; }
 
     .loading { color: #888; font-style: italic; }
     .erro { color: #f87171; background: #2a1515; padding: .5rem 1rem; border-radius: 4px; border: 1px solid #552222; }
@@ -81,21 +153,38 @@
     <button onclick="gerarSugestoesIA()" id="btn-gerar-ia">🔄 Gerar 2 sugestões com IA</button>
   </div>
 
+  <!-- Painel de foco de consoles -->
+  <div class="focus-panel">
+    <div class="focus-header" id="focus-toggle" onclick="toggleFocusPanel()">
+      <span>🎯 <strong>Focar em consoles específicos</strong> <span id="focus-counter" style="color:#86efac;"></span></span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="focus-body" id="focus-body">
+      <div class="focus-grid" id="focus-grid">
+        <div class="loading">Carregando consoles…</div>
+      </div>
+      <div class="focus-hint">Se nenhum for marcado, a IA escolhe com base em performance do canal.</div>
+      <div style="margin-top: .5rem; font-size: .8rem;">
+        <button onclick="limparFocus()" style="background:none;border:1px solid #3a3a45;color:#888;padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.8rem;">Limpar seleção</button>
+      </div>
+    </div>
+  </div>
+
   <div class="filter-bar" id="filter-bar">
     <button data-filter="todos" class="active">Todos</button>
     <button data-filter="ideia">Ideia</button>
-    <button data-filter="planejado">Planejado</button>
+    <button data-filter="planejado">Aprovados</button>
     <button data-filter="gravando">Gravando</button>
     <button data-filter="edicao">Edição</button>
     <button data-filter="publicado">Publicado</button>
-    <button data-filter="rejeitada">Rejeitada</button>
+    <button data-filter="rejeitada">Rejeitados</button>
   </div>
 
   <div id="lista">
     <div class="loading">Carregando sugestões…</div>
   </div>
 
-  <!-- Modal de edição -->
+  <!-- Modal edição -->
   <div class="modal-bg" id="modal-edit">
     <div class="modal">
       <h3>Editar sugestão</h3>
@@ -142,6 +231,7 @@
       </div>
     </div>
   </div>
+
   <!-- Modal visualizar script -->
   <div class="modal-bg" id="modal-script">
     <div class="modal" style="max-width: 900px;">
@@ -153,23 +243,39 @@
       <pre id="script-conteudo" style="background:#0f0f14;color:#e6e6ea;border:1px solid #2a2a35;border-radius:4px;padding:1rem;max-height:60vh;overflow-y:auto;white-space:pre-wrap;font-family:inherit;font-size:.9rem;line-height:1.5;"></pre>
     </div>
   </div>
-  <!-- Toast de feedback -->
+
+  <!-- Modal rejeitar -->
+  <div class="modal-bg" id="modal-rejeitar">
+    <div class="modal" style="max-width: 600px;">
+      <h3>✕ Rejeitar sugestão</h3>
+      <input type="hidden" id="rejeitar-id">
+      <div id="rejeitar-titulo-preview" style="color:#b8b8c2;margin-bottom:1rem;padding:.75rem;background:#0f0f14;border-radius:4px;border:1px solid #2a2a35;font-size:.9rem;"></div>
+
+      <label>Por quê?</label>
+      <div class="radio-group" id="rejeitar-motivos">
+        <label class="radio-opt"><input type="radio" name="motivo" value="tema"> Tema não me interessa</label>
+        <label class="radio-opt"><input type="radio" name="motivo" value="titulo"> Título fraco / distante do que quero</label>
+        <label class="radio-opt"><input type="radio" name="motivo" value="ja_fiz"> Já fiz algo parecido</label>
+        <label class="radio-opt"><input type="radio" name="motivo" value="receita"> Potencial de receita baixo</label>
+        <label class="radio-opt"><input type="radio" name="motivo" value="outro"> Outro (descreva abaixo)</label>
+      </div>
+
+      <label style="margin-top:1rem;">Comentário adicional (opcional)</label>
+      <textarea id="rejeitar-comentario" placeholder="Detalhe o que te incomodou — isso ensina a IA a sugerir melhor." style="min-height: 80px;"></textarea>
+
+      <div class="btn-row">
+        <button class="action" onclick="fecharModal('modal-rejeitar')">Cancelar</button>
+        <button class="action danger" onclick="confirmarRejeicao()">Rejeitar</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // ============================================
-    // CONFIG
-    // ============================================
     const SUPABASE_URL = 'https://ryspohcflrxjwwghvvqc.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_OzoD3gbIn4GoJ6szjwdkhw_KFGAGNsh';
-
-    // ⚠️ O DASHBOARD_SECRET fica VISÍVEL no JS do navegador.
-    // Isso é aceitável porque:
-    // 1. O dashboard é privado por obscuridade (URL só você conhece)
-    // 2. O secret só dá acesso ao endpoint, não aos dados
-    // 3. Vercel + Anthropic têm limite de gasto configurado
-    // Pra proteção real, ativar Supabase Auth no Ciclo 2.
     const API_URL = 'https://capovilla-api.vercel.app/api/claude';
     const DASHBOARD_SECRET = 'capovilla-dashboard-2026-secreto-aleatorio-x7k9m2p4';
 
@@ -177,11 +283,19 @@
     const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let cachesugestoes = [];
+    let cacheConsoles = [];
     let filtroAtivo = 'todos';
 
-    // ============================================
-    // Helpers
-    // ============================================
+    const MOTIVOS_LABELS = {
+      tema: 'Tema não interessa',
+      titulo: 'Título fraco',
+      ja_fiz: 'Já fiz algo parecido',
+      receita: 'Potencial de receita baixo',
+      outro: 'Outro',
+    };
+
+    const CAMPOS_AUDITADOS = ['titulo_sugerido', 'tema', 'motivo', 'script', 'status', 'data_publicacao_prevista'];
+
     const fmtData = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
     const escapeHtml = s => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -195,13 +309,9 @@
     async function callClaude(prompt, maxTokens = 2000, systemPrompt = null) {
       const body = { prompt, max_tokens: maxTokens };
       if (systemPrompt) body.system = systemPrompt;
-
       const resp = await fetch(API_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-dashboard-secret': DASHBOARD_SECRET,
-        },
+        headers: { 'Content-Type': 'application/json', 'x-dashboard-secret': DASHBOARD_SECRET },
         body: JSON.stringify(body),
       });
       const data = await resp.json();
@@ -209,15 +319,74 @@
       return data.text;
     }
 
+    function fecharModal(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+
     // ============================================
-    // Listagem
+    // Consoles (painel de foco)
+    // ============================================
+    async function carregarConsoles() {
+      const { data, error } = await db.from('consoles')
+        .select('*').eq('ativo', true).order('ordem').order('nome');
+      if (error) {
+        document.getElementById('focus-grid').innerHTML = `<div class="loading">Erro: ${error.message}</div>`;
+        return;
+      }
+      cacheConsoles = data || [];
+      renderizarFocusGrid();
+    }
+
+    function renderizarFocusGrid() {
+      const grid = document.getElementById('focus-grid');
+      if (!cacheConsoles.length) {
+        grid.innerHTML = '<div class="loading">Nenhum console cadastrado. Vá em Configurações.</div>';
+        return;
+      }
+      grid.innerHTML = cacheConsoles.map(c => `
+        <label class="focus-chip">
+          <input type="checkbox" value="${escapeHtml(c.nome)}" onchange="atualizarFocusCounter()">
+          <span>${escapeHtml(c.nome)}</span>
+        </label>
+      `).join('');
+    }
+
+    function toggleFocusPanel() {
+      document.getElementById('focus-toggle').classList.toggle('open');
+      document.getElementById('focus-body').classList.toggle('open');
+    }
+
+    function atualizarFocusCounter() {
+      const marcados = document.querySelectorAll('#focus-grid input[type="checkbox"]:checked');
+      const counter = document.getElementById('focus-counter');
+
+      // Atualiza visual dos chips
+      document.querySelectorAll('.focus-chip').forEach(chip => {
+        const cb = chip.querySelector('input[type="checkbox"]');
+        chip.classList.toggle('checked', cb.checked);
+      });
+
+      if (marcados.length === 0) {
+        counter.textContent = '';
+      } else {
+        counter.textContent = `(${marcados.length} selecionado${marcados.length === 1 ? '' : 's'})`;
+      }
+    }
+
+    function limparFocus() {
+      document.querySelectorAll('#focus-grid input[type="checkbox"]').forEach(cb => cb.checked = false);
+      atualizarFocusCounter();
+    }
+
+    function getConsolesSelecionados() {
+      return Array.from(document.querySelectorAll('#focus-grid input[type="checkbox"]:checked')).map(cb => cb.value);
+    }
+
+    // ============================================
+    // Listagem de sugestões
     // ============================================
     async function carregar() {
-      const { data, error } = await db
-        .from('sugestoes')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+      const { data, error } = await db.from('sugestoes').select('*').order('created_at', { ascending: false });
       if (error) {
         document.getElementById('lista').innerHTML = `<div class="erro">❌ ${error.message}</div>`;
         return;
@@ -226,45 +395,91 @@
       renderizar();
     }
 
+    function parseFeedback(feedback) {
+      if (!feedback) return null;
+      try {
+        const obj = JSON.parse(feedback);
+        return { motivo: obj.motivo, label: MOTIVOS_LABELS[obj.motivo] || obj.motivo, comentario: obj.comentario, data: obj.data };
+      } catch {
+        return { motivo: 'texto', label: null, comentario: feedback };
+      }
+    }
+
     function renderizar() {
       const lista = document.getElementById('lista');
-      const filtradas = filtroAtivo === 'todos'
-        ? cachesugestoes
-        : cachesugestoes.filter(s => s.status === filtroAtivo);
+      const filtradas = filtroAtivo === 'todos' ? cachesugestoes : cachesugestoes.filter(s => s.status === filtroAtivo);
 
       if (filtradas.length === 0) {
         lista.innerHTML = '<div class="empty">Nenhuma sugestão nesse filtro.</div>';
         return;
       }
 
-      lista.innerHTML = filtradas.map(s => `
-        <div class="sug-card" data-id="${s.id}">
-          <div class="sug-header">
-            <div>
-              <div class="sug-titulo">${escapeHtml(s.titulo_sugerido || s.tema || 'Sem título')}</div>
-              <div class="sug-legacy">${escapeHtml(s.legacy_id || s.id.substring(0,8))} · ${fmtData(s.data_publicacao_prevista)}</div>
+      lista.innerHTML = filtradas.map(s => {
+        const feedback = parseFeedback(s.feedback_edicao);
+        const isRejeitada = s.status === 'rejeitada';
+        const jaAprovada = s.status !== 'ideia' && s.status !== 'rejeitada';
+        const consolesFoco = Array.isArray(s.consoles_foco) ? s.consoles_foco : [];
+
+        return `
+          <div class="sug-card" data-id="${s.id}">
+            <div class="card-actions-corner">
+              <button class="icon-btn" onclick="abrirEditor('${s.id}')" title="Editar">✏️</button>
+              <button class="icon-btn danger" onclick="apagarSugestao('${s.id}')" title="Apagar">🗑️</button>
             </div>
-            <span class="status-badge status-${s.status}">${s.status}</span>
+
+            <div class="sug-header">
+              <div>
+                <div class="sug-titulo">${escapeHtml(s.titulo_sugerido || s.tema || 'Sem título')}</div>
+                <div class="sug-legacy">
+                  ${escapeHtml(s.legacy_id || s.id.substring(0,8))} · ${fmtData(s.data_publicacao_prevista)}
+                  <span class="status-badge status-${s.status}" style="margin-left:.5rem;">${s.status}</span>
+                </div>
+                ${consolesFoco.length ? `<div style="margin-top:.3rem;">${consolesFoco.map(c => `<span class="console-tag">🎮 ${escapeHtml(c)}</span>`).join('')}</div>` : ''}
+              </div>
+            </div>
+
+            <div class="sug-motivo" id="motivo-${s.id}">${escapeHtml(s.motivo || 'Sem raciocínio registrado.')}</div>
+            ${(s.motivo || '').length > 200 ? `<button class="expand-btn" onclick="toggleMotivo('${s.id}')">Ver completo ▾</button>` : ''}
+
+            ${feedback && isRejeitada ? `
+              <div class="feedback-tag">
+                <strong>Motivo:</strong> ${escapeHtml(feedback.label || feedback.motivo || '?')}
+                ${feedback.comentario ? `<br><em>"${escapeHtml(feedback.comentario)}"</em>` : ''}
+              </div>
+            ` : ''}
+
+            ${s.script ? `
+              <div class="script-preview">
+                <button onclick="verScript('${s.id}')">📜 Ver script (${s.script.length} chars)</button>
+              </div>
+            ` : ''}
+
+            ${!jaAprovada && !isRejeitada ? `
+              <div class="sug-actions">
+                <button class="btn-aprovar" id="btn-aprovar-${s.id}" onclick="aprovar('${s.id}')">✓ Aprovar e gerar script</button>
+                <button class="btn-rejeitar" onclick="abrirRejeitar('${s.id}')">✕ Rejeitar</button>
+              </div>
+            ` : ''}
           </div>
-          <div class="sug-motivo" id="motivo-${s.id}">${escapeHtml(s.motivo || 'Sem raciocínio registrado.')}</div>
-          ${(s.motivo || '').length > 200 ? `<button class="expand-btn" onclick="toggleMotivo('${s.id}')">Ver completo ▾</button>` : ''}
-          ${s.script ? `<div style="margin-top:.5rem;">
-            <button class="action" onclick="verScript('${s.id}')" style="color:#86efac;border-color:#2a8f52;">📜 Ver script (${s.script.length} chars)</button>
-          </div>` : ''}
-          <div class="sug-actions">
-            <button class="action" onclick="abrirEditor('${s.id}')">✏️ Editar</button>
-            <button class="action" onclick="mudarStatus('${s.id}', 'planejado')">📋 Planejar</button>
-            <button class="action" onclick="mudarStatus('${s.id}', 'gravando')">🎬 Gravar</button>
-            <button class="action danger" onclick="mudarStatus('${s.id}', 'rejeitada')">✕ Rejeitar</button>
-            <button class="action danger" onclick="apagarSugestao('${s.id}')">🗑️ Apagar</button>
-            <button class="action primary" onclick="gerarScript('${s.id}')">🧠 Gerar script</button>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function toggleMotivo(id) {
       document.getElementById('motivo-' + id).classList.toggle('expanded');
+    }
+
+    // ============================================
+    // Apagar sugestão
+    // ============================================
+    async function apagarSugestao(id) {
+      const s = cachesugestoes.find(x => x.id === id);
+      if (!s) return;
+      if (!confirm(`Apagar permanentemente?\n\n"${s.titulo_sugerido || s.tema}"\n\nIsso remove a sugestão e seu histórico de edições.`)) return;
+      const { error } = await db.from('sugestoes').delete().eq('id', id);
+      if (error) return toast('Erro: ' + error.message, 'error');
+      toast('Apagada', 'success');
+      await carregar();
     }
 
     // ============================================
@@ -279,12 +494,116 @@
     });
 
     // ============================================
-    // Ações rápidas
+    // Aprovar → gera script + muda status
     // ============================================
-    
+    async function aprovar(id) {
+      const s = cachesugestoes.find(x => x.id === id);
+      if (!s) return;
+
+      if (!confirm(`Aprovar "${s.titulo_sugerido}"?\n\nIsso vai:\n• Gerar script completo via IA (~15s)\n• Mover pra "Planejado" no Cronograma`)) return;
+
+      const btn = document.getElementById('btn-aprovar-' + id);
+      btn.disabled = true;
+      btn.textContent = '⏳ Gerando script...';
+      toast('🧠 Gerando script e aprovando...', 'info');
+
+      const systemPrompt = `Você é um roteirista de YouTube especializado em canal brasileiro sobre games e retrô. O criador é Guilherme Capovilla (@guilhermecapovilla), 29 anos, tom emocional/nostálgico, não técnico. Adultos brasileiros gamers, 28-40 anos. RPM alto vem de vídeos de Switch Lite destravado. Linguagem: fala direta, primeira pessoa, gatilhos de nostalgia e culpa ("videogame como autocuidado"). Aberturas são storytelling pessoal, não "fala galera".`;
+
+      const consolesFoco = Array.isArray(s.consoles_foco) ? s.consoles_foco : [];
+      const consolesBloco = consolesFoco.length
+        ? `\nCONSOLE(S) FOCO DESSA IDEIA: ${consolesFoco.join(', ')}\n`
+        : '';
+
+      const prompt = `Escreva um roteiro completo para este vídeo de YouTube do canal do Guilherme Capovilla.
+
+TÍTULO: ${s.titulo_sugerido}
+TEMA: ${s.tema || '(não definido)'}
+${consolesBloco}
+CONTEXTO/RACIOCÍNIO DA IDEIA:
+${s.motivo || '(sem contexto adicional)'}
+
+Estrutura do roteiro:
+- ABERTURA (30-45s): gancho emocional/nostálgico em primeira pessoa, sem "fala galera". Já entrega a promessa do vídeo.
+- DESENVOLVIMENTO (dividido em 3-5 blocos): cada bloco com título interno, duração estimada e texto corrido do que falar.
+- CTA INTERMEDIÁRIO: 1 menção de like/inscreva no meio do vídeo, integrada na conversa.
+- CONVERSÃO (se houver produto Shopee relacionado): apresentação do produto sem ser forçada, com link de afiliado mencionado naturalmente.
+- FECHAMENTO: resume o que foi mostrado e deixa gancho emocional final pro espectador.
+
+Formato: markdown. Use **negrito** pros títulos dos blocos. Duração total alvo: 8-12 minutos.`;
+
+      try {
+        const script = await callClaude(prompt, 4000, systemPrompt);
+
+        // Registra edição de status (aprovação) no histórico
+        await registrarEdicao(id, 'status', s.status, 'planejado');
+
+        const { error } = await db.from('sugestoes')
+          .update({ script, status: 'planejado' })
+          .eq('id', id);
+        if (error) throw error;
+        toast('✅ Aprovada! Script gerado. Veja no Cronograma.', 'success');
+        await carregar();
+      } catch (err) {
+        toast('Erro: ' + err.message, 'error');
+        btn.disabled = false;
+        btn.textContent = '✓ Aprovar e gerar script';
+      }
+    }
+
+    // ============================================
+    // Rejeitar
+    // ============================================
+    function abrirRejeitar(id) {
+      const s = cachesugestoes.find(x => x.id === id);
+      if (!s) return;
+      document.getElementById('rejeitar-id').value = id;
+      document.getElementById('rejeitar-titulo-preview').textContent = s.titulo_sugerido || s.tema || 'Sem título';
+      document.getElementById('rejeitar-comentario').value = '';
+      document.querySelectorAll('input[name="motivo"]').forEach(r => r.checked = false);
+      document.querySelectorAll('.radio-opt').forEach(o => o.classList.remove('checked'));
+      document.getElementById('modal-rejeitar').classList.add('show');
+    }
+
+    document.getElementById('rejeitar-motivos').addEventListener('change', e => {
+      document.querySelectorAll('.radio-opt').forEach(o => o.classList.remove('checked'));
+      e.target.closest('.radio-opt').classList.add('checked');
+    });
+
+    async function confirmarRejeicao() {
+      const id = document.getElementById('rejeitar-id').value;
+      const motivoSelecionado = document.querySelector('input[name="motivo"]:checked');
+      const comentario = document.getElementById('rejeitar-comentario').value.trim();
+
+      if (!motivoSelecionado) return toast('Escolha um motivo', 'error');
+
+      const motivo = motivoSelecionado.value;
+      if (motivo === 'outro' && !comentario) {
+        return toast('Descreva no campo "Outro"', 'error');
+      }
+
+      const feedback = JSON.stringify({
+        motivo, comentario: comentario || null, data: new Date().toISOString(),
+      });
+
+      const s = cachesugestoes.find(x => x.id === id);
+      await registrarEdicao(id, 'status', s?.status || null, 'rejeitada');
+
+      const { error } = await db.from('sugestoes')
+        .update({ status: 'rejeitada', feedback_edicao: feedback })
+        .eq('id', id);
+
+      if (error) return toast('Erro: ' + error.message, 'error');
+      fecharModal('modal-rejeitar');
+      toast('Rejeitada. A IA vai aprender com isso.', 'success');
+      await carregar();
+    }
+
+    // ============================================
+    // Script viewer
+    // ============================================
     function verScript(id) {
       const s = cachesugestoes.find(x => x.id === id);
-      if (!s || !s.script) return toast('Script ainda não foi gerado', 'error');
+      if (!s || !s.script) return toast('Script não encontrado', 'error');
       document.getElementById('script-titulo').textContent = '📜 ' + (s.titulo_sugerido || 'Script');
       document.getElementById('script-conteudo').textContent = s.script;
       document.getElementById('modal-script').classList.add('show');
@@ -294,30 +613,35 @@
       const texto = document.getElementById('script-conteudo').textContent;
       try {
         await navigator.clipboard.writeText(texto);
-        toast('Script copiado pra área de transferência', 'success');
+        toast('Script copiado', 'success');
       } catch (e) {
-        toast('Não foi possível copiar: ' + e.message, 'error');
+        toast('Erro ao copiar: ' + e.message, 'error');
       }
-    }
-   async function apagarSugestao(id) {
-      const s = cachesugestoes.find(x => x.id === id);
-      if (!s) return;
-      if (!confirm(`Apagar permanentemente "${s.titulo_sugerido}"?`)) return;
-      const { error } = await db.from('sugestoes').delete().eq('id', id);
-      if (error) return toast('Erro: ' + error.message, 'error');
-      toast('Sugestão apagada', 'success');
-      await carregar();
-    }
-
-    async function mudarStatus(id, novoStatus) {
-      const { error } = await db.from('sugestoes').update({ status: novoStatus }).eq('id', id);
-      if (error) return toast('Erro: ' + error.message, 'error');
-      toast(`Status atualizado para ${novoStatus}`, 'success');
-      await carregar();
     }
 
     // ============================================
-    // Modal edição
+    // Registro automático de edição (histórico)
+    // ============================================
+    async function registrarEdicao(sugestaoId, campo, valorAntigo, valorNovo) {
+      // Skip se valores iguais (ou ambos vazios)
+      const antigoStr = valorAntigo == null ? '' : String(valorAntigo);
+      const novoStr = valorNovo == null ? '' : String(valorNovo);
+      if (antigoStr === novoStr) return;
+
+      try {
+        await db.from('sugestoes_edicoes').insert([{
+          sugestao_id: sugestaoId,
+          campo,
+          valor_antigo: antigoStr || null,
+          valor_novo: novoStr || null,
+        }]);
+      } catch (e) {
+        console.warn('Falha ao registrar edição (não-crítico):', e.message);
+      }
+    }
+
+    // ============================================
+    // Editar sugestão
     // ============================================
     function abrirEditor(id) {
       const s = cachesugestoes.find(x => x.id === id);
@@ -325,20 +649,18 @@
       document.getElementById('edit-id').value = s.id;
       document.getElementById('edit-titulo').value = s.titulo_sugerido || '';
       document.getElementById('edit-tema').value = s.tema || '';
-      document.getElementById('edit-status').value = s.status || 'gerada';
+      document.getElementById('edit-status').value = s.status || 'ideia';
       document.getElementById('edit-data').value = s.data_publicacao_prevista || '';
       document.getElementById('edit-motivo').value = s.motivo || '';
       document.getElementById('edit-script').value = s.script || '';
       document.getElementById('modal-edit').classList.add('show');
     }
 
-    function fecharModal(id) {
-      document.getElementById(id).classList.remove('show');
-    }
-
     async function salvarEdicao() {
       const id = document.getElementById('edit-id').value;
-      const payload = {
+      const original = cachesugestoes.find(x => x.id === id) || {};
+
+      const novo = {
         titulo_sugerido: document.getElementById('edit-titulo').value || null,
         tema: document.getElementById('edit-tema').value || null,
         status: document.getElementById('edit-status').value,
@@ -346,10 +668,16 @@
         motivo: document.getElementById('edit-motivo').value || null,
         script: document.getElementById('edit-script').value || null,
       };
-      const { error } = await db.from('sugestoes').update(payload).eq('id', id);
+
+      // Registra mudanças em cada campo auditado (antes do UPDATE)
+      for (const campo of CAMPOS_AUDITADOS) {
+        await registrarEdicao(id, campo, original[campo], novo[campo]);
+      }
+
+      const { error } = await db.from('sugestoes').update(novo).eq('id', id);
       if (error) return toast('Erro: ' + error.message, 'error');
       fecharModal('modal-edit');
-      toast('Sugestão atualizada', 'success');
+      toast('Sugestão atualizada (edições registradas)', 'success');
       await carregar();
     }
 
@@ -367,7 +695,6 @@
       const titulo = document.getElementById('nova-titulo').value.trim();
       const tema = document.getElementById('nova-tema').value.trim();
       const motivo = document.getElementById('nova-motivo').value.trim();
-
       if (!titulo) return toast('Título é obrigatório', 'error');
 
       const payload = {
@@ -385,70 +712,23 @@
     }
 
     // ============================================
-    // Gerar script via Claude
-    // ============================================
-    async function gerarScript(id) {
-      const s = cachesugestoes.find(x => x.id === id);
-      if (!s) return;
-
-      if (!confirm(`Gerar script para:\n\n"${s.titulo_sugerido}"\n\nIsso consome tokens da Anthropic. Continuar?`)) return;
-
-      toast('🧠 Gerando script... aguarde ~15s', 'info');
-
-      const systemPrompt = `Você é um roteirista de YouTube especializado em canal brasileiro sobre games e retrô. O criador é Guilherme Capovilla (@guilhermecapovilla), 29 anos, tom emocional/nostálgico, não técnico. Adultos brasileiros gamers, 28-40 anos. RPM alto vem de vídeos de Switch Lite destravado. Linguagem: fala direta, primeira pessoa, gatilhos de nostalgia e culpa ("videogame como autocuidado"). Aberturas são storytelling pessoal, não "fala galera".`;
-
-      const prompt = `Escreva um roteiro completo para este vídeo de YouTube do canal do Guilherme Capovilla.
-
-TÍTULO: ${s.titulo_sugerido}
-TEMA: ${s.tema || '(não definido)'}
-
-CONTEXTO/RACIOCÍNIO DA IDEIA:
-${s.motivo || '(sem contexto adicional)'}
-
-Estrutura do roteiro:
-- ABERTURA (30-45s): gancho emocional/nostálgico em primeira pessoa, sem "fala galera". Já entrega a promessa do vídeo.
-- DESENVOLVIMENTO (dividido em 3-5 blocos): cada bloco com título interno, duração estimada e texto corrido do que falar.
-- CTA INTERMEDIÁRIO: 1 menção de like/inscreva no meio do vídeo, integrada na conversa.
-- CONVERSÃO (se houver produto Shopee relacionado): apresentação do produto sem ser forçada, com link de afiliado mencionado naturalmente.
-- FECHAMENTO: resume o que foi mostrado e deixa gancho emocional final pro espectador.
-
-Formato: markdown. Use **negrito** pros títulos dos blocos. Duração total alvo: 8-12 minutos.`;
-
-      try {
-        const script = await callClaude(prompt, 4000, systemPrompt);
-        const { error } = await db.from('sugestoes')
-          .update({ script, status: 'aprovada' })
-          .eq('id', id);
-        if (error) throw error;
-        toast('✅ Script gerado e salvo!', 'success');
-        await carregar();
-      } catch (err) {
-        toast('Erro: ' + err.message, 'error');
-      }
-    }
-
-    // ============================================
-    // Gerar 2 sugestões com IA
+    // Gerar 2 sugestões com IA (prompt enriquecido + foco de consoles)
     // ============================================
     async function gerarSugestoesIA() {
       const btn = document.getElementById('btn-gerar-ia');
       btn.disabled = true;
       btn.textContent = '🔄 Gerando...';
-      toast('🧠 Coletando contexto + chamando Claude... aguarde ~20s', 'info');
+
+      const consolesFoco = getConsolesSelecionados();
+      const focoMsg = consolesFoco.length
+        ? ` focando em: ${consolesFoco.join(', ')}`
+        : '';
+      toast('🧠 Coletando contexto rico' + focoMsg + '... aguarde ~30s', 'info');
 
       try {
-        // 1. Busca top 10 vídeos do canal por receita recente
-        const { data: metricas } = await db
-          .from('videos_metricas')
-          .select('video_id, views, rpm, receita_estimada')
-          .order('receita_estimada', { ascending: false })
-          .limit(10);
-
+        const { data: metricas } = await db.from('videos_metricas').select('video_id, views, rpm, receita_estimada').order('receita_estimada', { ascending: false }).limit(10);
         const ids = metricas.map(m => m.video_id);
-        const { data: videos } = await db
-          .from('videos')
-          .select('video_id, titulo, console')
-          .in('video_id', ids);
+        const { data: videos } = await db.from('videos').select('video_id, titulo, console, transcricao').in('video_id', ids);
         const vMap = Object.fromEntries(videos.map(v => [v.video_id, v]));
 
         const topVideos = metricas.map(m => {
@@ -456,75 +736,115 @@ Formato: markdown. Use **negrito** pros títulos dos blocos. Duração total alv
           return `- "${v.titulo}" (${v.console}) — ${m.views} views, R$${m.rpm?.toFixed(2)} RPM, R$${m.receita_estimada?.toFixed(2)} receita`;
         }).join('\n');
 
-        // 2. Busca top vídeos de concorrentes
-        const { data: concVids } = await db
-          .from('concorrentes_videos')
-          .select('titulo, views, concorrentes(nome)')
-          .order('views', { ascending: false })
-          .limit(15);
+        const vozAmostras = videos
+          .filter(v => v.transcricao && v.transcricao.length > 500)
+          .slice(0, 3)
+          .map(v => `--- "${v.titulo}" (abertura):\n${v.transcricao.substring(0, 800).trim()}...`)
+          .join('\n\n');
 
-        const topConc = concVids.map(v =>
-          `- "${v.titulo}" (${v.concorrentes?.nome || '?'}) — ${v.views} views`
-        ).join('\n');
+        const { data: concVidsRaw } = await db.from('concorrentes_videos').select('titulo, views, resumo_ia, concorrentes(nome)').order('views', { ascending: false }).limit(20);
+        const concComResumo = concVidsRaw.filter(v => v.resumo_ia && v.resumo_ia.length > 100).slice(0, 8);
+        const concSoTitulo = concVidsRaw.filter(v => !v.resumo_ia || v.resumo_ia.length <= 100).slice(0, 10);
 
-        // 3. Últimas sugestões pra evitar repetir
-        const { data: ultimas } = await db
-          .from('sugestoes')
-          .select('titulo_sugerido')
-          .order('created_at', { ascending: false })
-          .limit(10);
+        const concRicos = concComResumo.map(v => `### "${v.titulo}" (${v.concorrentes?.nome || '?'}) — ${v.views} views\n${v.resumo_ia.substring(0, 800)}`).join('\n\n');
+        const concTitulos = concSoTitulo.map(v => `- "${v.titulo}" (${v.concorrentes?.nome || '?'}) — ${v.views} views`).join('\n');
+
+        const { data: ultimas } = await db.from('sugestoes').select('titulo_sugerido').order('created_at', { ascending: false }).limit(10);
         const ultimasStr = ultimas.map(s => `- ${s.titulo_sugerido}`).join('\n');
 
-        // 4. Monta prompt
-        const systemPrompt = `Você é um curador editorial para o canal YouTube @guilhermecapovilla (games/retrô, Brasil, adultos 28-40 anos). Foco em conteúdo emocional/nostálgico, não técnico. RPM histórico mostra: Switch Lite destravado = RPM R$295+, PS4/PS3 destravado = bom para views e receita. Concorrentes técnicos dominam o nicho, a LACUNA é lifestyle/rotina/emocional.`;
+        const { data: rejeitadas } = await db.from('sugestoes').select('titulo_sugerido, feedback_edicao').eq('status', 'rejeitada').order('created_at', { ascending: false }).limit(10);
+        const rejeicoesStr = rejeitadas.filter(r => r.feedback_edicao).map(r => {
+          const fb = parseFeedback(r.feedback_edicao);
+          return `- "${r.titulo_sugerido}" — REJEITADA: ${fb?.label || '?'}${fb?.comentario ? ' ("' + fb.comentario + '")' : ''}`;
+        }).join('\n') || '(nenhuma rejeição registrada ainda)';
 
-        const prompt = `Gere **exatamente 2 sugestões** de novos vídeos para o canal.
+        // ⭐ NOVO: bloco de foco de consoles
+        const focusBloco = consolesFoco.length
+          ? `\n### 🎯 FOCO OBRIGATÓRIO
+O criador pediu que as duas sugestões desta rodada sejam OBRIGATORIAMENTE sobre:
+${consolesFoco.map(c => `- ${c}`).join('\n')}
 
-TOP VÍDEOS DO CANAL (últimos dados):
+Não sugira vídeos de outros consoles. Se não houver 2 ângulos distintos dentro desse(s) console(s), crie 2 ângulos diferentes (ex: nostálgico vs utilidade prática).\n`
+          : '';
+
+        const systemPrompt = `Você é um curador editorial sênior para o canal YouTube @guilhermecapovilla (games/retrô, Brasil, adultos 28-40 anos). O criador é Guilherme Capovilla, 29, tom EMOCIONAL/NOSTÁLGICO, não técnico. Sua tarefa é gerar sugestões de vídeo que:
+1. HONREM A VOZ DO CRIADOR (amostras reais serão fornecidas)
+2. EXPLOREM LACUNAS do que concorrentes fazem
+3. TENHAM POTENCIAL DE RECEITA (Switch Lite destravado = RPM R$295+, PS4/PS3 destravado = bom)
+4. EVITEM PADRÕES REJEITADOS pelo criador (lista de rejeições será fornecida)
+5. RESPEITEM O FOCO DE CONSOLES (se o criador especificou)
+
+NUNCA sugira tom técnico, tom "fala galera", ou ranking frio. Sempre storytelling em primeira pessoa com gancho emocional.`;
+
+        const prompt = `## CONTEXTO
+
+### TOP VÍDEOS DO CANAL (performance real)
 ${topVideos}
 
-TOP VÍDEOS DOS CONCORRENTES (últimos 15):
-${topConc}
+### VOZ DO CRIADOR (amostras reais de aberturas)
+${vozAmostras || '(sem transcrições disponíveis ainda)'}
 
-ÚLTIMAS SUGESTÕES JÁ GERADAS (NÃO REPETIR):
+### CONCORRENTES — análises estruturadas dos top vídeos
+${concRicos || '(sem análises disponíveis)'}
+
+### CONCORRENTES — outros títulos monitorados
+${concTitulos}
+
+### SUGESTÕES JÁ GERADAS (NÃO REPETIR)
 ${ultimasStr}
 
-Para cada sugestão, retorne EXATAMENTE este formato JSON (e APENAS o JSON, sem explicação antes/depois):
+### SUGESTÕES REJEITADAS RECENTEMENTE
+${rejeicoesStr}
+${focusBloco}
+---
 
+## TAREFA
+
+Gere exatamente **2 sugestões** de vídeo. Para cada uma:
+
+1. Identifique qual LACUNA ocupa (o que os concorrentes NÃO estão fazendo)
+2. Aplique a VOZ DO CRIADOR (use expressões reais das amostras, tom emocional, primeira pessoa)
+3. Priorize o POTENCIAL DE RECEITA
+4. EVITE padrões rejeitados
+5. ${consolesFoco.length ? 'RESPEITE OS CONSOLES FOCO listados acima — obrigatório' : 'Console é livre — escolha com base em performance'}
+
+**Formato de saída — APENAS JSON, sem explicação antes/depois:**
+
+\`\`\`json
 [
   {
-    "titulo_sugerido": "título chamativo, até 70 chars",
+    "titulo_sugerido": "título chamativo, até 70 chars, em primeira pessoa quando possível",
     "tema": "tema central em 3-5 palavras",
-    "motivo": "raciocínio: por que essa sugestão agora, que concorrente provou demanda, qual lacuna ocupa, qual ângulo emocional/nostálgico. 150-300 palavras."
+    "motivo": "raciocínio estruturado em 4 parágrafos: (1) qual lacuna ocupa vs concorrentes, (2) como honra a voz do criador com exemplo concreto, (3) qual gatilho emocional explora (nostalgia/culpa/merecimento/status), (4) potencial de receita estimado e por quê. 250-400 palavras no total."
   },
   { ... }
-]`;
+]
+\`\`\``;
 
-        const resposta = await callClaude(prompt, 3000, systemPrompt);
+        const resposta = await callClaude(prompt, 4000, systemPrompt);
 
-        // 5. Extrai JSON
         let sugestoesNovas;
         try {
           const jsonMatch = resposta.match(/\[[\s\S]*\]/);
-          if (!jsonMatch) throw new Error('JSON não encontrado na resposta');
+          if (!jsonMatch) throw new Error('JSON não encontrado');
           sugestoesNovas = JSON.parse(jsonMatch[0]);
         } catch (e) {
           console.error('Resposta do Claude:', resposta);
           throw new Error('Claude não retornou JSON válido. Veja o console (F12).');
         }
 
-        // 6. Insere no Supabase
         const payload = sugestoesNovas.map((s, i) => ({
           legacy_id: `IA-${Date.now()}-${i + 1}`,
           titulo_sugerido: s.titulo_sugerido?.substring(0, 200),
           tema: s.tema?.substring(0, 200),
           motivo: s.motivo,
           status: 'ideia',
+          consoles_foco: consolesFoco.length ? consolesFoco : null,
         }));
         const { error } = await db.from('sugestoes').insert(payload);
         if (error) throw error;
 
-        toast(`✅ ${payload.length} sugestões criadas!`, 'success');
+        toast(`✅ ${payload.length} sugestões criadas${consolesFoco.length ? ' (com foco de consoles)' : ''}!`, 'success');
         await carregar();
       } catch (err) {
         console.error(err);
@@ -535,13 +855,14 @@ Para cada sugestão, retorne EXATAMENTE este formato JSON (e APENAS o JSON, sem 
       }
     }
 
-    // Fechar modal ao clicar fora
+    // Fechar modais ao clicar fora
     document.querySelectorAll('.modal-bg').forEach(bg => {
       bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('show'); });
     });
 
     // Boot
     carregar();
+    carregarConsoles();
   </script>
 </body>
 </html>
