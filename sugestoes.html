@@ -17,25 +17,15 @@
     .toolbar button:hover { background: #1d4ed8; }
     .toolbar button:disabled { opacity: .5; cursor: wait; }
 
-    .focus-panel {
-      background: #15151b; border: 1px solid #2a2a35; border-radius: 8px;
-      padding: .75rem 1rem; margin-bottom: 1rem;
-    }
-    .focus-header {
-      display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-      font-size: .9rem; color: #b8b8c2;
-    }
+    .focus-panel { background: #15151b; border: 1px solid #2a2a35; border-radius: 8px; padding: .75rem 1rem; margin-bottom: 1rem; }
+    .focus-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: .9rem; color: #b8b8c2; }
     .focus-header:hover { color: #fff; }
     .focus-header .arrow { transition: transform .2s; }
     .focus-header.open .arrow { transform: rotate(90deg); }
     .focus-body { display: none; padding-top: .75rem; border-top: 1px solid #2a2a35; margin-top: .75rem; }
     .focus-body.open { display: block; }
     .focus-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .5rem; margin-top: .5rem; }
-    .focus-chip {
-      display: flex; align-items: center; gap: .5rem;
-      padding: .5rem .75rem; background: #0f0f14; border: 1px solid #2a2a35;
-      border-radius: 4px; cursor: pointer; font-size: .85rem;
-    }
+    .focus-chip { display: flex; align-items: center; gap: .5rem; padding: .5rem .75rem; background: #0f0f14; border: 1px solid #2a2a35; border-radius: 4px; cursor: pointer; font-size: .85rem; }
     .focus-chip:hover { border-color: #3a3a45; }
     .focus-chip.checked { border-color: #2563eb; background: #1a2340; color: #93c5fd; }
     .focus-chip input { margin: 0; }
@@ -46,15 +36,8 @@
     .sug-titulo { font-size: 1.15rem; font-weight: 600; color: #fff; flex: 1; padding-right: 5rem; }
     .sug-legacy { font-size: .75rem; color: #666; font-family: monospace; margin-top: .25rem; }
 
-    .card-actions-corner {
-      position: absolute; top: .9rem; right: 1rem;
-      display: flex; gap: .4rem;
-    }
-    .icon-btn {
-      background: transparent; border: 1px solid #2a2a35; color: #666;
-      width: 32px; height: 32px; border-radius: 6px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; font-size: .9rem;
-    }
+    .card-actions-corner { position: absolute; top: .9rem; right: 1rem; display: flex; gap: .4rem; }
+    .icon-btn { background: transparent; border: 1px solid #2a2a35; color: #666; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: .9rem; }
     .icon-btn:hover { color: #60a5fa; border-color: #60a5fa; }
     .icon-btn.danger:hover { color: #fca5a5; border-color: #7f1d1d; }
 
@@ -66,42 +49,24 @@
     .status-publicado    { background: #3d1e5f; color: #c4b5fd; }
     .status-rejeitada    { background: #5c1e1e; color: #fca5a5; }
 
-    .console-tag {
-      display: inline-block; font-size: .7rem; background: #1a2340; color: #93c5fd;
-      padding: .15rem .5rem; border-radius: 3px; margin-right: .3rem; margin-top: .3rem;
-    }
+    .console-tag { display: inline-block; font-size: .7rem; background: #1a2340; color: #93c5fd; padding: .15rem .5rem; border-radius: 3px; margin-right: .3rem; margin-top: .3rem; }
 
     .sug-motivo { color: #b8b8c2; font-size: .9rem; line-height: 1.5; max-height: 4.5rem; overflow: hidden; margin: .5rem 0; white-space: pre-wrap; }
     .sug-motivo.expanded { max-height: none; }
     .expand-btn { background: none; border: none; color: #60a5fa; cursor: pointer; font-size: .85rem; padding: 0; margin-top: .25rem; }
 
-    .feedback-tag {
-      margin-top: .5rem; padding: .4rem .6rem; background: #2a1515; border-left: 3px solid #7f1d1d;
-      border-radius: 4px; font-size: .85rem; color: #fca5a5;
-    }
+    .feedback-tag { margin-top: .5rem; padding: .4rem .6rem; background: #2a1515; border-left: 3px solid #7f1d1d; border-radius: 4px; font-size: .85rem; color: #fca5a5; }
     .feedback-tag strong { color: #fecaca; }
 
-    .sug-actions {
-      display: flex; gap: .5rem; margin-top: 1rem; flex-wrap: wrap;
-      padding-top: 1rem; border-top: 1px solid #2a2a35;
-    }
-    button.btn-aprovar {
-      background: #1e4f2c; color: #86efac; border: 1px solid #2a8f52;
-      padding: .55rem 1.1rem; border-radius: 4px; cursor: pointer; font-size: .9rem; font-weight: 500;
-    }
+    .sug-actions { display: flex; gap: .5rem; margin-top: 1rem; flex-wrap: wrap; padding-top: 1rem; border-top: 1px solid #2a2a35; }
+    button.btn-aprovar { background: #1e4f2c; color: #86efac; border: 1px solid #2a8f52; padding: .55rem 1.1rem; border-radius: 4px; cursor: pointer; font-size: .9rem; font-weight: 500; }
     button.btn-aprovar:hover { background: #2a8f52; color: white; }
     button.btn-aprovar:disabled { opacity: .5; cursor: wait; }
-    button.btn-rejeitar {
-      background: transparent; color: #fca5a5; border: 1px solid #7f1d1d;
-      padding: .55rem 1.1rem; border-radius: 4px; cursor: pointer; font-size: .9rem;
-    }
+    button.btn-rejeitar { background: transparent; color: #fca5a5; border: 1px solid #7f1d1d; padding: .55rem 1.1rem; border-radius: 4px; cursor: pointer; font-size: .9rem; }
     button.btn-rejeitar:hover { background: #3d0a0a; }
 
     .script-preview { margin-top: .75rem; }
-    .script-preview button {
-      background: #1e4f2c; color: #86efac; border: 1px solid #2a8f52;
-      padding: .35rem .7rem; border-radius: 4px; cursor: pointer; font-size: .8rem;
-    }
+    .script-preview button { background: #1e4f2c; color: #86efac; border: 1px solid #2a8f52; padding: .35rem .7rem; border-radius: 4px; cursor: pointer; font-size: .8rem; }
     .script-preview button:hover { background: #2a8f52; color: white; }
 
     .filter-bar { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
@@ -153,7 +118,6 @@
     <button onclick="gerarSugestoesIA()" id="btn-gerar-ia">🔄 Gerar 2 sugestões com IA</button>
   </div>
 
-  <!-- Painel de foco de consoles -->
   <div class="focus-panel">
     <div class="focus-header" id="focus-toggle" onclick="toggleFocusPanel()">
       <span>🎯 <strong>Focar em consoles específicos</strong> <span id="focus-counter" style="color:#86efac;"></span></span>
@@ -184,7 +148,7 @@
     <div class="loading">Carregando sugestões…</div>
   </div>
 
-  <!-- Modal edição -->
+  <!-- Modal editar -->
   <div class="modal-bg" id="modal-edit">
     <div class="modal">
       <h3>Editar sugestão</h3>
@@ -223,8 +187,18 @@
       <input type="text" id="nova-titulo" placeholder="Ex: Comprei o PS3 destravado na Shopee">
       <label>Tema / Contexto</label>
       <input type="text" id="nova-tema" placeholder="Ex: PS3 destravado, nostalgia lan house">
-      <label>Motivo / Raciocínio (opcional)</label>
-      <textarea id="nova-motivo" placeholder="Por que fazer esse vídeo? Dados, ângulo, oportunidade..."></textarea>
+      <label>Motivo / Raciocínio (por que você decidiu gravar esse vídeo)</label>
+      <textarea id="nova-motivo" placeholder="Qual a ideia por trás? Que dor do público você quer resolver? Que ângulo você achou?"></textarea>
+      <label>Script completo (opcional — cole aqui se já tem roteiro pronto)</label>
+      <textarea id="nova-script" placeholder="Seu script em markdown. Pode deixar vazio se ainda não escreveu — dá pra adicionar depois pelo botão ✏️ Editar." style="min-height: 250px;"></textarea>
+      <label>Status inicial</label>
+      <select id="nova-status">
+        <option value="ideia">💡 Ideia (ainda não decidi)</option>
+        <option value="planejado">📋 Planejado (vou gravar)</option>
+        <option value="gravando" selected>🎬 Gravando (já gravei, vou publicar)</option>
+        <option value="edicao">✂️ Em edição</option>
+        <option value="publicado">📺 Publicado (retroativo)</option>
+      </select>
       <div class="btn-row">
         <button class="action" onclick="fecharModal('modal-nova')">Cancelar</button>
         <button class="action primary" onclick="salvarNovaSugestao()">Criar</button>
@@ -232,7 +206,7 @@
     </div>
   </div>
 
-  <!-- Modal visualizar script -->
+  <!-- Modal ver script -->
   <div class="modal-bg" id="modal-script">
     <div class="modal" style="max-width: 900px;">
       <h3 id="script-titulo">Script</h3>
@@ -250,7 +224,6 @@
       <h3>✕ Rejeitar sugestão</h3>
       <input type="hidden" id="rejeitar-id">
       <div id="rejeitar-titulo-preview" style="color:#b8b8c2;margin-bottom:1rem;padding:.75rem;background:#0f0f14;border-radius:4px;border:1px solid #2a2a35;font-size:.9rem;"></div>
-
       <label>Por quê?</label>
       <div class="radio-group" id="rejeitar-motivos">
         <label class="radio-opt"><input type="radio" name="motivo" value="tema"> Tema não me interessa</label>
@@ -259,10 +232,8 @@
         <label class="radio-opt"><input type="radio" name="motivo" value="receita"> Potencial de receita baixo</label>
         <label class="radio-opt"><input type="radio" name="motivo" value="outro"> Outro (descreva abaixo)</label>
       </div>
-
       <label style="margin-top:1rem;">Comentário adicional (opcional)</label>
       <textarea id="rejeitar-comentario" placeholder="Detalhe o que te incomodou — isso ensina a IA a sugerir melhor." style="min-height: 80px;"></textarea>
-
       <div class="btn-row">
         <button class="action" onclick="fecharModal('modal-rejeitar')">Cancelar</button>
         <button class="action danger" onclick="confirmarRejeicao()">Rejeitar</button>
@@ -323,12 +294,8 @@
       document.getElementById(id).classList.remove('show');
     }
 
-    // ============================================
-    // Consoles (painel de foco)
-    // ============================================
     async function carregarConsoles() {
-      const { data, error } = await db.from('consoles')
-        .select('*').eq('ativo', true).order('ordem').order('nome');
+      const { data, error } = await db.from('consoles').select('*').eq('ativo', true).order('ordem').order('nome');
       if (error) {
         document.getElementById('focus-grid').innerHTML = `<div class="loading">Erro: ${error.message}</div>`;
         return;
@@ -359,18 +326,11 @@
     function atualizarFocusCounter() {
       const marcados = document.querySelectorAll('#focus-grid input[type="checkbox"]:checked');
       const counter = document.getElementById('focus-counter');
-
-      // Atualiza visual dos chips
       document.querySelectorAll('.focus-chip').forEach(chip => {
         const cb = chip.querySelector('input[type="checkbox"]');
         chip.classList.toggle('checked', cb.checked);
       });
-
-      if (marcados.length === 0) {
-        counter.textContent = '';
-      } else {
-        counter.textContent = `(${marcados.length} selecionado${marcados.length === 1 ? '' : 's'})`;
-      }
+      counter.textContent = marcados.length === 0 ? '' : `(${marcados.length} selecionado${marcados.length === 1 ? '' : 's'})`;
     }
 
     function limparFocus() {
@@ -382,9 +342,6 @@
       return Array.from(document.querySelectorAll('#focus-grid input[type="checkbox"]:checked')).map(cb => cb.value);
     }
 
-    // ============================================
-    // Listagem de sugestões
-    // ============================================
     async function carregar() {
       const { data, error } = await db.from('sugestoes').select('*').order('created_at', { ascending: false });
       if (error) {
@@ -469,22 +426,16 @@
       document.getElementById('motivo-' + id).classList.toggle('expanded');
     }
 
-    // ============================================
-    // Apagar sugestão
-    // ============================================
     async function apagarSugestao(id) {
       const s = cachesugestoes.find(x => x.id === id);
       if (!s) return;
-      if (!confirm(`Apagar permanentemente?\n\n"${s.titulo_sugerido || s.tema}"\n\nIsso remove a sugestão e seu histórico de edições.`)) return;
+      if (!confirm(`Apagar permanentemente?\n\n"${s.titulo_sugerido || s.tema}"`)) return;
       const { error } = await db.from('sugestoes').delete().eq('id', id);
       if (error) return toast('Erro: ' + error.message, 'error');
       toast('Apagada', 'success');
       await carregar();
     }
 
-    // ============================================
-    // Filtros
-    // ============================================
     document.getElementById('filter-bar').addEventListener('click', e => {
       if (e.target.tagName !== 'BUTTON') return;
       document.querySelectorAll('#filter-bar button').forEach(b => b.classList.remove('active'));
@@ -493,55 +444,44 @@
       renderizar();
     });
 
-    // ============================================
-    // Aprovar → gera script + muda status
-    // ============================================
     async function aprovar(id) {
       const s = cachesugestoes.find(x => x.id === id);
       if (!s) return;
-
-      if (!confirm(`Aprovar "${s.titulo_sugerido}"?\n\nIsso vai:\n• Gerar script completo via IA (~15s)\n• Mover pra "Planejado" no Cronograma`)) return;
+      if (!confirm(`Aprovar "${s.titulo_sugerido}"?\n\n• Gera script via IA (~15s)\n• Move pra Planejado`)) return;
 
       const btn = document.getElementById('btn-aprovar-' + id);
       btn.disabled = true;
       btn.textContent = '⏳ Gerando script...';
-      toast('🧠 Gerando script e aprovando...', 'info');
+      toast('🧠 Gerando...', 'info');
 
-      const systemPrompt = `Você é um roteirista de YouTube especializado em canal brasileiro sobre games e retrô. O criador é Guilherme Capovilla (@guilhermecapovilla), 29 anos, tom emocional/nostálgico, não técnico. Adultos brasileiros gamers, 28-40 anos. RPM alto vem de vídeos de Switch Lite destravado. Linguagem: fala direta, primeira pessoa, gatilhos de nostalgia e culpa ("videogame como autocuidado"). Aberturas são storytelling pessoal, não "fala galera".`;
+      const systemPrompt = `Você é um roteirista de YouTube especializado em canal brasileiro sobre games. O criador é Guilherme Capovilla (@guilhermecapovilla), 27 anos, tom emocional/nostálgico, não técnico. Linguagem: fala direta, primeira pessoa, brasileiro. Aberturas são storytelling pessoal, não "fala galera".`;
 
       const consolesFoco = Array.isArray(s.consoles_foco) ? s.consoles_foco : [];
-      const consolesBloco = consolesFoco.length
-        ? `\nCONSOLE(S) FOCO DESSA IDEIA: ${consolesFoco.join(', ')}\n`
-        : '';
+      const consolesBloco = consolesFoco.length ? `\nCONSOLE(S) FOCO: ${consolesFoco.join(', ')}\n` : '';
 
-      const prompt = `Escreva um roteiro completo para este vídeo de YouTube do canal do Guilherme Capovilla.
+      const prompt = `Escreva um roteiro completo para este vídeo do canal do Guilherme Capovilla.
 
 TÍTULO: ${s.titulo_sugerido}
 TEMA: ${s.tema || '(não definido)'}
 ${consolesBloco}
-CONTEXTO/RACIOCÍNIO DA IDEIA:
+CONTEXTO:
 ${s.motivo || '(sem contexto adicional)'}
 
-Estrutura do roteiro:
-- ABERTURA (30-45s): gancho emocional/nostálgico em primeira pessoa, sem "fala galera". Já entrega a promessa do vídeo.
-- DESENVOLVIMENTO (dividido em 3-5 blocos): cada bloco com título interno, duração estimada e texto corrido do que falar.
-- CTA INTERMEDIÁRIO: 1 menção de like/inscreva no meio do vídeo, integrada na conversa.
-- CONVERSÃO (se houver produto Shopee relacionado): apresentação do produto sem ser forçada, com link de afiliado mencionado naturalmente.
-- FECHAMENTO: resume o que foi mostrado e deixa gancho emocional final pro espectador.
+Estrutura:
+- ABERTURA (30-45s): gancho emocional em primeira pessoa, sem "fala galera"
+- DESENVOLVIMENTO (3-5 blocos com títulos internos)
+- CTA INTERMEDIÁRIO integrado
+- CONVERSÃO (se houver produto Shopee)
+- FECHAMENTO: reforça pontos + gancho final
 
-Formato: markdown. Use **negrito** pros títulos dos blocos. Duração total alvo: 8-12 minutos.`;
+Formato: markdown com **negrito** pros blocos. Duração: 8-12 minutos.`;
 
       try {
         const script = await callClaude(prompt, 4000, systemPrompt);
-
-        // Registra edição de status (aprovação) no histórico
         await registrarEdicao(id, 'status', s.status, 'planejado');
-
-        const { error } = await db.from('sugestoes')
-          .update({ script, status: 'planejado' })
-          .eq('id', id);
+        const { error } = await db.from('sugestoes').update({ script, status: 'planejado' }).eq('id', id);
         if (error) throw error;
-        toast('✅ Aprovada! Script gerado. Veja no Cronograma.', 'success');
+        toast('✅ Aprovada!', 'success');
         await carregar();
       } catch (err) {
         toast('Erro: ' + err.message, 'error');
@@ -550,9 +490,6 @@ Formato: markdown. Use **negrito** pros títulos dos blocos. Duração total alv
       }
     }
 
-    // ============================================
-    // Rejeitar
-    // ============================================
     function abrirRejeitar(id) {
       const s = cachesugestoes.find(x => x.id === id);
       if (!s) return;
@@ -575,32 +512,20 @@ Formato: markdown. Use **negrito** pros títulos dos blocos. Duração total alv
       const comentario = document.getElementById('rejeitar-comentario').value.trim();
 
       if (!motivoSelecionado) return toast('Escolha um motivo', 'error');
-
       const motivo = motivoSelecionado.value;
-      if (motivo === 'outro' && !comentario) {
-        return toast('Descreva no campo "Outro"', 'error');
-      }
+      if (motivo === 'outro' && !comentario) return toast('Descreva no campo "Outro"', 'error');
 
-      const feedback = JSON.stringify({
-        motivo, comentario: comentario || null, data: new Date().toISOString(),
-      });
-
+      const feedback = JSON.stringify({ motivo, comentario: comentario || null, data: new Date().toISOString() });
       const s = cachesugestoes.find(x => x.id === id);
       await registrarEdicao(id, 'status', s?.status || null, 'rejeitada');
 
-      const { error } = await db.from('sugestoes')
-        .update({ status: 'rejeitada', feedback_edicao: feedback })
-        .eq('id', id);
-
+      const { error } = await db.from('sugestoes').update({ status: 'rejeitada', feedback_edicao: feedback }).eq('id', id);
       if (error) return toast('Erro: ' + error.message, 'error');
       fecharModal('modal-rejeitar');
-      toast('Rejeitada. A IA vai aprender com isso.', 'success');
+      toast('Rejeitada', 'success');
       await carregar();
     }
 
-    // ============================================
-    // Script viewer
-    // ============================================
     function verScript(id) {
       const s = cachesugestoes.find(x => x.id === id);
       if (!s || !s.script) return toast('Script não encontrado', 'error');
@@ -613,36 +538,26 @@ Formato: markdown. Use **negrito** pros títulos dos blocos. Duração total alv
       const texto = document.getElementById('script-conteudo').textContent;
       try {
         await navigator.clipboard.writeText(texto);
-        toast('Script copiado', 'success');
+        toast('Copiado', 'success');
       } catch (e) {
-        toast('Erro ao copiar: ' + e.message, 'error');
+        toast('Erro ao copiar', 'error');
       }
     }
 
-    // ============================================
-    // Registro automático de edição (histórico)
-    // ============================================
     async function registrarEdicao(sugestaoId, campo, valorAntigo, valorNovo) {
-      // Skip se valores iguais (ou ambos vazios)
       const antigoStr = valorAntigo == null ? '' : String(valorAntigo);
       const novoStr = valorNovo == null ? '' : String(valorNovo);
       if (antigoStr === novoStr) return;
-
       try {
         await db.from('sugestoes_edicoes').insert([{
-          sugestao_id: sugestaoId,
-          campo,
-          valor_antigo: antigoStr || null,
-          valor_novo: novoStr || null,
+          sugestao_id: sugestaoId, campo,
+          valor_antigo: antigoStr || null, valor_novo: novoStr || null,
         }]);
       } catch (e) {
-        console.warn('Falha ao registrar edição (não-crítico):', e.message);
+        console.warn('Falha ao registrar edição:', e.message);
       }
     }
 
-    // ============================================
-    // Editar sugestão
-    // ============================================
     function abrirEditor(id) {
       const s = cachesugestoes.find(x => x.id === id);
       if (!s) return;
@@ -659,7 +574,6 @@ Formato: markdown. Use **negrito** pros títulos dos blocos. Duração total alv
     async function salvarEdicao() {
       const id = document.getElementById('edit-id').value;
       const original = cachesugestoes.find(x => x.id === id) || {};
-
       const novo = {
         titulo_sugerido: document.getElementById('edit-titulo').value || null,
         tema: document.getElementById('edit-tema').value || null,
@@ -668,26 +582,22 @@ Formato: markdown. Use **negrito** pros títulos dos blocos. Duração total alv
         motivo: document.getElementById('edit-motivo').value || null,
         script: document.getElementById('edit-script').value || null,
       };
-
-      // Registra mudanças em cada campo auditado (antes do UPDATE)
       for (const campo of CAMPOS_AUDITADOS) {
         await registrarEdicao(id, campo, original[campo], novo[campo]);
       }
-
       const { error } = await db.from('sugestoes').update(novo).eq('id', id);
       if (error) return toast('Erro: ' + error.message, 'error');
       fecharModal('modal-edit');
-      toast('Sugestão atualizada (edições registradas)', 'success');
+      toast('Atualizada', 'success');
       await carregar();
     }
 
-    // ============================================
-    // Nova sugestão manual
-    // ============================================
     function abrirNovaSugestao() {
       document.getElementById('nova-titulo').value = '';
       document.getElementById('nova-tema').value = '';
       document.getElementById('nova-motivo').value = '';
+      document.getElementById('nova-script').value = '';
+      document.getElementById('nova-status').value = 'gravando';
       document.getElementById('modal-nova').classList.add('show');
     }
 
@@ -695,6 +605,9 @@ Formato: markdown. Use **negrito** pros títulos dos blocos. Duração total alv
       const titulo = document.getElementById('nova-titulo').value.trim();
       const tema = document.getElementById('nova-tema').value.trim();
       const motivo = document.getElementById('nova-motivo').value.trim();
+      const script = document.getElementById('nova-script').value.trim();
+      const status = document.getElementById('nova-status').value;
+
       if (!titulo) return toast('Título é obrigatório', 'error');
 
       const payload = {
@@ -702,28 +615,24 @@ Formato: markdown. Use **negrito** pros títulos dos blocos. Duração total alv
         titulo_sugerido: titulo,
         tema: tema || titulo,
         motivo: motivo || null,
-        status: 'ideia',
+        script: script || null,
+        status,
       };
       const { error } = await db.from('sugestoes').insert([payload]);
       if (error) return toast('Erro: ' + error.message, 'error');
       fecharModal('modal-nova');
-      toast('Sugestão criada', 'success');
+      toast(`Criada como "${status}"${script ? ' com script' : ''}`, 'success');
       await carregar();
     }
 
-    // ============================================
-    // Gerar 2 sugestões com IA (prompt enriquecido + foco de consoles)
-    // ============================================
     async function gerarSugestoesIA() {
       const btn = document.getElementById('btn-gerar-ia');
       btn.disabled = true;
       btn.textContent = '🔄 Gerando...';
 
       const consolesFoco = getConsolesSelecionados();
-      const focoMsg = consolesFoco.length
-        ? ` focando em: ${consolesFoco.join(', ')}`
-        : '';
-      toast('🧠 Coletando contexto rico' + focoMsg + '... aguarde ~30s', 'info');
+      const focoMsg = consolesFoco.length ? ` focando em: ${consolesFoco.join(', ')}` : '';
+      toast('🧠 Coletando contexto' + focoMsg + '...', 'info');
 
       try {
         const { data: metricas } = await db.from('videos_metricas').select('video_id, views, rpm, receita_estimada').order('receita_estimada', { ascending: false }).limit(10);
@@ -736,16 +645,12 @@ Formato: markdown. Use **negrito** pros títulos dos blocos. Duração total alv
           return `- "${v.titulo}" (${v.console}) — ${m.views} views, R$${m.rpm?.toFixed(2)} RPM, R$${m.receita_estimada?.toFixed(2)} receita`;
         }).join('\n');
 
-        const vozAmostras = videos
-          .filter(v => v.transcricao && v.transcricao.length > 500)
-          .slice(0, 3)
-          .map(v => `--- "${v.titulo}" (abertura):\n${v.transcricao.substring(0, 800).trim()}...`)
-          .join('\n\n');
+        const vozAmostras = videos.filter(v => v.transcricao && v.transcricao.length > 500).slice(0, 3)
+          .map(v => `--- "${v.titulo}":\n${v.transcricao.substring(0, 800).trim()}...`).join('\n\n');
 
         const { data: concVidsRaw } = await db.from('concorrentes_videos').select('titulo, views, resumo_ia, concorrentes(nome)').order('views', { ascending: false }).limit(20);
         const concComResumo = concVidsRaw.filter(v => v.resumo_ia && v.resumo_ia.length > 100).slice(0, 8);
         const concSoTitulo = concVidsRaw.filter(v => !v.resumo_ia || v.resumo_ia.length <= 100).slice(0, 10);
-
         const concRicos = concComResumo.map(v => `### "${v.titulo}" (${v.concorrentes?.nome || '?'}) — ${v.views} views\n${v.resumo_ia.substring(0, 800)}`).join('\n\n');
         const concTitulos = concSoTitulo.map(v => `- "${v.titulo}" (${v.concorrentes?.nome || '?'}) — ${v.views} views`).join('\n');
 
@@ -756,81 +661,69 @@ Formato: markdown. Use **negrito** pros títulos dos blocos. Duração total alv
         const rejeicoesStr = rejeitadas.filter(r => r.feedback_edicao).map(r => {
           const fb = parseFeedback(r.feedback_edicao);
           return `- "${r.titulo_sugerido}" — REJEITADA: ${fb?.label || '?'}${fb?.comentario ? ' ("' + fb.comentario + '")' : ''}`;
-        }).join('\n') || '(nenhuma rejeição registrada ainda)';
+        }).join('\n') || '(nenhuma rejeição)';
 
-        // ⭐ NOVO: bloco de foco de consoles
         const focusBloco = consolesFoco.length
-          ? `\n### 🎯 FOCO OBRIGATÓRIO
-O criador pediu que as duas sugestões desta rodada sejam OBRIGATORIAMENTE sobre:
-${consolesFoco.map(c => `- ${c}`).join('\n')}
-
-Não sugira vídeos de outros consoles. Se não houver 2 ângulos distintos dentro desse(s) console(s), crie 2 ângulos diferentes (ex: nostálgico vs utilidade prática).\n`
+          ? `\n### 🎯 FOCO OBRIGATÓRIO\nOs 2 vídeos desta rodada devem ser OBRIGATORIAMENTE sobre:\n${consolesFoco.map(c => `- ${c}`).join('\n')}\n\nSe não houver 2 ângulos distintos, crie 2 ângulos diferentes.\n`
           : '';
 
-        const systemPrompt = `Você é um curador editorial sênior para o canal YouTube @guilhermecapovilla (games/retrô, Brasil, adultos 28-40 anos). O criador é Guilherme Capovilla, 29, tom EMOCIONAL/NOSTÁLGICO, não técnico. Sua tarefa é gerar sugestões de vídeo que:
-1. HONREM A VOZ DO CRIADOR (amostras reais serão fornecidas)
-2. EXPLOREM LACUNAS do que concorrentes fazem
-3. TENHAM POTENCIAL DE RECEITA (Switch Lite destravado = RPM R$295+, PS4/PS3 destravado = bom)
-4. EVITEM PADRÕES REJEITADOS pelo criador (lista de rejeições será fornecida)
-5. RESPEITEM O FOCO DE CONSOLES (se o criador especificou)
+        const systemPrompt = `Você é um curador editorial para @guilhermecapovilla (games, Brasil, adultos 28-40). Sugestões devem:
+1. HONRAR A VOZ DO CRIADOR (amostras fornecidas)
+2. EXPLORAR LACUNAS de concorrentes
+3. TER POTENCIAL DE RECEITA
+4. EVITAR PADRÕES REJEITADOS
+5. RESPEITAR FOCO DE CONSOLES (se especificado)
 
-NUNCA sugira tom técnico, tom "fala galera", ou ranking frio. Sempre storytelling em primeira pessoa com gancho emocional.`;
+NUNCA tom técnico, "fala galera", ou ranking frio.`;
 
         const prompt = `## CONTEXTO
 
-### TOP VÍDEOS DO CANAL (performance real)
+### TOP VÍDEOS DO CANAL
 ${topVideos}
 
-### VOZ DO CRIADOR (amostras reais de aberturas)
-${vozAmostras || '(sem transcrições disponíveis ainda)'}
+### VOZ DO CRIADOR
+${vozAmostras || '(sem transcrições)'}
 
-### CONCORRENTES — análises estruturadas dos top vídeos
-${concRicos || '(sem análises disponíveis)'}
+### CONCORRENTES (análises estruturadas)
+${concRicos || '(sem análises)'}
 
-### CONCORRENTES — outros títulos monitorados
+### CONCORRENTES (outros títulos)
 ${concTitulos}
 
 ### SUGESTÕES JÁ GERADAS (NÃO REPETIR)
 ${ultimasStr}
 
-### SUGESTÕES REJEITADAS RECENTEMENTE
+### REJEIÇÕES RECENTES
 ${rejeicoesStr}
 ${focusBloco}
 ---
 
 ## TAREFA
 
-Gere exatamente **2 sugestões** de vídeo. Para cada uma:
+Gere **2 sugestões**. Para cada uma, identifique lacuna, aplique voz do criador, priorize receita, evite rejeições, ${consolesFoco.length ? 'RESPEITE CONSOLES FOCO' : 'console livre'}.
 
-1. Identifique qual LACUNA ocupa (o que os concorrentes NÃO estão fazendo)
-2. Aplique a VOZ DO CRIADOR (use expressões reais das amostras, tom emocional, primeira pessoa)
-3. Priorize o POTENCIAL DE RECEITA
-4. EVITE padrões rejeitados
-5. ${consolesFoco.length ? 'RESPEITE OS CONSOLES FOCO listados acima — obrigatório' : 'Console é livre — escolha com base em performance'}
-
-**Formato de saída — APENAS JSON, sem explicação antes/depois:**
+**APENAS JSON:**
 
 \`\`\`json
 [
   {
-    "titulo_sugerido": "título chamativo, até 70 chars, em primeira pessoa quando possível",
-    "tema": "tema central em 3-5 palavras",
-    "motivo": "raciocínio estruturado em 4 parágrafos: (1) qual lacuna ocupa vs concorrentes, (2) como honra a voz do criador com exemplo concreto, (3) qual gatilho emocional explora (nostalgia/culpa/merecimento/status), (4) potencial de receita estimado e por quê. 250-400 palavras no total."
+    "titulo_sugerido": "título, até 70 chars, primeira pessoa",
+    "tema": "tema em 3-5 palavras",
+    "motivo": "4 parágrafos (lacuna/voz/gatilho/receita), 250-400 palavras"
   },
   { ... }
 ]
 \`\`\``;
 
         const resposta = await callClaude(prompt, 4000, systemPrompt);
-
         let sugestoesNovas;
         try {
           const jsonMatch = resposta.match(/\[[\s\S]*\]/);
           if (!jsonMatch) throw new Error('JSON não encontrado');
           sugestoesNovas = JSON.parse(jsonMatch[0]);
         } catch (e) {
-          console.error('Resposta do Claude:', resposta);
-          throw new Error('Claude não retornou JSON válido. Veja o console (F12).');
+          console.error('Resposta:', resposta);
+          throw new Error('Claude não retornou JSON válido (F12 console)');
         }
 
         const payload = sugestoesNovas.map((s, i) => ({
@@ -844,7 +737,7 @@ Gere exatamente **2 sugestões** de vídeo. Para cada uma:
         const { error } = await db.from('sugestoes').insert(payload);
         if (error) throw error;
 
-        toast(`✅ ${payload.length} sugestões criadas${consolesFoco.length ? ' (com foco de consoles)' : ''}!`, 'success');
+        toast(`✅ ${payload.length} criadas${consolesFoco.length ? ' (com foco)' : ''}!`, 'success');
         await carregar();
       } catch (err) {
         console.error(err);
@@ -855,12 +748,10 @@ Gere exatamente **2 sugestões** de vídeo. Para cada uma:
       }
     }
 
-    // Fechar modais ao clicar fora
     document.querySelectorAll('.modal-bg').forEach(bg => {
       bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('show'); });
     });
 
-    // Boot
     carregar();
     carregarConsoles();
   </script>
