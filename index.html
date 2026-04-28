@@ -449,8 +449,16 @@
 
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Últimos vídeos publicados</div>
-              <div class="card-description">Vinculados às sugestões originais quando aplicável</div>
+              <div class="row justify-between items-center" style="gap: 12px;">
+                <div>
+                  <div class="card-title">Últimos vídeos publicados</div>
+                  <div class="card-description">Vinculados às sugestões originais quando aplicável</div>
+                </div>
+                <label class="row items-center gap-2" style="font-size: 12px; color: hsl(var(--muted-foreground)); cursor: pointer; user-select: none; white-space: nowrap;">
+                  <input type="checkbox" id="toggle-shorts" onchange="carregarUltimos()" style="cursor: pointer; accent-color: hsl(var(--amber));">
+                  Mostrar shorts
+                </label>
+              </div>
             </div>
             <div id="ultimos" style="padding: 0 0 8px;">
               <div class="loading">Carregando…</div>
@@ -674,23 +682,41 @@
   // Últimos 10 vídeos publicados
   // ==========================================================
   async function carregarUltimos() {
+    const mostrarShorts = document.getElementById('toggle-shorts')?.checked || false;
+
+    // Busca mais que 10 caso precise filtrar shorts
     const { data, error } = await db
       .from('videos')
-      .select('video_id, titulo, console, data_publicacao, slug_sugestao_id')
+      .select('video_id, titulo, console, tipo_video, data_publicacao, slug_sugestao_id')
       .order('data_publicacao', { ascending: false })
-      .limit(10);
+      .limit(mostrarShorts ? 10 : 30);
 
     if (error) return erro('#ultimos', error.message);
 
-    const rows = data.map(v => {
+    // Filtra shorts se toggle desativado
+    const filtrados = mostrarShorts
+      ? data
+      : data.filter(v => v.tipo_video !== 'short');
+
+    const limitados = filtrados.slice(0, 10);
+
+    if (limitados.length === 0) {
+      document.getElementById('ultimos').innerHTML = '<div class="loading">Nenhum vídeo encontrado.</div>';
+      return;
+    }
+
+    const rows = limitados.map(v => {
       const dt = v.data_publicacao ? new Date(v.data_publicacao).toLocaleDateString('pt-BR') : '—';
       const vinculo = v.slug_sugestao_id
         ? '<span class="badge badge-success" style="gap:4px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Sim</span>'
         : '<span class="badge badge-outline" style="opacity:.6;">—</span>';
+      const tipoBadge = v.tipo_video === 'short'
+        ? '<span class="badge badge-amber" style="font-size: 10px; margin-left: 6px; vertical-align: middle;">SHORT</span>'
+        : '';
       return `
         <tr>
           <td class="mono" style="font-size:11px; color: hsl(var(--muted-foreground));">${dt}</td>
-          <td style="font-weight: 500; max-width: 360px;">${v.titulo}</td>
+          <td style="font-weight: 500; max-width: 360px;">${v.titulo}${tipoBadge}</td>
           <td><span class="badge badge-outline">${v.console}</span></td>
           <td>${vinculo}</td>
         </tr>
