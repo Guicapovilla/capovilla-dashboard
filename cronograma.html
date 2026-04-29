@@ -643,8 +643,10 @@
     document.getElementById('link-video-id').value = videoId;
     document.getElementById('link-video-info').textContent = v.titulo;
     const sel = document.getElementById('link-sugestao-select');
-    // FIX: filtro mais robusto - exclui sugestões já vinculadas (qualquer video, não só este)
-    const disponiveis = cacheSugestoes.filter(s => !s.video_id_vinculado);
+    // Exclui sugestões vinculadas a OUTRO vídeo; mantém as não vinculadas e as já apontando pra este
+    const disponiveis = cacheSugestoes.filter(s =>
+      !s.video_id_vinculado || s.video_id_vinculado === videoId
+    );
     if (disponiveis.length === 0) {
       sel.innerHTML = '<option value="">Nenhuma sugestão disponível pra linkar</option>';
     } else {
