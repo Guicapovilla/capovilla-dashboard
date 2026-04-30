@@ -99,6 +99,8 @@
     .btn-info { background: hsl(var(--info) / 0.15); color: hsl(var(--info)); border-color: hsl(var(--info) / 0.3); }
     .btn-info:hover:not(:disabled) { background: hsl(var(--info) / 0.25); }
     .btn-danger-outline { background: transparent; color: hsl(var(--danger)); border-color: hsl(var(--danger) / 0.4); }
+    .btn-destructive { background: hsl(var(--danger, 0 72% 51%)); color: #fff; }
+    .btn-destructive:hover:not(:disabled) { background: hsl(var(--danger, 0 72% 51%) / 0.85); }
     .btn-danger-outline:hover:not(:disabled) { background: hsl(var(--danger) / 0.1); }
     .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
     .btn-icon-sm { width: 28px; height: 28px; padding: 0; }
@@ -369,6 +371,23 @@
   </div>
 </div>
 
+<!-- Modal confirmar remoção do calendário -->
+<div class="modal-bg" id="modal-desagendar">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Remover do calendário</h3>
+      <p class="modal-description">A sugestão volta ao kanban sem data prevista e pode ser reagendada.</p>
+    </div>
+    <div class="modal-body">
+      <div class="preview-block" id="desagendar-titulo"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-desagendar')">Cancelar</button>
+      <button class="btn btn-destructive" onclick="confirmarDesagendar()">Remover</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -586,12 +605,23 @@
     renderizarCalendario();
   }
 
-  async function desagendar(id, titulo) {
-    if (!confirm(`Remover "${titulo}" do calendário?\n\nA sugestão volta ao kanban sem data prevista.`)) return;
+  let _desagendarId = null;
+
+  function desagendar(id, titulo) {
+    _desagendarId = id;
+    document.getElementById('desagendar-titulo').textContent = titulo;
+    document.getElementById('modal-desagendar').classList.add('show');
+  }
+
+  async function confirmarDesagendar() {
+    if (!_desagendarId) return;
+    const id = _desagendarId;
+    fecharModal('modal-desagendar');
     const { error } = await db.from('sugestoes').update({ data_publicacao_prevista: null }).eq('id', id);
     if (error) return toast('Erro: ' + error.message, 'error');
     const s = cacheSugestoes.find(x => x.id === id);
     if (s) s.data_publicacao_prevista = null;
+    _desagendarId = null;
     toast('Removido do calendário', 'success');
     renderizarCalendario();
   }
