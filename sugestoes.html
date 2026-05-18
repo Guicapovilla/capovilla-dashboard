@@ -171,7 +171,35 @@
     }
     .input:focus, .textarea:focus, .select-input:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 1px hsl(var(--ring)); }
     .textarea { min-height: 100px; resize: vertical; }
-    .input-label { display: block; font-size: 12px; font-weight: 500; color: hsl(var(--foreground)); margin-bottom: 6px; }
+    .input-label { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 500; color: hsl(var(--foreground)); margin-bottom: 6px; }
+
+    /* ── Microfone ── */
+    .mic-btn {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 10px; font-weight: 500; font-family: inherit;
+      color: hsl(var(--muted-foreground));
+      padding: 2px 7px; border-radius: 99px;
+      border: 1px solid hsl(var(--border));
+      background: transparent; cursor: pointer;
+      transition: all .15s; flex-shrink: 0;
+    }
+    .mic-btn:hover { color: hsl(var(--foreground)); background: hsl(var(--accent)); }
+    .mic-btn.recording { color: hsl(var(--danger)); border-color: hsl(var(--danger)); background: hsl(var(--danger) / 0.08); animation: mic-pulse 1.2s ease infinite; }
+    @keyframes mic-pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+    .mic-btn svg { width: 10px; height: 10px; }
+
+    /* ── Modelar concorrente ── */
+    .modelar-result {
+      margin-top: 14px; padding: 16px; border-radius: calc(var(--radius) - 2px);
+      background: hsl(var(--secondary)); border: 1px solid hsl(var(--border));
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .modelar-result-titulo { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+    .modelar-result-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: hsl(var(--muted-foreground)); margin-bottom: 4px; }
+    .modelar-result-block { font-size: 13px; line-height: 1.5; }
+    .modelar-result-block ol { margin: 6px 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+    .modelar-result-rpm { font-size: 12px; color: hsl(var(--success)); font-weight: 600; }
+    .modelar-result-actions { display: flex; gap: 8px; padding-top: 4px; }
 
     /* ============================================================ Toolbar / filters */
     .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
@@ -499,6 +527,40 @@
             <div class="focus-hint">Se nenhum for marcado, a IA escolhe com base em performance do canal.</div>
             <div style="margin-top: 8px;">
               <button class="btn btn-outline btn-sm" onclick="limparFocus()">Limpar seleção</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modelar vídeo de concorrente -->
+        <div class="focus-panel" id="modelar-panel">
+          <div class="focus-header" id="modelar-toggle" onclick="toggleModelarPanel()">
+            <span class="row items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 10-4 4 4 4"/><path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2"/><path d="M22 12h-4"/></svg>
+              <strong>Modelar vídeo de concorrente</strong>
+            </span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="focus-body" id="modelar-body" style="display:none; padding-top: 14px;">
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div>
+                <label class="input-label" id="label-modelar-url">
+                  URL ou título do vídeo do concorrente
+                </label>
+                <input type="text" id="modelar-url" class="input" placeholder="https://youtube.com/watch?v=... ou cole o título do vídeo">
+              </div>
+              <div>
+                <label class="input-label" id="label-modelar-desc">
+                  Descrição / o que o vídeo aborda (opcional)
+                </label>
+                <textarea id="modelar-desc" class="textarea" style="min-height:70px;" placeholder="Cole a descrição do vídeo, principais pontos, ou descreva com suas palavras o que o concorrente fez…"></textarea>
+              </div>
+              <div>
+                <button class="btn btn-default btn-sm" id="btn-modelar" onclick="modelarConcorrente()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+                  Modelar para meu canal
+                </button>
+              </div>
+              <div id="modelar-resultado" style="display:none;"></div>
             </div>
           </div>
         </div>
@@ -1394,10 +1456,175 @@ Retorne exatamente 3 itens em "oportunidades". ${consolesFoco.length ? 'RESPEITE
   });
 
   // ==========================================================
+  // MODELAR VÍDEO DE CONCORRENTE
+  // ==========================================================
+  function toggleModelarPanel() {
+    const body  = document.getElementById('modelar-body');
+    const hdr   = document.getElementById('modelar-toggle');
+    const open  = body.style.display === 'none';
+    body.style.display = open ? 'block' : 'none';
+    hdr.classList.toggle('open', open);
+  }
+
+  async function modelarConcorrente() {
+    const url  = document.getElementById('modelar-url').value.trim();
+    const desc = document.getElementById('modelar-desc').value.trim();
+    if (!url && !desc) return toast('Cole a URL ou descreva o vídeo do concorrente', 'error');
+
+    const btn = document.getElementById('btn-modelar');
+    btn.disabled = true;
+    btn.textContent = 'Analisando…';
+
+    try {
+      const { data: metricas } = await db.from('videos_metricas')
+        .select('video_id, views, rpm').order('rpm', { ascending: false }).limit(8);
+      const ids = (metricas || []).map(m => m.video_id);
+      const { data: videos } = await db.from('videos')
+        .select('video_id, titulo, console, transcricao').in('video_id', ids);
+      const vMap = Object.fromEntries((videos || []).map(v => [v.video_id, v]));
+
+      const topVideos = (metricas || []).map(m => {
+        const v = vMap[m.video_id] || {};
+        return `- "${v.titulo}" (${v.console}) — RPM R$${(m.rpm||0).toFixed(0)} | ${m.views} views`;
+      }).join('\n');
+
+      const vozAmostras = (videos || [])
+        .filter(v => v.transcricao?.length > 300).slice(0, 2)
+        .map(v => `--- "${v.titulo}":\n${v.transcricao.substring(0, 500).trim()}…`)
+        .join('\n\n');
+
+      const briefing   = await carregarBriefing();
+      const systemBase = 'Você é curador editorial do canal @guilhermecapovilla. Vai adaptar um vídeo de concorrente para o estilo e voz deste canal.';
+      const system     = montarSystemPromptComBriefing(systemBase, briefing);
+
+      const prompt = `## VÍDEO DE REFERÊNCIA (CONCORRENTE)
+${url ? `URL: ${url}` : ''}
+${desc ? `Descrição: ${desc}` : ''}
+
+## MEU CANAL — TOP VÍDEOS POR RPM
+${topVideos || '(sem dados)'}
+
+## MINHA VOZ
+${vozAmostras || '(sem transcrições)'}
+
+---
+## TAREFA
+Adapte o vídeo de referência para o canal Guilherme Capovilla. Preserve o que funciona; mude o que não combina com a voz e público do canal.
+
+Responda APENAS em JSON:
+\`\`\`json
+{
+  "titulo_sugerido": "como você intitularia (até 70 chars, primeira pessoa)",
+  "angulo": "o que você preservou e o que você mudou — 2 frases",
+  "gancho": "abertura emocional de 2 frases no seu estilo",
+  "estrutura": ["ponto 1", "ponto 2", "ponto 3", "ponto 4"],
+  "rpm_previsto": 60
+}
+\`\`\``;
+
+      const resposta = await callClaude(prompt, 1500, system);
+      let parsed;
+      try {
+        const match = resposta.match(/\{[\s\S]*\}/);
+        if (!match) throw new Error();
+        parsed = JSON.parse(match[0]);
+      } catch { throw new Error('Claude não retornou JSON válido (F12 console)'); }
+
+      const el = document.getElementById('modelar-resultado');
+      el.innerHTML = `
+        <div class="modelar-result">
+          <div>
+            <div class="modelar-result-label">Título sugerido</div>
+            <div class="modelar-result-titulo">${escapeHtml(parsed.titulo_sugerido)}</div>
+          </div>
+          <div>
+            <div class="modelar-result-label">Adaptação</div>
+            <div class="modelar-result-block">${escapeHtml(parsed.angulo)}</div>
+          </div>
+          <div>
+            <div class="modelar-result-label">Gancho de abertura</div>
+            <div class="modelar-result-block">${escapeHtml(parsed.gancho)}</div>
+          </div>
+          <div>
+            <div class="modelar-result-label">Estrutura</div>
+            <div class="modelar-result-block"><ol>${(parsed.estrutura||[]).map(p=>`<li>${escapeHtml(p)}</li>`).join('')}</ol></div>
+          </div>
+          <div class="modelar-result-rpm">RPM previsto: R$${parsed.rpm_previsto||'?'}</div>
+          <div class="modelar-result-actions">
+            <button class="btn btn-default btn-sm" onclick='aprovarModelagem(${JSON.stringify(parsed).replace(/'/g,"&#39;")})'>Aprovar e criar sugestão</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('modelar-resultado').style.display='none'">Descartar</button>
+          </div>
+        </div>`;
+      el.style.display = 'block';
+
+    } catch (err) {
+      toast('Erro: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg> Modelar para meu canal';
+    }
+  }
+
+  function aprovarModelagem(parsed) {
+    document.getElementById('nova-titulo').value  = parsed.titulo_sugerido || '';
+    document.getElementById('nova-tema').value    = 'modelagem de concorrente';
+    document.getElementById('nova-motivo').value  =
+      `${parsed.angulo}\n\nGancho: ${parsed.gancho}\n\nEstrutura:\n${(parsed.estrutura||[]).map((p,i)=>`${i+1}. ${p}`).join('\n')}`;
+    abrirNovaSugestao();
+  }
+
+  // ==========================================================
+  // VOZ — microfone em todos os campos de texto
+  // ==========================================================
+  const MIC_SVG = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>`;
+
+  let _rec = null;
+
+  function toggleVoice(btn, field) {
+    if (_rec) { _rec.stop(); return; }
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return toast('Microfone não suportado neste navegador', 'error');
+    _rec = new SR();
+    _rec.lang = 'pt-BR';
+    _rec.continuous = true;
+    _rec.interimResults = false;
+    _rec.onstart  = () => { btn.classList.add('recording'); btn.innerHTML = MIC_SVG + ' parar'; };
+    _rec.onresult = e => {
+      const t = Array.from(e.results).map(r => r[0].transcript).join(' ');
+      field.value = (field.value ? field.value.trimEnd() + ' ' : '') + t;
+      field.dispatchEvent(new Event('input'));
+    };
+    _rec.onend = _rec.onerror = () => {
+      _rec = null;
+      btn.classList.remove('recording');
+      btn.innerHTML = MIC_SVG + ' falar';
+    };
+    _rec.start();
+  }
+
+  function setupVoiceAll() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return; // navegador sem suporte — silencioso
+    document.querySelectorAll('.input-label').forEach(label => {
+      const wrap = label.closest('div');
+      if (!wrap) return;
+      const field = wrap.querySelector('input[type="text"], textarea');
+      if (!field) return;
+      const btn = document.createElement('button');
+      btn.type      = 'button';
+      btn.className = 'mic-btn';
+      btn.innerHTML = MIC_SVG + ' falar';
+      btn.onclick   = () => toggleVoice(btn, field);
+      label.appendChild(btn);
+    });
+  }
+
+  // ==========================================================
   // BOOT
   // ==========================================================
   carregar();
   carregarConsoles();
+  setupVoiceAll();
 </script>
 </body>
 </html>
