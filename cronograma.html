@@ -402,6 +402,8 @@
   // ==========================================================
   const SUPABASE_URL = 'https://ryspohcflrxjwwghvvqc.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_OzoD3gbIn4GoJ6szjwdkhw_KFGAGNsh';
+  const API_BASE = 'https://capovilla-api.vercel.app';
+  const DASHBOARD_SECRET = 'capovilla-dashboard-2026-secreto-aleatorio-x7k9m2p4';
 
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -744,10 +746,60 @@
       }
 
       fecharModal('modal-link');
-      toast('Vínculo criado! Loop de aprendizado fechado 🎉', 'success');
+      toast('Vínculo criado! Analisando aprendizado...', 'success');
       await carregarTudo();
+      dispararAprendizado(sugestaoId, videoId);
     } catch (err) {
       toast('Erro ao linkar: ' + err.message, 'error');
+    }
+  }
+
+  // Dispara análise de aprendizado em background após vincular
+  async function dispararAprendizado(sugestaoId, videoId) {
+    try {
+      const sugestao = cacheSugestoes.find(s => s.id === sugestaoId);
+      const video    = cacheVideos.find(v => v.video_id === videoId);
+      if (!sugestao) return;
+
+      const { data: metricas } = await db
+        .from('videos_metricas')
+        .select('rpm')
+        .eq('video_id', videoId)
+        .order('data_coleta', { ascending: false })
+        .limit(1);
+
+      const rpm_real     = metricas?.[0]?.rpm || 0;
+      const rpm_previsto = sugestao.rpm_previsto || 0;
+
+      const resp = await fetch(`${API_BASE}/api/aprendizado`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-dashboard-secret': DASHBOARD_SECRET },
+        body: JSON.stringify({
+          titulo_sugerido:  sugestao.titulo_sugerido || sugestao.tema,
+          motivo:           sugestao.motivo || '',
+          titulo_publicado: video?.titulo || '',
+          rpm_previsto,
+          rpm_real,
+        }),
+      });
+
+      if (!resp.ok) return;
+      const { analise, resultado } = await resp.json();
+
+      await db.from('aprendizados').insert([{
+        sugestao_id:      sugestaoId,
+        video_id:         videoId,
+        titulo_sugerido:  sugestao.titulo_sugerido || sugestao.tema,
+        titulo_publicado: video?.titulo || '',
+        rpm_previsto,
+        rpm_real,
+        resultado,
+        analise_ia: analise,
+      }]);
+
+      toast('Aprendizado registrado ✓', 'success');
+    } catch (err) {
+      console.warn('Aprendizado falhou (não crítico):', err.message);
     }
   }
 

@@ -477,7 +477,7 @@
             </button>
             <button class="btn btn-amber" onclick="gerarSugestoesIA()" id="btn-gerar-ia">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
-              Gerar 2 com IA
+              Gerar Pick + Oportunidades
             </button>
           </div>
         </div>
@@ -1265,6 +1265,16 @@ Formato: markdown com **negrito** pros blocos. Duração: 8-12 minutos.`;
         return `- "${r.titulo_sugerido}" — REJEITADA: ${fb?.label || '?'}${fb?.comentario ? ' ("' + fb.comentario + '")' : ''}`;
       }).join('\n') || '(nenhuma rejeição)';
 
+      const { data: aprendizados } = await db.from('aprendizados')
+        .select('titulo_sugerido, titulo_publicado, rpm_previsto, rpm_real, resultado, analise_ia')
+        .order('created_at', { ascending: false })
+        .limit(6);
+      const aprendizadosStr = aprendizados?.length
+        ? aprendizados.map(a =>
+            `- "${a.titulo_sugerido}" → "${a.titulo_publicado || 'mesmo'}" | RPM prev: R$${a.rpm_previsto||0} → real: R$${a.rpm_real||0} | ${a.resultado}\n  ${(a.analise_ia||'').substring(0, 200)}`
+          ).join('\n\n')
+        : '(sem histórico ainda — sistema aprenderá conforme vídeos forem publicados e vinculados)';
+
       const focusBloco = consolesFoco.length
         ? `\n### 🎯 FOCO OBRIGATÓRIO\nOs 2 vídeos desta rodada devem ser OBRIGATORIAMENTE sobre:\n${consolesFoco.map(c => `- ${c}`).join('\n')}\n\nSe não houver 2 ângulos distintos, crie 2 ângulos diferentes.\n`
         : '';
@@ -1301,56 +1311,80 @@ ${ultimasStr}
 
 ### REJEIÇÕES RECENTES
 ${rejeicoesStr}
+
+### APRENDIZADOS DO SISTEMA (calibre as sugestões com base nisso)
+${aprendizadosStr}
 ${focusBloco}
 ---
 
 ## TAREFA
 
-Gere **2 sugestões**. Para cada uma, identifique lacuna, aplique voz do criador, priorize receita, evite rejeições, ${consolesFoco.length ? 'RESPEITE CONSOLES FOCO' : 'console livre'}.
+Gere **1 Pick da semana** (maior confiança, contexto completo) e **3 Oportunidades** (ideias sólidas, mais compactas).
 
 **APENAS JSON:**
 
 \`\`\`json
-[
-  {
-    "titulo_sugerido": "título, até 70 chars, primeira pessoa",
+{
+  "pick": {
+    "titulo_sugerido": "título até 70 chars, primeira pessoa",
     "tema": "tema em 3-5 palavras",
-    "motivo": "4 parágrafos (lacuna/voz/gatilho/receita), 250-400 palavras"
+    "angulo": "1 frase: o ângulo emocional único deste vídeo",
+    "referencia_concorrente": "Concorrente X fez Y — você faria Z (ou null se não aplicável)",
+    "motivo": "3 parágrafos (lacuna/voz do criador/potencial de receita), 200-300 palavras",
+    "rpm_previsto": 65
   },
-  { ... }
-]
-\`\`\``;
+  "oportunidades": [
+    {
+      "titulo_sugerido": "título até 70 chars",
+      "tema": "tema em 3-5 palavras",
+      "angulo": "1 frase do ângulo",
+      "motivo": "2 parágrafos diretos, 100-150 palavras",
+      "rpm_previsto": 50
+    }
+  ]
+}
+\`\`\`
+
+Retorne exatamente 3 itens em "oportunidades". ${consolesFoco.length ? 'RESPEITE CONSOLES FOCO em todos os itens.' : ''}`;
 
       const resposta = await callClaude(prompt, 4000, systemPrompt);
-      let sugestoesNovas;
+      let parsed;
       try {
-        const jsonMatch = resposta.match(/\[[\s\S]*\]/);
+        const jsonMatch = resposta.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error('JSON não encontrado');
-        sugestoesNovas = JSON.parse(jsonMatch[0]);
+        parsed = JSON.parse(jsonMatch[0]);
+        if (!parsed.pick || !Array.isArray(parsed.oportunidades)) throw new Error('Estrutura inválida');
       } catch (e) {
         console.error('Resposta:', resposta);
         throw new Error('Claude não retornou JSON válido (F12 console)');
       }
 
-      const payload = sugestoesNovas.map((s, i) => ({
-        legacy_id: `IA-${Date.now()}-${i + 1}`,
-        titulo_sugerido: s.titulo_sugerido?.substring(0, 200),
-        tema: s.tema?.substring(0, 200),
-        motivo: s.motivo,
-        status: 'ideia',
-        consoles_foco: consolesFoco.length ? consolesFoco : null,
-      }));
+      const toRow = (s, tag) => ({
+        legacy_id:       `${tag}-${Date.now()}`,
+        titulo_sugerido: (s.titulo_sugerido || '').substring(0, 200),
+        tema:            (s.tema || '').substring(0, 200),
+        motivo:          [s.angulo ? `**Ângulo:** ${s.angulo}` : '', s.referencia_concorrente ? `**Concorrente:** ${s.referencia_concorrente}` : '', s.motivo || ''].filter(Boolean).join('\n\n'),
+        status:          'ideia',
+        rpm_previsto:    s.rpm_previsto || null,
+        consoles_foco:   consolesFoco.length ? consolesFoco : null,
+      });
+
+      const payload = [
+        toRow(parsed.pick, 'PICK'),
+        ...parsed.oportunidades.slice(0, 3).map(s => toRow(s, 'OPT')),
+      ];
+
       const { error } = await db.from('sugestoes').insert(payload);
       if (error) throw error;
 
-      toast(`✅ ${payload.length} criadas${consolesFoco.length ? ' (com foco)' : ''}!`, 'success');
+      toast(`✅ 1 Pick + ${payload.length - 1} oportunidades criadas!`, 'success');
       await carregar();
     } catch (err) {
       console.error(err);
       toast('Erro: ' + err.message, 'error');
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg> Gerar 2 com IA';
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg> Gerar Pick + Oportunidades';
     }
   }
 
