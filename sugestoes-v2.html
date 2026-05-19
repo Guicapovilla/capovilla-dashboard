@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capovilla · Sugestões v2 (Protótipo)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Tokens ── */
+    :root, [data-theme="light"] {
+      --background: 0 0% 100%; --foreground: 240 10% 3.9%;
+      --card: 0 0% 100%; --card-foreground: 240 10% 3.9%;
+      --primary: 240 5.9% 10%; --primary-foreground: 0 0% 98%;
+      --secondary: 240 4.8% 95.9%; --secondary-foreground: 240 5.9% 10%;
+      --muted: 240 4.8% 95.9%; --muted-foreground: 240 3.8% 46.1%;
+      --accent: 240 4.8% 95.9%; --accent-foreground: 240 5.9% 10%;
+      --border: 240 5.9% 90%; --input: 240 5.9% 90%; --ring: 240 5.9% 10%;
+      --radius: 0.5rem;
+      --amber: 38 92% 50%; --amber-foreground: 38 92% 6%;
+      --success: 142 71% 45%; --danger: 0 84% 60%; --info: 217 91% 60%;
+      --sidebar-background: 0 0% 98%; --sidebar-foreground: 240 5.3% 26.1%;
+      --sidebar-accent: 240 4.8% 95.9%; --sidebar-accent-foreground: 240 5.9% 10%;
+      --sidebar-border: 220 13% 91%;
+    }
+    [data-theme="dark"] {
+      --background: 240 10% 3.9%; --foreground: 0 0% 98%;
+      --card: 240 10% 3.9%; --card-foreground: 0 0% 98%;
+      --primary: 0 0% 98%; --primary-foreground: 240 5.9% 10%;
+      --secondary: 240 3.7% 15.9%; --secondary-foreground: 0 0% 98%;
+      --muted: 240 3.7% 15.9%; --muted-foreground: 240 5% 64.9%;
+      --accent: 240 3.7% 15.9%; --accent-foreground: 0 0% 98%;
+      --border: 240 3.7% 15.9%; --input: 240 3.7% 15.9%; --ring: 240 4.9% 83.9%;
+      --amber: 43 96% 56%; --amber-foreground: 38 92% 6%;
+      --success: 142 70% 50%; --danger: 0 72% 51%; --info: 217 91% 60%;
+      --sidebar-background: 240 5.9% 10%; --sidebar-foreground: 240 4.8% 95.9%;
+      --sidebar-accent: 240 3.7% 15.9%; --sidebar-accent-foreground: 240 4.8% 95.9%;
+      --sidebar-border: 240 3.7% 15.9%;
+    }
+
+    /* ── Base ── */
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      font-feature-settings: 'cv11','ss01';
+      -webkit-font-smoothing: antialiased;
+      background: hsl(var(--background)); color: hsl(var(--foreground));
+      font-size: 14px; line-height: 1.5;
+    }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    *::-webkit-scrollbar { width: 8px; height: 8px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 4px; }
+
+    /* ── App layout ── */
+    .app { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+
+    /* Sidebar */
+    .sidebar {
+      display: flex; flex-direction: column;
+      background: hsl(var(--sidebar-background)); color: hsl(var(--sidebar-foreground));
+      border-right: 1px solid hsl(var(--sidebar-border));
+      width: 220px; flex-shrink: 0;
+    }
+    .sidebar-header { padding: 8px; border-bottom: 1px solid hsl(var(--sidebar-border)); }
+    .sidebar-content { flex: 1; overflow-y: auto; padding: 8px; }
+    .sidebar-footer { padding: 8px; border-top: 1px solid hsl(var(--sidebar-border)); }
+    .team-switcher { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border-radius: 6px; }
+    .team-logo { width: 32px; height: 32px; border-radius: 6px; background: hsl(var(--amber)); color: hsl(var(--amber-foreground)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; font-size: 14px; }
+    .team-name { font-size: 13px; font-weight: 600; }
+    .team-plan { font-size: 11px; color: hsl(var(--sidebar-foreground) / 0.7); }
+    .sidebar-group { margin-top: 8px; }
+    .sidebar-group-label { font-size: 11px; font-weight: 500; color: hsl(var(--sidebar-foreground) / 0.6); padding: 8px 8px 4px; }
+    .nav-item { display: flex; align-items: center; gap: 8px; width: 100%; height: 32px; padding: 0 8px; border-radius: 6px; font-size: 13px; color: hsl(var(--sidebar-foreground)); }
+    .nav-item:hover { background: hsl(var(--sidebar-accent)); }
+    .nav-item.active { background: hsl(var(--sidebar-accent)); font-weight: 500; }
+    .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .user-card { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border-radius: 6px; }
+    .avatar { width: 28px; height: 28px; border-radius: 50%; background: hsl(var(--secondary)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 600; }
+    .user-name { font-size: 13px; font-weight: 500; }
+    .user-email { font-size: 11px; color: hsl(var(--sidebar-foreground) / 0.7); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Main */
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+    .app-header {
+      display: flex; align-items: center; gap: 8px;
+      height: 48px; padding: 0 16px;
+      border-bottom: 1px solid hsl(var(--border)); flex-shrink: 0;
+    }
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: hsl(var(--muted-foreground)); }
+    .breadcrumb .current { color: hsl(var(--foreground)); font-weight: 500; }
+    .app-content { flex: 1; overflow-y: auto; }
+    .page { padding: 28px 36px; max-width: 1200px; }
+
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 500; border-radius: calc(var(--radius) - 2px); padding: 0 14px; height: 34px; border: 1px solid transparent; white-space: nowrap; transition: all .12s; user-select: none; }
+    .btn-default { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+    .btn-default:hover { background: hsl(var(--primary) / 0.9); }
+    .btn-outline { background: hsl(var(--background)); color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
+    .btn-outline:hover { background: hsl(var(--accent)); }
+    .btn-ghost { color: hsl(var(--foreground)); }
+    .btn-ghost:hover { background: hsl(var(--accent)); }
+    .btn-amber { background: hsl(var(--amber)); color: hsl(var(--amber-foreground)); font-weight: 600; }
+    .btn-amber:hover { background: hsl(var(--amber) / 0.9); }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+    .btn-xs { height: 24px; padding: 0 8px; font-size: 11px; border-radius: 4px; }
+    .btn-icon { width: 32px; height: 32px; padding: 0; }
+    .btn-icon-sm { width: 28px; height: 28px; padding: 0; }
+
+    /* ── Misc ── */
+    .row { display: flex; }
+    .col { display: flex; flex-direction: column; }
+    .gap-2 { gap: 8px; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .flex-1 { flex: 1; }
+
+    /* ── Modal/Drawer ── */
+    .drawer-bg { display: none; position: fixed; inset: 0; background: hsl(0 0% 0% / 0.45); backdrop-filter: blur(3px); z-index: 100; }
+    .drawer-bg.show { display: block; }
+    .drawer { position: fixed; top: 0; right: -500px; bottom: 0; width: 480px; background: hsl(var(--card)); border-left: 1px solid hsl(var(--border)); z-index: 101; display: flex; flex-direction: column; transition: right .25s cubic-bezier(.4,0,.2,1); box-shadow: -20px 0 60px hsl(0 0% 0% / 0.3); }
+    .drawer.show { right: 0; }
+    .drawer-header { padding: 20px 24px 16px; border-bottom: 1px solid hsl(var(--border)); display: flex; justify-content: space-between; align-items: flex-start; flex-shrink: 0; }
+    .drawer-title { font-size: 16px; font-weight: 600; letter-spacing: -.01em; margin: 0; }
+    .drawer-desc { font-size: 13px; color: hsl(var(--muted-foreground)); margin-top: 3px; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+    .drawer-footer { padding: 14px 24px 20px; border-top: 1px solid hsl(var(--border)); display: flex; gap: 8px; flex-shrink: 0; }
+    .input, .textarea { width: 100%; background: hsl(var(--background)); color: hsl(var(--foreground)); border: 1px solid hsl(var(--input)); border-radius: calc(var(--radius) - 2px); padding: 8px 12px; font-family: inherit; font-size: 13px; line-height: 1.5; }
+    .input:focus, .textarea:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 1px hsl(var(--ring)); }
+    .textarea { min-height: 90px; resize: vertical; }
+    .field-label { font-size: 12px; font-weight: 500; margin-bottom: 5px; }
+
+    /* ═══════════════════════════════════
+       PAGE HEADER
+    ═══════════════════════════════════ */
+    .page-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 28px; gap: 16px;
+    }
+    .page-title { font-size: 22px; font-weight: 600; letter-spacing: -.02em; margin: 0 0 3px; }
+    .page-subtitle { font-size: 13px; color: hsl(var(--muted-foreground)); margin: 0; }
+    .page-subtitle .sep { margin: 0 6px; opacity: .4; }
+    .page-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 2px; }
+
+    /* ═══════════════════════════════════
+       SECTION DIVIDER
+    ═══════════════════════════════════ */
+    .section-divider {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .section-divider-line { flex: 1; height: 1px; background: hsl(var(--border)); }
+    .section-label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: hsl(var(--muted-foreground));
+      white-space: nowrap;
+    }
+    .section-label .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .dot-amber { background: hsl(var(--amber)); }
+    .dot-muted { background: hsl(var(--muted-foreground) / 0.6); }
+
+    /* ═══════════════════════════════════
+       PICK DA SEMANA
+    ═══════════════════════════════════ */
+    .pick-card {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--amber) / 0.3);
+      border-left: 3px solid hsl(var(--amber));
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .pick-card:hover { border-color: hsl(var(--amber) / 0.55); border-left-color: hsl(var(--amber)); }
+
+    .pick-eyebrow {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: hsl(var(--amber));
+      margin-bottom: 8px;
+    }
+    .pick-eyebrow svg { width: 10px; height: 10px; }
+
+    .pick-body { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: start; }
+    .pick-title {
+      font-size: 20px; font-weight: 700; letter-spacing: -.02em;
+      line-height: 1.25; margin: 0 0 10px;
+    }
+    .pick-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+    .pick-rpm {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 12px; font-weight: 600; color: hsl(var(--success));
+      background: hsl(var(--success) / 0.1); border: 1px solid hsl(var(--success) / 0.25);
+      padding: 3px 10px; border-radius: 999px;
+    }
+    .pick-rpm svg { width: 11px; height: 11px; }
+    .pick-tag {
+      font-size: 12px; color: hsl(var(--foreground) / 0.7);
+      background: hsl(var(--secondary)); padding: 3px 10px; border-radius: 999px;
+    }
+    .pick-ref {
+      font-size: 12px; color: hsl(var(--info));
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .pick-ref svg { width: 11px; height: 11px; opacity: .7; }
+
+    .pick-rationale {
+      font-size: 13px; color: hsl(var(--foreground) / 0.75); line-height: 1.6;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .pick-rationale.expanded { display: block; }
+    .pick-expand {
+      font-size: 12px; color: hsl(var(--info)); font-weight: 500;
+      margin-top: 5px; display: inline-flex; align-items: center; gap: 3px;
+      cursor: pointer;
+    }
+    .pick-expand svg { width: 12px; height: 12px; transition: transform .15s; }
+    .pick-expand.open svg { transform: rotate(180deg); }
+
+    /* Ações no lado direito do pick */
+    .pick-aside {
+      display: flex; flex-direction: column; align-items: flex-end;
+      gap: 10px; flex-shrink: 0;
+    }
+    .pick-aside-actions { display: flex; flex-direction: column; gap: 6px; width: 180px; }
+    .pick-aside-actions .btn { width: 100%; justify-content: center; }
+    .pick-corner { display: flex; gap: 4px; }
+    .pick-corner button {
+      width: 26px; height: 26px; border-radius: 6px;
+      border: 1px solid hsl(var(--border)); background: transparent;
+      color: hsl(var(--muted-foreground));
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pick-corner button:hover { color: hsl(var(--foreground)); border-color: hsl(var(--ring)); }
+
+    /* ═══════════════════════════════════
+       OPORTUNIDADES
+    ═══════════════════════════════════ */
+    .opp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .opp-card {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      display: flex; flex-direction: column;
+      transition: border-color .12s;
+    }
+    .opp-card:hover { border-color: hsl(var(--muted-foreground) / 0.4); }
+    .opp-title {
+      font-size: 14px; font-weight: 600; letter-spacing: -.01em;
+      line-height: 1.35; margin-bottom: 8px;
+    }
+    .opp-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .opp-rpm { font-size: 12px; font-weight: 600; color: hsl(var(--success)); }
+    .opp-angle { font-size: 11px; color: hsl(var(--muted-foreground)); }
+    .opp-rationale {
+      font-size: 12px; color: hsl(var(--foreground) / 0.7); line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+      overflow: hidden; flex: 1; margin-bottom: 12px;
+    }
+    .opp-actions { display: flex; gap: 6px; padding-top: 10px; border-top: 1px solid hsl(var(--border)); margin-top: auto; }
+    .opp-actions .btn { flex: 1; justify-content: center; height: 28px; font-size: 12px; }
+
+    /* ═══════════════════════════════════
+       FILA DE IDEIAS (pendentes manuais)
+    ═══════════════════════════════════ */
+    .queue-card {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .queue-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid hsl(var(--border));
+      background: hsl(var(--secondary) / 0.4);
+    }
+    .queue-toolbar-left { display: flex; align-items: center; gap: 10px; }
+    .queue-search {
+      height: 28px; padding: 0 10px; font-size: 12px;
+      border: 1px solid hsl(var(--border));
+      border-radius: 6px;
+      background: hsl(var(--background)); color: hsl(var(--foreground));
+      font-family: inherit; width: 200px;
+    }
+    .queue-search:focus { outline: none; border-color: hsl(var(--ring)); }
+
+    .queue-table { width: 100%; border-collapse: collapse; }
+    .queue-table th {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .05em; color: hsl(var(--muted-foreground));
+      padding: 10px 16px; text-align: left;
+      border-bottom: 1px solid hsl(var(--border));
+    }
+    .queue-table td { padding: 11px 16px; font-size: 13px; border-bottom: 1px solid hsl(var(--border) / 0.5); vertical-align: middle; }
+    .queue-table tr:last-child td { border-bottom: none; }
+    .queue-main-row { cursor: pointer; }
+    .queue-main-row:hover td { background: hsl(var(--accent) / 0.4); }
+    .queue-row-title { font-weight: 500; line-height: 1.3; }
+    .queue-row-tag { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; padding: 2px 7px; border-radius: 999px; background: hsl(var(--secondary)); color: hsl(var(--secondary-foreground)); }
+    .queue-row-tag svg { width: 9px; height: 9px; opacity: .7; }
+    .queue-row-date { font-size: 12px; color: hsl(var(--muted-foreground)); white-space: nowrap; }
+    .queue-row-actions { display: flex; gap: 4px; justify-content: flex-end; opacity: 0; transition: opacity .12s; }
+    .queue-table tr:hover .queue-row-actions { opacity: 1; }
+    .queue-footer {
+      padding: 10px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-top: 1px solid hsl(var(--border));
+      background: hsl(var(--secondary) / 0.2);
+    }
+    .queue-footer-hint { font-size: 12px; color: hsl(var(--muted-foreground)); }
+    .queue-footer-link {
+      font-size: 12px; color: hsl(var(--info)); font-weight: 500;
+      display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
+    }
+    .queue-footer-link:hover { color: hsl(var(--info) / 0.8); }
+    .queue-footer-link svg { width: 12px; height: 12px; }
+
+    /* Expandable row */
+    .queue-row-title { font-weight: 500; line-height: 1.3; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .queue-row-title:hover { color: hsl(var(--info)); }
+    .queue-row-title .row-chev { width: 13px; height: 13px; flex-shrink: 0; opacity: .5; transition: transform .15s; color: hsl(var(--muted-foreground)); }
+    .queue-row-title.open .row-chev { transform: rotate(90deg); opacity: 1; }
+    .queue-expand-row td { padding: 0 !important; border-bottom: 1px solid hsl(var(--border) / 0.5); }
+    .queue-expand-row.hidden { display: none; }
+    .queue-expand-inner {
+      padding: 14px 16px 16px 38px;
+      background: hsl(var(--secondary) / 0.3);
+      display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start;
+    }
+    .queue-expand-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: hsl(var(--muted-foreground)); margin-bottom: 4px; }
+    .queue-expand-text { font-size: 13px; color: hsl(var(--foreground) / 0.8); line-height: 1.55; }
+    .queue-expand-note {
+      width: 100%; margin-top: 10px; font-size: 12px;
+      background: hsl(var(--background)); color: hsl(var(--foreground));
+      border: 1px solid hsl(var(--border)); border-radius: 6px;
+      padding: 7px 10px; font-family: inherit; resize: none; min-height: 54px;
+    }
+    .queue-expand-note:focus { outline: none; border-color: hsl(var(--ring)); }
+    .queue-expand-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .queue-expand-actions .btn { width: 140px; justify-content: center; }
+
+    /* Proto banner */
+    .proto-banner {
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      background: hsl(var(--info) / 0.12); color: hsl(var(--info));
+      border: 1px solid hsl(var(--info) / 0.25);
+      padding: 7px 16px; border-radius: 999px;
+      font-size: 12px; font-weight: 500; z-index: 200;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap;
+      backdrop-filter: blur(8px);
+    }
+    .proto-banner a { color: hsl(var(--info)); text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="team-switcher">
+        <div class="team-logo">C</div>
+        <div>
+          <div class="team-name">Capovilla</div>
+          <div class="team-plan">Editorial Studio</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">Plataforma</div>
+        <div style="display:flex;flex-direction:column;gap:1px;">
+          <a href="#" class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+            Resumo
+          </a>
+          <a href="#" class="nav-item active">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+            Sugestões
+          </a>
+          <a href="#" class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+            Cronograma
+          </a>
+          <a href="#" class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/></svg>
+            Configurações
+          </a>
+        </div>
+      </div>
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">Canais</div>
+        <div style="display:flex;flex-direction:column;gap:1px;">
+          <a href="#" class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>
+            @guilhermecapovilla
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="avatar">GC</div>
+        <div style="min-width:0;">
+          <div class="user-name">Guilherme Capovilla</div>
+          <div class="user-email">guilherme@capovilla.tv</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <header class="app-header">
+      <button class="btn btn-ghost btn-icon-sm" title="Toggle sidebar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
+      </button>
+      <div class="breadcrumb">
+        <span>Plataforma</span>
+        <span style="opacity:.4;margin:0 2px;">›</span>
+        <span class="current">Sugestões</span>
+      </div>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost btn-icon-sm" title="Alternar tema" onclick="toggleTheme()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+    </header>
+
+    <div class="app-content">
+      <div class="page">
+
+        <!-- ── Header ── -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Sugestões</h1>
+            <p class="page-subtitle">
+              Pipeline editorial guiado por IA · briefing ativo
+              <span class="sep">·</span>
+              <span>3 ideias pendentes</span>
+              <span class="sep">·</span>
+              <span>4 em produção no <a href="#" style="color:hsl(var(--info));font-size:13px;text-decoration:underline;">Cronograma</a></span>
+            </p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm" onclick="abrirModelar()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 10-4 4 4 4"/><path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2"/><path d="M22 12h-4"/></svg>
+              Modelar concorrente
+            </button>
+            <button class="btn btn-outline btn-sm">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              Nova manual
+            </button>
+            <button class="btn btn-amber btn-sm">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+              Gerar Pick + Oportunidades
+            </button>
+          </div>
+        </div>
+
+        <!-- ══════════════════════
+             PICK DA SEMANA
+        ══════════════════════ -->
+        <div class="section-divider">
+          <div class="section-label">
+            <span class="dot dot-amber"></span>
+            Pick da semana
+          </div>
+          <div class="section-divider-line"></div>
+          <span style="font-size:11px;color:hsl(var(--muted-foreground));white-space:nowrap;flex-shrink:0;">gerado 18/05</span>
+        </div>
+
+        <div class="pick-card">
+          <div class="pick-eyebrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+            Pick da semana
+          </div>
+          <div class="pick-body">
+            <div>
+              <h2 class="pick-title">Switch Lite Desbloqueado: vale a pena em 2026?</h2>
+              <div class="pick-meta">
+                <span class="pick-rpm">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  RPM ~R$48
+                </span>
+                <span class="pick-tag">decisão de compra real</span>
+                <span class="pick-ref">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>
+                  ref: @CanalDestravado · 320k views
+                </span>
+              </div>
+              <div class="pick-rationale" id="pick-rationale">
+                Existe uma lacuna clara no mercado: os concorrentes focam exclusivamente em tutoriais técnicos de destravamento, mas ninguém aborda diretamente a decisão de compra com dados reais de uso. O usuário que já tem um Switch original quer saber se vale o custo adicional — e essa pergunta não tem uma resposta clara no YouTube em PT-BR. Combinado com o RPM histórico de consoles desbloqueados no seu canal, essa é a oportunidade com maior potencial de retorno agora.
+              </div>
+              <button class="pick-expand" id="pick-expand-btn" onclick="togglePickRationale()">
+                Ver raciocínio
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+            </div>
+            <div class="pick-aside">
+              <div class="pick-corner">
+                <button title="Editar">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                </button>
+                <button title="Rejeitar" style="color:hsl(var(--danger)/0.7)">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+              </div>
+              <div class="pick-aside-actions">
+                <button class="btn btn-amber btn-sm">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 12 2 2 4-4"/><path d="M5 7c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v12H5V7z"/><path d="M22 19H2"/></svg>
+                  Aprovar e gerar script
+                </button>
+                <button class="btn btn-outline btn-sm" style="color:hsl(var(--danger));border-color:hsl(var(--danger)/0.35);">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                  Rejeitar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════
+             OPORTUNIDADES
+        ══════════════════════ -->
+        <div class="section-divider">
+          <div class="section-label">
+            <span class="dot dot-muted"></span>
+            Oportunidades
+          </div>
+          <div class="section-divider-line"></div>
+        </div>
+
+        <div class="opp-grid">
+          <div class="opp-card">
+            <div class="opp-title">Switch OLED destravado vs Switch Lite: qual eu realmente uso mais?</div>
+            <div class="opp-meta">
+              <span class="opp-rpm">RPM ~R$42</span>
+              <span style="color:hsl(var(--muted-foreground)/0.5);font-size:10px;">·</span>
+              <span class="opp-angle">comparativo de uso real</span>
+            </div>
+            <div class="opp-rationale">
+              Concorrentes fazem comparações técnicas mas ninguém mostra qual console domina o uso diário com dados reais de uma pessoa que tem os dois.
+            </div>
+            <div class="opp-actions">
+              <button class="btn btn-outline" style="flex:1;justify-content:center;height:28px;font-size:12px;">Aprovar</button>
+              <button class="btn" style="flex:1;justify-content:center;height:28px;font-size:12px;color:hsl(var(--danger));border:1px solid hsl(var(--danger)/0.3);border-radius:4px;">Rejeitar</button>
+            </div>
+          </div>
+
+          <div class="opp-card">
+            <div class="opp-title">Quanto custa manter um Switch destravado por mês?</div>
+            <div class="opp-meta">
+              <span class="opp-rpm">RPM ~R$38</span>
+              <span style="color:hsl(var(--muted-foreground)/0.5);font-size:10px;">·</span>
+              <span class="opp-angle">custo total de posse</span>
+            </div>
+            <div class="opp-rationale">
+              Lacuna direta: ninguém fez esse levantamento em PT-BR. Inclui jogos, acessórios, riscos. Alto potencial de comentários e retenção.
+            </div>
+            <div class="opp-actions">
+              <button class="btn btn-outline" style="flex:1;justify-content:center;height:28px;font-size:12px;">Aprovar</button>
+              <button class="btn" style="flex:1;justify-content:center;height:28px;font-size:12px;color:hsl(var(--danger));border:1px solid hsl(var(--danger)/0.3);border-radius:4px;">Rejeitar</button>
+            </div>
+          </div>
+
+          <div class="opp-card">
+            <div class="opp-title">Switch 2 destravado vai existir? O que já sabemos</div>
+            <div class="opp-meta">
+              <span class="opp-rpm">RPM ~R$51</span>
+              <span style="color:hsl(var(--muted-foreground)/0.5);font-size:10px;">·</span>
+              <span class="opp-angle">antecipação · busca crescente</span>
+            </div>
+            <div class="opp-rationale">
+              Busca crescente pelo termo. Nenhum canal de destravado PT-BR abordou ainda. Janela de oportunidade antes que vire commodity.
+            </div>
+            <div class="opp-actions">
+              <button class="btn btn-outline" style="flex:1;justify-content:center;height:28px;font-size:12px;">Aprovar</button>
+              <button class="btn" style="flex:1;justify-content:center;height:28px;font-size:12px;color:hsl(var(--danger));border:1px solid hsl(var(--danger)/0.3);border-radius:4px;">Rejeitar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════
+             FILA DE IDEIAS
+        ══════════════════════ -->
+        <div class="section-divider">
+          <div class="section-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+            Fila de ideias
+          </div>
+          <div class="section-divider-line"></div>
+          <span style="font-size:11px;color:hsl(var(--muted-foreground));white-space:nowrap;flex-shrink:0;">5 pendentes</span>
+        </div>
+
+        <div class="queue-card">
+          <div class="queue-toolbar">
+            <div class="queue-toolbar-left">
+              <input class="queue-search" placeholder="Buscar ideia..." />
+              <select style="height:28px;padding:0 8px;font-size:12px;border:1px solid hsl(var(--border));border-radius:6px;background:hsl(var(--background));color:hsl(var(--foreground));font-family:inherit;">
+                <option>Console: Todos</option>
+                <option>Switch Lite</option>
+                <option>Switch OLED</option>
+              </select>
+            </div>
+            <button class="btn btn-outline btn-sm">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              Adicionar ideia
+            </button>
+          </div>
+
+          <table class="queue-table">
+            <thead>
+              <tr>
+                <th style="width:42%">Título</th>
+                <th>Console</th>
+                <th>Fonte</th>
+                <th>Adicionado</th>
+                <th style="width:100px"></th>
+              </tr>
+            </thead>
+            <tbody id="queue-tbody">
+
+              <!-- Row 1 -->
+              <tr class="queue-main-row" onclick="toggleQueueRow('r1')">
+                <td>
+                  <div class="queue-row-title" id="title-r1">
+                    <svg class="row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    Switch Lite em 2026: o emulador portátil perfeito
+                  </div>
+                </td>
+                <td><span class="queue-row-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>Switch Lite</span></td>
+                <td><span style="font-size:12px;color:hsl(var(--muted-foreground));">Manual</span></td>
+                <td><span class="queue-row-date">12/05</span></td>
+                <td><div class="queue-row-actions">
+                  <button class="btn btn-outline btn-xs" onclick="event.stopPropagation()">Aprovar</button>
+                  <button class="btn btn-xs" style="color:hsl(var(--danger));border:1px solid hsl(var(--danger)/0.3);" onclick="event.stopPropagation()">✕</button>
+                </div></td>
+              </tr>
+              <tr class="queue-expand-row hidden" id="expand-r1">
+                <td colspan="5">
+                  <div class="queue-expand-inner">
+                    <div>
+                      <div class="queue-expand-label">Raciocínio / Notas</div>
+                      <div class="queue-expand-text">Enquanto existem diversos games portáteis no mercado chinês, o Switch Lite continua sendo uma opção excelente. Além de rodar jogos nativos, roda todos os emuladores até PSP com folga. Ponto de venda único: ninguém fez esse comparativo direto em PT-BR em 2026.</div>
+                      <textarea class="queue-expand-note" placeholder="Adicionar nota pessoal..."></textarea>
+                    </div>
+                    <div class="queue-expand-actions">
+                      <button class="btn btn-amber btn-sm">Aprovar e gerar script</button>
+                      <button class="btn btn-outline btn-sm">Aprovar sem script</button>
+                      <button class="btn btn-sm" style="color:hsl(var(--danger));border:1px solid hsl(var(--danger)/0.3);">Rejeitar ideia</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 2 -->
+              <tr class="queue-main-row" onclick="toggleQueueRow('r2')">
+                <td>
+                  <div class="queue-row-title" id="title-r2">
+                    <svg class="row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    Eu modifiquei meu Switch Lite e não preciso mais do Switch 2
+                  </div>
+                </td>
+                <td><span class="queue-row-tag">Switch Lite</span></td>
+                <td><span style="font-size:12px;color:hsl(var(--muted-foreground));">Manual</span></td>
+                <td><span class="queue-row-date">10/05</span></td>
+                <td><div class="queue-row-actions">
+                  <button class="btn btn-outline btn-xs" onclick="event.stopPropagation()">Aprovar</button>
+                  <button class="btn btn-xs" style="color:hsl(var(--danger));border:1px solid hsl(var(--danger)/0.3);" onclick="event.stopPropagation()">✕</button>
+                </div></td>
+              </tr>
+              <tr class="queue-expand-row hidden" id="expand-r2">
+                <td colspan="5">
+                  <div class="queue-expand-inner">
+                    <div>
+                      <div class="queue-expand-label">Raciocínio / Notas</div>
+                      <div class="queue-expand-text">Ângulo pessoal — "eu tenho os dois e vou te mostrar qual uso mais". Alta identificação com quem está em dúvida sobre upgrade. Potencial de polarização nos comentários (boa retenção).</div>
+                      <textarea class="queue-expand-note" placeholder="Adicionar nota pessoal..."></textarea>
+                    </div>
+                    <div class="queue-expand-actions">
+                      <button class="btn btn-amber btn-sm">Aprovar e gerar script</button>
+                      <button class="btn btn-outline btn-sm">Aprovar sem script</button>
+                      <button class="btn btn-sm" style="color:hsl(var(--danger));border:1px solid hsl(var(--danger)/0.3);">Rejeitar ideia</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 3 -->
+              <tr class="queue-main-row" onclick="toggleQueueRow('r3')">
+                <td>
+                  <div class="queue-row-title" id="title-r3">
+                    <svg class="row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    Melhores jogos do Nintendo Switch pt. 2
+                  </div>
+                </td>
+                <td><span class="queue-row-tag">Geral</span></td>
+                <td><span style="font-size:12px;color:hsl(var(--muted-foreground));">Manual</span></td>
+                <td><span class="queue-row-date">08/05</span></td>
+                <td><div class="queue-row-actions">
+                  <button class="btn btn-outline btn-xs" onclick="event.stopPropagation()">Aprovar</button>
+                  <button class="btn btn-xs" style="color:hsl(var(--danger));border:1px solid hsl(var(--danger)/0.3);" onclick="event.stopPropagation()">✕</button>
+                </div></td>
+              </tr>
+              <tr class="queue-expand-row hidden" id="expand-r3">
+                <td colspan="5">
+                  <div class="queue-expand-inner">
+                    <div>
+                      <div class="queue-expand-label">Raciocínio / Notas</div>
+                      <div class="queue-expand-text">Continuação do vídeo mais visto do canal. Alta demanda nos comentários ("faz a parte 2!"). Bom para SEO — aproveita autoridade do vídeo original.</div>
+                      <textarea class="queue-expand-note" placeholder="Adicionar nota pessoal..."></textarea>
+                    </div>
+                    <div class="queue-expand-actions">
+                      <button class="btn btn-amber btn-sm">Aprovar e gerar script</button>
+                      <button class="btn btn-outline btn-sm">Aprovar sem script</button>
+                      <button class="btn btn-sm" style="color:hsl(var(--danger));border:1px solid hsl(var(--danger)/0.3);">Rejeitar ideia</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 4 -->
+              <tr class="queue-main-row" onclick="toggleQueueRow('r4')">
+                <td>
+                  <div class="queue-row-title" id="title-r4">
+                    <svg class="row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    Faça um favor a você e compre um console portátil
+                  </div>
+                </td>
+                <td><span class="queue-row-tag">Geral</span></td>
+                <td><span style="font-size:12px;color:hsl(var(--muted-foreground));">Manual</span></td>
+                <td><span class="queue-row-date">05/05</span></td>
+                <td><div class="queue-row-actions">
+                  <button class="btn btn-outline btn-xs" onclick="event.stopPropagation()">Aprovar</button>
+                  <button class="btn btn-xs" style="color:hsl(var(--danger));border:1px solid hsl(var(--danger)/0.3);" onclick="event.stopPropagation()">✕</button>
+                </div></td>
+              </tr>
+              <tr class="queue-expand-row hidden" id="expand-r4">
+                <td colspan="5">
+                  <div class="queue-expand-inner">
+                    <div>
+                      <div class="queue-expand-label">Raciocínio / Notas</div>
+                      <div class="queue-expand-text">Vídeo de opinião forte — funciona bem no algoritmo. Posicionamento de autoridade. Pode servir de isca para novos inscritos que ainda não têm console.</div>
+                      <textarea class="queue-expand-note" placeholder="Adicionar nota pessoal..."></textarea>
+                    </div>
+                    <div class="queue-expand-actions">
+                      <button class="btn btn-amber btn-sm">Aprovar e gerar script</button>
+                      <button class="btn btn-outline btn-sm">Aprovar sem script</button>
+                      <button class="btn btn-sm" style="color:hsl(var(--danger));border:1px solid hsl(var(--danger)/0.3);">Rejeitar ideia</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 5 -->
+              <tr class="queue-main-row" onclick="toggleQueueRow('r5')">
+                <td>
+                  <div class="queue-row-title" id="title-r5">
+                    <svg class="row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    Review do novo acessório de carregamento para Switch
+                  </div>
+                </td>
+                <td><span class="queue-row-tag">Acessórios</span></td>
+                <td><span style="font-size:12px;color:hsl(var(--muted-foreground));">Manual</span></td>
+                <td><span class="queue-row-date">03/05</span></td>
+                <td><div class="queue-row-actions">
+                  <button class="btn btn-outline btn-xs" onclick="event.stopPropagation()">Aprovar</button>
+                  <button class="btn btn-xs" style="color:hsl(var(--danger));border:1px solid hsl(var(--danger)/0.3);" onclick="event.stopPropagation()">✕</button>
+                </div></td>
+              </tr>
+              <tr class="queue-expand-row hidden" id="expand-r5">
+                <td colspan="5">
+                  <div class="queue-expand-inner">
+                    <div>
+                      <div class="queue-expand-label">Raciocínio / Notas</div>
+                      <div class="queue-expand-text">Review de produto com link de afiliado — boa monetização direta. Curto de produzir. Serve como conteúdo de nicho para quem já tem Switch destravado e quer acessórios.</div>
+                      <textarea class="queue-expand-note" placeholder="Adicionar nota pessoal..."></textarea>
+                    </div>
+                    <div class="queue-expand-actions">
+                      <button class="btn btn-amber btn-sm">Aprovar e gerar script</button>
+                      <button class="btn btn-outline btn-sm">Aprovar sem script</button>
+                      <button class="btn btn-sm" style="color:hsl(var(--danger));border:1px solid hsl(var(--danger)/0.3);">Rejeitar ideia</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+
+          <div class="queue-footer">
+            <span class="queue-footer-hint">Ideias aprovadas vão direto para o Cronograma</span>
+            <a class="queue-footer-link" href="#">
+              Ver pipeline de produção no Cronograma
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+
+      </div><!-- /page -->
+    </div><!-- /app-content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ── Drawer: Modelar concorrente ── -->
+<div class="drawer-bg" id="drawer-bg" onclick="fecharModelar()"></div>
+<div class="drawer" id="drawer-modelar">
+  <div class="drawer-header">
+    <div>
+      <h3 class="drawer-title">Modelar vídeo de concorrente</h3>
+      <p class="drawer-desc">A IA adapta para o seu canal cruzando com seus dados</p>
+    </div>
+    <button class="btn btn-ghost btn-icon-sm" onclick="fecharModelar()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body">
+
+    <!-- Preview do vídeo (aparece quando aberto via Radar) -->
+    <div id="modelar-preview" style="display:none;gap:12px;align-items:flex-start;padding:12px 14px;background:hsl(var(--secondary));border-radius:8px;margin-bottom:4px;">
+      <img id="modelar-thumb" src="" alt="" style="width:120px;aspect-ratio:16/9;object-fit:cover;border-radius:5px;flex-shrink:0;" />
+      <div style="min-width:0;">
+        <div id="modelar-channel" style="font-size:11px;color:hsl(var(--info));font-weight:500;margin-bottom:3px;"></div>
+        <div id="modelar-title-preview" style="font-size:13px;font-weight:600;line-height:1.35;margin-bottom:5px;"></div>
+        <div id="modelar-stats" style="font-size:11px;color:hsl(var(--muted-foreground));"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="field-label">URL do vídeo</div>
+      <input class="input" id="modelar-url-input" placeholder="https://youtube.com/watch?v=..." />
+    </div>
+    <div>
+      <div class="field-label">Notas / o que quero adaptar (opcional)</div>
+      <textarea class="textarea" id="modelar-notas" placeholder="Ex: usar o mesmo ângulo mas focar em Nintendo Switch, adaptar para audiência brasileira..."></textarea>
+    </div>
+    <div style="padding:12px 14px;background:hsl(var(--secondary));border-radius:8px;font-size:12px;color:hsl(var(--muted-foreground));line-height:1.55;">
+      <strong style="color:hsl(var(--foreground));display:block;margin-bottom:4px;">Como funciona</strong>
+      A IA cruza o vídeo do concorrente com seus 20 vídeos mais vistos e propõe uma versão adaptada ao seu estilo, ângulo e audiência.
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-outline" onclick="fecharModelar()" style="flex:none;">Cancelar</button>
+    <button class="btn btn-default" style="flex:1;justify-content:center;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+      Modelar para meu canal
+    </button>
+  </div>
+</div>
+
+<div class="proto-banner">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+  Protótipo · dados mockados
+  <span style="margin:0 4px;opacity:.4;">·</span>
+  <a href="sugestoes.html">← original</a>
+  <span style="margin:0 4px;opacity:.4;">·</span>
+  <a href="index-v2.html">← Resumo</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL     = 'https://ryspohcflrxjwwghvvqc.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_OzoD3gbIn4GoJ6szjwdkhw_KFGAGNsh';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const compact = n => {
+    if (n >= 1e6) return (n/1e6).toFixed(1).replace('.0','') + 'M';
+    if (n >= 1e3) return (n/1e3).toFixed(1).replace('.0','') + 'k';
+    return String(n);
+  };
+  const daysAgo = iso => {
+    if (!iso) return '';
+    const h = Math.floor((Date.now() - new Date(iso)) / 3600000);
+    if (h < 24) return `há ${h}h`;
+    return `há ${Math.floor(h/24)}d`;
+  };
+
+  // ── Drawer: Modelar concorrente ──
+  function abrirModelar(videoId) {
+    document.getElementById('drawer-bg').classList.add('show');
+    document.getElementById('drawer-modelar').classList.add('show');
+
+    const preview  = document.getElementById('modelar-preview');
+    const urlInput = document.getElementById('modelar-url-input');
+    const notas    = document.getElementById('modelar-notas');
+
+    // Reset
+    preview.style.display = 'none';
+    notas.value = '';
+
+    if (videoId) {
+      urlInput.value = `https://youtube.com/watch?v=${videoId}`;
+      // Carrega info do vídeo do Supabase
+      db.from('concorrentes_videos')
+        .select('titulo,views,data_publicacao,channel_id,concorrentes(nome)')
+        .eq('video_id', videoId)
+        .limit(1)
+        .then(({ data }) => {
+          if (!data?.length) return;
+          const v = data[0];
+          document.getElementById('modelar-thumb').src =
+            `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
+          document.getElementById('modelar-channel').textContent =
+            '@' + (v.concorrentes?.nome || v.channel_id || '');
+          document.getElementById('modelar-title-preview').textContent =
+            v.titulo || '';
+          document.getElementById('modelar-stats').textContent =
+            [compact(v.views || 0) + ' views', daysAgo(v.data_publicacao)]
+              .filter(Boolean).join(' · ');
+          preview.style.display = 'flex';
+        });
+    } else {
+      urlInput.value = '';
+    }
+  }
+
+  function fecharModelar() {
+    document.getElementById('drawer-bg').classList.remove('show');
+    document.getElementById('drawer-modelar').classList.remove('show');
+  }
+
+  function togglePickRationale() {
+    const el  = document.getElementById('pick-rationale');
+    const btn = document.getElementById('pick-expand-btn');
+    const expanded = el.classList.toggle('expanded');
+    btn.classList.toggle('open', expanded);
+    btn.childNodes[0].textContent = expanded ? 'Fechar raciocínio ' : 'Ver raciocínio ';
+  }
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  }
+
+  let _openRow = null;
+  function toggleQueueRow(id) {
+    const expandRow = document.getElementById('expand-' + id);
+    const titleEl   = document.getElementById('title-' + id);
+    const isOpen    = !expandRow.classList.contains('hidden');
+    if (_openRow && _openRow !== id) {
+      document.getElementById('expand-' + _openRow).classList.add('hidden');
+      document.getElementById('title-' + _openRow).classList.remove('open');
+    }
+    if (isOpen) {
+      expandRow.classList.add('hidden');
+      titleEl.classList.remove('open');
+      _openRow = null;
+    } else {
+      expandRow.classList.remove('hidden');
+      titleEl.classList.add('open');
+      _openRow = id;
+    }
+  }
+
+  // ── Abre drawer automaticamente se vier com ?modelar=VIDEO_ID ──
+  (function() {
+    const params  = new URLSearchParams(window.location.search);
+    const videoId = params.get('modelar');
+    if (videoId) {
+      // Aguarda o DOM estar pronto
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => abrirModelar(videoId));
+      } else {
+        abrirModelar(videoId);
+      }
+    }
+  })();
+</script>
+</body>
+</html>
