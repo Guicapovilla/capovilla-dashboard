@@ -8,171 +8,349 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root, [data-theme="light"] { --background: 0 0% 100%; --foreground: 240 10% 3.9%; --card: 0 0% 100%; --card-foreground: 240 10% 3.9%; --primary: 240 5.9% 10%; --primary-foreground: 0 0% 98%; --secondary: 240 4.8% 95.9%; --secondary-foreground: 240 5.9% 10%; --muted: 240 4.8% 95.9%; --muted-foreground: 240 3.8% 46.1%; --accent: 240 4.8% 95.9%; --accent-foreground: 240 5.9% 10%; --border: 240 5.9% 90%; --input: 240 5.9% 90%; --ring: 240 5.9% 10%; --radius: 0.5rem; --amber: 38 92% 50%; --amber-foreground: 38 92% 6%; --success: 142 71% 45%; --danger: 0 84% 60%; --info: 217 91% 60%; --sidebar-background: 0 0% 98%; --sidebar-foreground: 240 5.3% 26.1%; --sidebar-accent: 240 4.8% 95.9%; --sidebar-accent-foreground: 240 5.9% 10%; --sidebar-border: 220 13% 91%; }
-    [data-theme="dark"] { --background: 240 10% 3.9%; --foreground: 0 0% 98%; --card: 240 10% 3.9%; --card-foreground: 0 0% 98%; --primary: 0 0% 98%; --primary-foreground: 240 5.9% 10%; --secondary: 240 3.7% 15.9%; --secondary-foreground: 0 0% 98%; --muted: 240 3.7% 15.9%; --muted-foreground: 240 5% 64.9%; --accent: 240 3.7% 15.9%; --accent-foreground: 0 0% 98%; --border: 240 3.7% 15.9%; --input: 240 3.7% 15.9%; --ring: 240 4.9% 83.9%; --amber: 43 96% 56%; --amber-foreground: 38 92% 6%; --success: 142 70% 50%; --danger: 0 72% 51%; --info: 217 91% 60%; --sidebar-background: 240 5.9% 10%; --sidebar-foreground: 240 4.8% 95.9%; --sidebar-accent: 240 3.7% 15.9%; --sidebar-accent-foreground: 240 4.8% 95.9%; --sidebar-border: 240 3.7% 15.9%; }
+    /* ── Tokens ── */
+    :root, [data-theme="light"] {
+      --background: 0 0% 100%; --foreground: 240 10% 3.9%;
+      --card: 0 0% 100%; --card-foreground: 240 10% 3.9%;
+      --primary: 240 5.9% 10%; --primary-foreground: 0 0% 98%;
+      --secondary: 240 4.8% 95.9%; --secondary-foreground: 240 5.9% 10%;
+      --muted: 240 4.8% 95.9%; --muted-foreground: 240 3.8% 46.1%;
+      --accent: 240 4.8% 95.9%; --accent-foreground: 240 5.9% 10%;
+      --border: 240 5.9% 90%; --input: 240 5.9% 90%; --ring: 240 5.9% 10%;
+      --radius: 0.5rem;
+      --amber: 38 92% 50%; --amber-foreground: 38 92% 6%;
+      --success: 142 71% 45%; --danger: 0 84% 60%; --info: 217 91% 60%;
+      --sidebar-background: 0 0% 98%; --sidebar-foreground: 240 5.3% 26.1%;
+      --sidebar-accent: 240 4.8% 95.9%; --sidebar-border: 220 13% 91%;
+    }
+    [data-theme="dark"] {
+      --background: 240 10% 3.9%; --foreground: 0 0% 98%;
+      --card: 240 10% 3.9%; --card-foreground: 0 0% 98%;
+      --primary: 0 0% 98%; --primary-foreground: 240 5.9% 10%;
+      --secondary: 240 3.7% 15.9%; --secondary-foreground: 0 0% 98%;
+      --muted: 240 3.7% 15.9%; --muted-foreground: 240 5% 64.9%;
+      --accent: 240 3.7% 15.9%; --accent-foreground: 0 0% 98%;
+      --border: 240 3.7% 15.9%; --input: 240 3.7% 15.9%; --ring: 240 4.9% 83.9%;
+      --amber: 43 96% 56%; --amber-foreground: 38 92% 6%;
+      --success: 142 70% 50%; --danger: 0 72% 51%; --info: 217 91% 60%;
+      --sidebar-background: 240 5.9% 10%; --sidebar-foreground: 240 4.8% 95.9%;
+      --sidebar-accent: 240 3.7% 15.9%; --sidebar-border: 240 3.7% 15.9%;
+    }
 
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; height: 100%; }
-    body { font-family: 'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; font-feature-settings: 'cv11','ss01'; -webkit-font-smoothing: antialiased; background: hsl(var(--background)); color: hsl(var(--foreground)); font-size: 14px; line-height: 1.5; }
-    .mono { font-family: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace; font-feature-settings: 'tnum','zero'; }
+    body {
+      font-family: 'Geist', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: hsl(var(--background)); color: hsl(var(--foreground));
+      font-size: 14px; line-height: 1.5;
+    }
     button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; color: inherit; }
     a { color: inherit; text-decoration: none; }
-    *::-webkit-scrollbar { width: 10px; height: 10px; }
-    *::-webkit-scrollbar-track { background: transparent; }
-    *::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 5px; border: 2px solid hsl(var(--background)); }
+    input, textarea { font-family: inherit; }
+    .mono { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: 'tnum'; }
+    *::-webkit-scrollbar { width: 8px; height: 8px; }
+    *::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 4px; }
 
+    /* ── Layout ── */
     .app { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
-    .sidebar { display: flex; flex-direction: column; background: hsl(var(--sidebar-background)); color: hsl(var(--sidebar-foreground)); border-right: 1px solid hsl(var(--sidebar-border)); width: 256px; flex-shrink: 0; transition: width .2s ease; overflow: hidden; }
-    .sidebar.collapsed { width: 56px; }
+    .sidebar {
+      display: flex; flex-direction: column;
+      background: hsl(var(--sidebar-background)); color: hsl(var(--sidebar-foreground));
+      border-right: 1px solid hsl(var(--sidebar-border));
+      width: 220px; flex-shrink: 0;
+    }
     .sidebar-header { padding: 8px; border-bottom: 1px solid hsl(var(--sidebar-border)); }
     .sidebar-content { flex: 1; overflow-y: auto; padding: 8px; }
     .sidebar-footer { padding: 8px; border-top: 1px solid hsl(var(--sidebar-border)); }
-    .sidebar-group { margin-top: 8px; }
-    .sidebar-group:first-child { margin-top: 0; }
-    .sidebar-group-label { font-size: 11px; font-weight: 500; color: hsl(var(--sidebar-foreground) / 0.6); padding: 8px 8px 4px; white-space: nowrap; overflow: hidden; }
-    .sidebar.collapsed .sidebar-group-label { opacity: 0; height: 0; padding: 0; }
-    .sidebar-menu { display: flex; flex-direction: column; gap: 1px; }
-    .sidebar-menu-button { display: flex; align-items: center; gap: 8px; width: 100%; height: 32px; padding: 0 8px; border-radius: calc(var(--radius) - 2px); font-size: 13px; font-weight: 400; color: hsl(var(--sidebar-foreground)); text-align: left; white-space: nowrap; overflow: hidden; transition: background-color .12s, color .12s; }
-    .sidebar-menu-button:hover { background: hsl(var(--sidebar-accent)); color: hsl(var(--sidebar-accent-foreground)); }
-    .sidebar-menu-button.active { background: hsl(var(--sidebar-accent)); color: hsl(var(--sidebar-accent-foreground)); font-weight: 500; }
-    .sidebar-menu-button .icon { flex-shrink: 0; width: 16px; height: 16px; }
-    .sidebar-menu-button .label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
-    .sidebar-menu-button .chevron { flex-shrink: 0; width: 14px; height: 14px; opacity: 0.6; transition: transform .15s; }
-    .sidebar-menu-button.open .chevron { transform: rotate(90deg); }
-    .sidebar-menu-sub { margin-left: 12px; padding-left: 10px; border-left: 1px solid hsl(var(--sidebar-border)); display: flex; flex-direction: column; gap: 1px; margin-top: 1px; }
-    .sidebar-menu-sub-button { display: flex; align-items: center; width: 100%; height: 28px; padding: 0 8px; border-radius: calc(var(--radius) - 4px); font-size: 13px; color: hsl(var(--sidebar-foreground) / 0.85); }
-    .sidebar-menu-sub-button:hover { background: hsl(var(--sidebar-accent)); color: hsl(var(--sidebar-accent-foreground)); }
-    .sidebar-menu-sub-button.active { color: hsl(var(--sidebar-accent-foreground)); font-weight: 500; background: hsl(var(--sidebar-accent)); }
-    .sidebar.collapsed .sidebar-menu-button .label, .sidebar.collapsed .sidebar-menu-button .chevron, .sidebar.collapsed .sidebar-menu-sub { display: none; }
-    .sidebar.collapsed .sidebar-menu-button { justify-content: center; padding: 0; width: 32px; margin: 0 auto; }
-
-    .team-switcher { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border-radius: calc(var(--radius) - 2px); text-align: left; }
-    .team-switcher:hover { background: hsl(var(--sidebar-accent)); }
+    .team-switcher { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border-radius: 6px; }
     .team-logo { width: 32px; height: 32px; border-radius: 6px; background: hsl(var(--amber)); color: hsl(var(--amber-foreground)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; font-size: 14px; }
-    .team-meta { flex: 1; overflow: hidden; min-width: 0; }
-    .team-name { font-size: 13px; font-weight: 600; line-height: 1.2; }
-    .team-plan { font-size: 11px; color: hsl(var(--sidebar-foreground) / 0.7); line-height: 1.2; margin-top: 1px; }
-    .sidebar.collapsed .team-meta { display: none; }
-    .sidebar.collapsed .team-switcher { padding: 4px; justify-content: center; }
-
-    .user-card { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border-radius: calc(var(--radius) - 2px); }
-    .user-card:hover { background: hsl(var(--sidebar-accent)); }
-    .avatar { width: 28px; height: 28px; border-radius: 50%; background: hsl(var(--secondary)); color: hsl(var(--secondary-foreground)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 600; }
-    .user-meta { flex: 1; overflow: hidden; min-width: 0; }
-    .user-name { font-size: 13px; font-weight: 500; line-height: 1.2; }
-    .user-email { font-size: 11px; color: hsl(var(--sidebar-foreground) / 0.7); line-height: 1.2; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; }
-    .sidebar.collapsed .user-meta { display: none; }
-    .sidebar.collapsed .user-card { padding: 4px; justify-content: center; }
+    .team-name { font-size: 13px; font-weight: 600; }
+    .team-plan { font-size: 11px; color: hsl(var(--sidebar-foreground) / 0.7); }
+    .sidebar-group { margin-top: 8px; }
+    .sidebar-group-label { font-size: 11px; font-weight: 500; color: hsl(var(--sidebar-foreground) / 0.6); padding: 8px 8px 4px; }
+    .nav-item { display: flex; align-items: center; gap: 8px; width: 100%; height: 32px; padding: 0 8px; border-radius: 6px; font-size: 13px; color: hsl(var(--sidebar-foreground)); }
+    .nav-item:hover { background: hsl(var(--sidebar-accent)); }
+    .nav-item.active { background: hsl(var(--sidebar-accent)); font-weight: 500; }
+    .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .user-card { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border-radius: 6px; }
+    .avatar { width: 28px; height: 28px; border-radius: 50%; background: hsl(var(--secondary)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 600; }
+    .user-name { font-size: 13px; font-weight: 500; }
+    .user-email { font-size: 11px; color: hsl(var(--sidebar-foreground) / 0.7); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     .main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
-    .app-header { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 16px; border-bottom: 1px solid hsl(var(--border)); flex-shrink: 0; }
-    .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-    .breadcrumb-item { color: hsl(var(--muted-foreground)); }
-    .breadcrumb-item.current { color: hsl(var(--foreground)); font-weight: 500; }
-    .breadcrumb-sep { color: hsl(var(--muted-foreground)); opacity: 0.5; width: 14px; height: 14px; }
-    .separator-v { width: 1px; background: hsl(var(--border)); }
+    .app-header {
+      display: flex; align-items: center; gap: 8px;
+      height: 48px; padding: 0 16px;
+      border-bottom: 1px solid hsl(var(--border)); flex-shrink: 0;
+    }
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: hsl(var(--muted-foreground)); }
+    .breadcrumb .current { color: hsl(var(--foreground)); font-weight: 500; }
     .app-content { flex: 1; overflow-y: auto; }
-    .page { padding: 24px 32px; max-width: 1300px; margin: 0 auto; }
-    .page-header { margin-bottom: 24px; }
-    .page-title { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0; }
-    .page-subtitle { font-size: 14px; color: hsl(var(--muted-foreground)); margin: 4px 0 0; }
-    .section-title { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: hsl(var(--muted-foreground)); margin: 32px 0 12px; }
-    .section-title:first-of-type { margin-top: 0; }
+    .page { padding: 28px 36px; max-width: 1100px; }
 
-    /* Buttons */
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 500; line-height: 1; border-radius: calc(var(--radius) - 2px); padding: 0 12px; height: 32px; border: 1px solid transparent; white-space: nowrap; transition: background-color .12s, border-color .12s, color .12s; user-select: none; }
+    /* ── Page header ── */
+    .page-header { margin-bottom: 22px; }
+    .page-title { font-size: 22px; font-weight: 600; letter-spacing: -.02em; margin: 0 0 3px; }
+    .page-sub { font-size: 13px; color: hsl(var(--muted-foreground)); margin: 0; }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex; gap: 2px;
+      border-bottom: 1px solid hsl(var(--border));
+      margin-bottom: 24px;
+    }
+    .tab {
+      padding: 10px 14px; font-size: 13px; font-weight: 500;
+      color: hsl(var(--muted-foreground));
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: color .12s, border-color .12s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .tab:hover { color: hsl(var(--foreground)); }
+    .tab.active { color: hsl(var(--foreground)); border-bottom-color: hsl(var(--foreground)); }
+    .tab .tab-count {
+      font-size: 11px; padding: 1px 6px; border-radius: 999px;
+      background: hsl(var(--secondary)); color: hsl(var(--muted-foreground));
+      font-weight: 500; font-family: 'Geist Mono', monospace;
+    }
+    .tab.active .tab-count { background: hsl(var(--foreground)); color: hsl(var(--background)); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 500; border-radius: 6px; padding: 0 14px; height: 34px; border: 1px solid transparent; white-space: nowrap; transition: all .12s; }
     .btn:disabled { opacity: 0.5; cursor: wait; }
     .btn-default { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
     .btn-default:hover:not(:disabled) { background: hsl(var(--primary) / 0.9); }
-    .btn-secondary { background: hsl(var(--secondary)); color: hsl(var(--secondary-foreground)); }
     .btn-outline { background: hsl(var(--background)); color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
     .btn-outline:hover:not(:disabled) { background: hsl(var(--accent)); }
     .btn-ghost { color: hsl(var(--foreground)); }
     .btn-ghost:hover:not(:disabled) { background: hsl(var(--accent)); }
     .btn-amber { background: hsl(var(--amber)); color: hsl(var(--amber-foreground)); font-weight: 600; }
     .btn-amber:hover:not(:disabled) { background: hsl(var(--amber) / 0.9); }
-    .btn-danger-outline { background: transparent; color: hsl(var(--danger)); border-color: hsl(var(--danger) / 0.4); }
-    .btn-danger-outline:hover:not(:disabled) { background: hsl(var(--danger) / 0.1); }
+    .btn-danger-ghost { color: hsl(var(--danger)); }
+    .btn-danger-ghost:hover:not(:disabled) { background: hsl(var(--danger) / 0.1); }
     .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+    .btn-xs { height: 24px; padding: 0 8px; font-size: 11px; }
     .btn-icon-sm { width: 28px; height: 28px; padding: 0; }
 
-    /* Card */
-    .card { background: hsl(var(--card)); color: hsl(var(--card-foreground)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); }
-    .card-header { padding: 18px 20px 10px; border-bottom: 1px solid hsl(var(--border)); }
-    .card-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
-    .card-description { font-size: 12px; color: hsl(var(--muted-foreground)); margin-top: 4px; }
-    .card-content { padding: 16px 20px 18px; }
+    /* ── Inputs ── */
+    .input {
+      background: hsl(var(--background)); color: hsl(var(--foreground));
+      border: 1px solid hsl(var(--input)); border-radius: 6px;
+      padding: 7px 10px; font-size: 13px; line-height: 1.4;
+      transition: border-color .12s, box-shadow .12s;
+      width: 100%;
+    }
+    .input:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2); }
+    .input-inline { width: 100px; padding: 5px 8px; font-size: 12px; }
+    .input-label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: hsl(var(--muted-foreground)); margin-bottom: 5px; }
 
-    /* Health cards */
-    .health-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-    .health-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 16px 18px; position: relative; }
-    .health-card .health-dot { width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 16px; right: 16px; }
-    .health-card.ok .health-dot { background: hsl(var(--success)); box-shadow: 0 0 8px hsl(var(--success) / 0.5); }
-    .health-card.warn .health-dot { background: hsl(var(--amber)); box-shadow: 0 0 8px hsl(var(--amber) / 0.5); }
-    .health-card.alert .health-dot { background: hsl(var(--danger)); box-shadow: 0 0 8px hsl(var(--danger) / 0.5); }
-    .health-card .label { font-size: 11px; font-weight: 500; color: hsl(var(--muted-foreground)); text-transform: uppercase; letter-spacing: 0.03em; padding-right: 18px; }
-    .health-card .valor { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin-top: 8px; color: hsl(var(--foreground)); }
-    .health-card.ok .valor { color: hsl(var(--success)); }
-    .health-card.warn .valor { color: hsl(var(--amber)); }
-    .health-card.alert .valor { color: hsl(var(--danger)); }
-    .health-card .sub { font-size: 11px; color: hsl(var(--muted-foreground)); margin-top: 6px; }
+    /* ── Metas ── */
+    .metas-group { margin-bottom: 28px; }
+    .metas-group-head {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+    }
+    .metas-group-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+      color: hsl(var(--muted-foreground)); white-space: nowrap;
+    }
+    .metas-group-label .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    .metas-group-label .dot.amber { background: hsl(var(--amber)); }
+    .metas-group-label .dot.muted { background: hsl(var(--muted-foreground) / 0.5); }
+    .metas-group-line { flex: 1; height: 1px; background: hsl(var(--border)); }
+    .metas-group-tag {
+      font-size: 11px; color: hsl(var(--muted-foreground));
+      background: hsl(var(--secondary)); padding: 2px 8px; border-radius: 999px;
+    }
 
-    /* Badge */
-    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; line-height: 1; padding: 3px 8px; border-radius: 999px; border: 1px solid transparent; white-space: nowrap; }
-    .badge-secondary { background: hsl(var(--secondary)); color: hsl(var(--secondary-foreground)); }
-    .badge-outline { color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
-    .badge-success { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); }
+    .meta-card {
+      background: hsl(var(--card)); border: 1px solid hsl(var(--border));
+      border-radius: 8px; padding: 14px 18px;
+      display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; align-items: center;
+    }
+    .metas-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+    .meta-row-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em;
+      color: hsl(var(--muted-foreground));
+      display: flex; align-items: center; gap: 6px;
+    }
+    .meta-row-label svg { width: 12px; height: 12px; }
+    .meta-row-values {
+      display: flex; align-items: baseline; gap: 4px; justify-content: flex-end;
+      font-family: 'Geist Mono', monospace;
+    }
+    .meta-row-atual { font-size: 16px; font-weight: 600; }
+    .meta-row-alvo-input {
+      font-family: 'Geist Mono', monospace; font-size: 12px;
+      width: 80px; text-align: right;
+      background: hsl(var(--background)); color: hsl(var(--muted-foreground));
+      border: 1px solid hsl(var(--input)); border-radius: 4px;
+      padding: 3px 6px;
+    }
+    .meta-row-alvo-input:focus { outline: none; border-color: hsl(var(--ring)); color: hsl(var(--foreground)); }
+    .meta-row-slash { color: hsl(var(--muted-foreground) / 0.5); font-size: 13px; }
+    .meta-bar-wrap {
+      grid-column: 1 / -1;
+      height: 4px; background: hsl(var(--secondary));
+      border-radius: 999px; overflow: hidden;
+    }
+    .meta-bar { height: 100%; border-radius: 999px; transition: width .3s ease; }
+    .meta-bar.on-track { background: hsl(var(--success)); }
+    .meta-bar.at-risk { background: hsl(var(--amber)); }
+    .meta-bar.behind { background: hsl(var(--danger)); }
+    .meta-foot {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px; color: hsl(var(--muted-foreground));
+    }
+    .meta-pct { font-family: 'Geist Mono', monospace; font-weight: 600; color: hsl(var(--foreground)); }
+    .meta-foot .auto-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 10px; padding: 1px 6px; border-radius: 999px;
+      background: hsl(var(--info) / 0.1); color: hsl(var(--info));
+      border: 1px solid hsl(var(--info) / 0.2);
+    }
+    .meta-foot .auto-badge svg { width: 9px; height: 9px; }
 
-    /* Form controls */
-    .input, .input-inline { background: hsl(var(--background)); color: hsl(var(--foreground)); border: 1px solid hsl(var(--input)); border-radius: calc(var(--radius) - 2px); padding: 6px 10px; font-family: inherit; font-size: 13px; line-height: 1.5; transition: border-color .12s; }
-    .input { width: 100%; padding: 8px 12px; }
-    .input-inline { width: 110px; }
-    .input:focus, .input-inline:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 1px hsl(var(--ring)); }
-    .input-label { display: block; font-size: 11px; font-weight: 500; color: hsl(var(--muted-foreground)); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+    /* ── Concorrentes ── */
+    .conc-add-card {
+      background: hsl(var(--card)); border: 1px solid hsl(var(--border));
+      border-radius: 8px; padding: 14px 18px; margin-bottom: 16px;
+    }
+    .conc-add-head {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 600; margin-bottom: 10px;
+    }
+    .conc-add-head svg { width: 14px; height: 14px; color: hsl(var(--amber)); }
+    .conc-add-form {
+      display: grid; grid-template-columns: 1.2fr 1.4fr 1.4fr auto; gap: 10px; align-items: end;
+    }
+    .conc-list { display: flex; flex-direction: column; gap: 8px; }
+    .conc-item {
+      display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center;
+      padding: 12px 16px;
+      background: hsl(var(--card)); border: 1px solid hsl(var(--border));
+      border-radius: 8px;
+      transition: border-color .12s;
+    }
+    .conc-item:hover { border-color: hsl(var(--muted-foreground) / 0.3); }
+    .conc-main { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .conc-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: hsl(var(--secondary)); display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 13px; flex-shrink: 0;
+      color: hsl(var(--foreground));
+    }
+    .conc-info { min-width: 0; }
+    .conc-name { font-size: 14px; font-weight: 500; }
+    .conc-handle { font-size: 12px; color: hsl(var(--info)); font-family: 'Geist Mono', monospace; }
+    .conc-meta {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; color: hsl(var(--muted-foreground));
+    }
+    .conc-status-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; padding: 2px 8px; border-radius: 999px;
+      background: hsl(var(--success) / 0.1); color: hsl(var(--success));
+      border: 1px solid hsl(var(--success) / 0.2); font-weight: 500;
+    }
+    .conc-status-pill.inactive { background: hsl(var(--muted) / 0.4); color: hsl(var(--muted-foreground)); border-color: hsl(var(--border)); }
+    .conc-status-pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .conc-actions { display: flex; gap: 4px; }
 
-    /* Table */
-    .table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .table thead tr { border-bottom: 1px solid hsl(var(--border)); }
-    .table th { text-align: left; padding: 10px 12px; font-weight: 500; color: hsl(var(--muted-foreground)); font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
-    .table td { padding: 10px 12px; border-bottom: 1px solid hsl(var(--border)); vertical-align: middle; }
-    .table tbody tr:last-child td { border-bottom: none; }
-    .table tbody tr:hover { background: hsl(var(--muted) / 0.4); }
+    /* ── Briefing ── */
+    .briefing-toolbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-bottom: 12px; flex-wrap: wrap;
+    }
+    .briefing-toolbar .stats {
+      display: flex; gap: 16px; font-size: 12px; color: hsl(var(--muted-foreground));
+      font-family: 'Geist Mono', monospace;
+    }
+    .briefing-toolbar .stats strong { color: hsl(var(--foreground)); font-weight: 600; }
+    .briefing-toolbar .actions { display: flex; gap: 8px; }
+    .briefing-editor {
+      width: 100%; min-height: 480px;
+      background: hsl(var(--card)); color: hsl(var(--foreground));
+      border: 1px solid hsl(var(--border)); border-radius: 8px;
+      padding: 16px 18px;
+      font-family: 'Geist Mono', monospace; font-size: 13px; line-height: 1.6;
+      resize: vertical;
+    }
+    .briefing-editor:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 2px hsl(var(--ring) / 0.15); }
+    .briefing-help {
+      background: hsl(var(--secondary) / 0.5); border: 1px solid hsl(var(--border));
+      border-radius: 8px; padding: 12px 16px;
+      font-size: 12px; color: hsl(var(--muted-foreground)); line-height: 1.55;
+      margin-bottom: 12px;
+    }
+    .briefing-help strong { color: hsl(var(--foreground)); }
 
-    /* Progress */
-    .progress { width: 100%; height: 4px; background: hsl(var(--secondary)); border-radius: 999px; overflow: hidden; }
-    .progress-bar { height: 100%; background: hsl(var(--success)); transition: width .3s; }
-    .progress-bar.amber { background: hsl(var(--amber)); }
+    /* ── Sistema ── */
+    .health-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .health-card {
+      background: hsl(var(--card)); border: 1px solid hsl(var(--border));
+      border-radius: 8px; padding: 14px 16px;
+      position: relative;
+    }
+    .health-dot { width: 7px; height: 7px; border-radius: 50%; position: absolute; top: 14px; right: 14px; }
+    .health-card.ok .health-dot { background: hsl(var(--success)); box-shadow: 0 0 6px hsl(var(--success) / 0.6); }
+    .health-card.warn .health-dot { background: hsl(var(--amber)); box-shadow: 0 0 6px hsl(var(--amber) / 0.6); }
+    .health-card.alert .health-dot { background: hsl(var(--danger)); box-shadow: 0 0 6px hsl(var(--danger) / 0.6); }
+    .health-label {
+      font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
+      color: hsl(var(--muted-foreground)); margin-bottom: 6px; padding-right: 16px;
+    }
+    .health-value { font-size: 20px; font-weight: 600; letter-spacing: -.02em; font-family: 'Geist Mono', monospace; }
+    .health-card.ok .health-value { color: hsl(var(--success)); }
+    .health-card.warn .health-value { color: hsl(var(--amber)); }
+    .health-card.alert .health-value { color: hsl(var(--danger)); }
+    .health-sub { font-size: 11px; color: hsl(var(--muted-foreground)); margin-top: 4px; }
 
-    /* Add form */
-    .add-form { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
-    .add-form > div { flex: 1; min-width: 180px; }
+    /* ── Loading / empty ── */
+    .loading {
+      padding: 32px; text-align: center;
+      color: hsl(var(--muted-foreground)); font-size: 13px; font-style: italic;
+    }
+    .empty {
+      padding: 32px; text-align: center;
+      color: hsl(var(--muted-foreground)); font-size: 13px;
+      border: 1px dashed hsl(var(--border)); border-radius: 8px;
+    }
+    .error-msg {
+      color: hsl(var(--danger)); background: hsl(var(--danger) / 0.08);
+      padding: 12px 16px; border-radius: 6px;
+      border: 1px solid hsl(var(--danger) / 0.2); font-size: 13px;
+    }
 
-    /* Layout helpers */
-    .row { display: flex; }
-    .gap-2 { gap: 8px; } .gap-3 { gap: 12px; } .gap-4 { gap: 16px; }
-    .items-center { align-items: center; }
-    .justify-between { justify-content: space-between; }
-    .flex-1 { flex: 1; }
-
-    /* Loading & error */
-    .loading { color: hsl(var(--muted-foreground)); font-style: italic; padding: 16px; text-align: center; }
-    .error-msg { color: hsl(var(--danger)); background: hsl(var(--danger) / 0.08); padding: 12px 16px; border-radius: calc(var(--radius) - 2px); border: 1px solid hsl(var(--danger) / 0.2); font-size: 13px; }
-
-    /* Toast */
-    .toast { position: fixed; bottom: 24px; right: 24px; background: hsl(var(--info) / 0.15); color: hsl(var(--info)); border: 1px solid hsl(var(--info) / 0.3); padding: 10px 16px; border-radius: calc(var(--radius) - 2px); font-size: 13px; font-weight: 500; z-index: 200; display: none; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: hsl(var(--info) / 0.15); color: hsl(var(--info));
+      border: 1px solid hsl(var(--info) / 0.3);
+      padding: 10px 16px; border-radius: 6px;
+      font-size: 13px; font-weight: 500; z-index: 200;
+      display: none; box-shadow: 0 10px 25px -5px rgba(0,0,0,.3);
+    }
     .toast.show { display: block; animation: slideUp .2s ease; }
     .toast.success { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); border-color: hsl(var(--success) / 0.3); }
     .toast.error { background: hsl(var(--danger) / 0.15); color: hsl(var(--danger)); border-color: hsl(var(--danger) / 0.3); }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
 <div class="app">
-  <aside class="sidebar" id="sidebar">
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
     <div class="sidebar-header">
       <button class="team-switcher">
         <div class="team-logo">C</div>
-        <div class="team-meta">
+        <div>
           <div class="team-name">Capovilla</div>
           <div class="team-plan">Editorial Studio</div>
         </div>
@@ -181,126 +359,169 @@
     <div class="sidebar-content">
       <div class="sidebar-group">
         <div class="sidebar-group-label">Plataforma</div>
-        <div class="sidebar-menu">
-          <a href="index.html" class="sidebar-menu-button">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-            <span class="label">Resumo</span>
+        <div style="display:flex;flex-direction:column;gap:1px;">
+          <a href="index-v2.html" class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+            Resumo
           </a>
-          <a href="sugestoes.html" class="sidebar-menu-button">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
-            <span class="label">Sugestões</span>
+          <a href="sugestoes-v2.html" class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+            Sugestões
           </a>
-          <a href="cronograma.html" class="sidebar-menu-button">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
-            <span class="label">Cronograma</span>
+          <a href="cronograma.html" class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+            Cronograma
           </a>
-          <button class="sidebar-menu-button active open" id="config-toggle">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-            <span class="label">Configurações</span>
-            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-          </button>
-          <div class="sidebar-menu-sub" id="config-sub" style="display:flex;">
-            <a href="configuracoes.html" class="sidebar-menu-sub-button active">Geral</a>
-            <a href="briefing.html" class="sidebar-menu-sub-button">Briefing</a>
-          </div>
+          <a href="configuracoes.html" class="nav-item active">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Configurações
+          </a>
         </div>
       </div>
       <div class="sidebar-group">
         <div class="sidebar-group-label">Canais</div>
-        <div class="sidebar-menu">
-          <button class="sidebar-menu-button">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258A4 4 0 0 0 17.32 5z"/></svg>
-            <span class="label">@guilhermecapovilla</span>
-          </button>
-          <button class="sidebar-menu-button">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-            <span class="label" style="color: hsl(var(--muted-foreground));">Adicionar canal</span>
-          </button>
+        <div style="display:flex;flex-direction:column;gap:1px;">
+          <a href="index-v2.html" class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>
+            @guilhermecapovilla
+          </a>
         </div>
       </div>
     </div>
     <div class="sidebar-footer">
-      <button class="user-card">
+      <div class="user-card">
         <div class="avatar">GC</div>
-        <div class="user-meta">
+        <div style="min-width:0;">
           <div class="user-name">Guilherme Capovilla</div>
           <div class="user-email">guilherme@capovilla.tv</div>
         </div>
-      </button>
+      </div>
     </div>
   </aside>
 
+  <!-- ── Main ── -->
   <main class="main">
     <header class="app-header">
-      <button class="btn btn-ghost btn-icon-sm" onclick="toggleSidebar()" title="Toggle sidebar">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
+      <button class="btn btn-ghost btn-icon-sm" title="Toggle sidebar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
       </button>
-      <div class="separator-v" style="height:16px;margin:0 4px;"></div>
       <nav class="breadcrumb">
-        <span class="breadcrumb-item">Plataforma</span>
-        <svg class="breadcrumb-sep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        <span class="breadcrumb-item">Configurações</span>
-        <svg class="breadcrumb-sep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        <span class="breadcrumb-item current">Geral</span>
+        <span>Plataforma</span>
+        <span style="opacity:.4;">›</span>
+        <span class="current">Configurações</span>
       </nav>
-      <div class="flex-1"></div>
+      <div style="flex:1;"></div>
       <button class="btn btn-ghost btn-icon-sm" onclick="toggleTheme()" title="Alternar tema">
-        <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        <svg id="theme-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
       </button>
     </header>
 
     <div class="app-content">
       <div class="page">
+
         <div class="page-header">
           <h1 class="page-title">Configurações</h1>
-          <p class="page-subtitle">Status do sistema · metas · concorrentes monitorados</p>
+          <p class="page-sub">Metas, concorrentes, briefing editorial e saúde do sistema</p>
         </div>
 
-        <h2 class="section-title">Status do sistema</h2>
-        <div class="health-grid" id="health">
-          <div class="loading">Carregando status…</div>
-        </div>
+        <!-- ── Tabs ── -->
+        <nav class="tabs">
+          <button class="tab active" data-tab="metas" onclick="switchTab('metas')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            Metas
+          </button>
+          <button class="tab" data-tab="concorrentes" onclick="switchTab('concorrentes')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><path d="M16.24 7.76a6 6 0 1 0-8.49 8.49"/><path d="M9 12a3 3 0 1 0 5.12-2.12"/></svg>
+            Concorrentes
+            <span class="tab-count" id="count-conc">—</span>
+          </button>
+          <button class="tab" data-tab="briefing" onclick="switchTab('briefing')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>
+            Briefing
+          </button>
+          <button class="tab" data-tab="sistema" onclick="switchTab('sistema')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            Sistema
+          </button>
+        </nav>
 
-        <h2 class="section-title">Metas por trimestre</h2>
-        <div class="card">
-          <div id="metas-lista">
+        <!-- ════════════════ METAS ════════════════ -->
+        <section class="tab-panel active" id="panel-metas">
+          <div id="metas-container">
             <div class="loading">Carregando metas…</div>
           </div>
-        </div>
-
-        <h2 class="section-title">Concorrentes monitorados</h2>
-        <div class="card">
-          <div id="concorrentes-lista">
-            <div class="loading">Carregando concorrentes…</div>
+          <div style="background:hsl(var(--secondary) / 0.5);border:1px solid hsl(var(--border));border-radius:8px;padding:12px 16px;font-size:12px;color:hsl(var(--muted-foreground));line-height:1.55;margin-top:16px;">
+            <strong style="color:hsl(var(--foreground));">Atual</strong> é calculado automaticamente pelo coletor diário do YouTube (não é editável aqui).
+            <strong style="color:hsl(var(--foreground));">Alvo</strong> é o que você define — salva automaticamente ao sair do campo.
           </div>
-        </div>
+        </section>
 
-        <div class="card" style="margin-top: 16px;">
-          <div class="card-header">
-            <div class="card-title">Adicionar novo concorrente</div>
-            <div class="card-description">Se não souber o Channel ID, pode deixar vazio. O Action de coleta vai buscar pelo handle.</div>
-          </div>
-          <div class="card-content">
-            <div class="add-form">
+        <!-- ════════════════ CONCORRENTES ════════════════ -->
+        <section class="tab-panel" id="panel-concorrentes">
+          <div class="conc-add-card">
+            <div class="conc-add-head">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              Adicionar concorrente
+            </div>
+            <div class="conc-add-form">
               <div>
                 <label class="input-label">Handle</label>
                 <input type="text" id="conc-handle" class="input" placeholder="@nomedoCanal">
               </div>
               <div>
                 <label class="input-label">Nome do canal</label>
-                <input type="text" id="conc-nome" class="input" placeholder="Nome do Canal">
+                <input type="text" id="conc-nome" class="input" placeholder="Nome amigável">
               </div>
               <div>
-                <label class="input-label">Channel ID (opcional)</label>
-                <input type="text" id="conc-channel-id" class="input" placeholder="UCxxxxxxxx">
+                <label class="input-label">Channel ID <span style="text-transform:none;opacity:.7;font-weight:400;">(opcional)</span></label>
+                <input type="text" id="conc-channel-id" class="input" placeholder="UCxxxxx — coletor descobre se vazio">
               </div>
               <button class="btn btn-default" onclick="adicionarConcorrente()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                 Adicionar
               </button>
             </div>
           </div>
-        </div>
+
+          <div id="conc-list-container" class="conc-list">
+            <div class="loading">Carregando concorrentes…</div>
+          </div>
+        </section>
+
+        <!-- ════════════════ BRIEFING ════════════════ -->
+        <section class="tab-panel" id="panel-briefing">
+          <div class="briefing-help">
+            <strong>O que é o briefing?</strong> Seu manifesto editorial permanente — tom, estilo, voz, regras e exemplos.
+            É injetado no prompt da IA <strong>antes de gerar qualquer sugestão ou modelagem</strong>. Quanto mais fiel ao seu DNA, mais fiel a saída.
+            Use markdown, cite frases reais suas, dê exemplos concretos.
+          </div>
+          <div class="briefing-toolbar">
+            <div class="stats">
+              <span><strong id="brief-chars">0</strong> chars</span>
+              <span><strong id="brief-words">0</strong> palavras</span>
+              <span>atualizado <strong id="brief-updated">—</strong></span>
+            </div>
+            <div class="actions">
+              <button class="btn btn-outline btn-sm" onclick="inserirTemplate()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Inserir template
+              </button>
+              <button class="btn btn-default btn-sm" id="btn-salvar-briefing" onclick="salvarBriefing()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Salvar briefing
+              </button>
+            </div>
+          </div>
+          <textarea id="briefing-editor" class="briefing-editor" placeholder="Carregando…" oninput="atualizarBriefingStats()" disabled></textarea>
+        </section>
+
+        <!-- ════════════════ SISTEMA ════════════════ -->
+        <section class="tab-panel" id="panel-sistema">
+          <div class="health-grid" id="health-grid">
+            <div class="loading">Carregando saúde do sistema…</div>
+          </div>
+        </section>
+
       </div>
     </div>
   </main>
@@ -310,31 +531,29 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // ==========================================================
-  // CONFIG
-  // ==========================================================
-  const SUPABASE_URL = 'https://ryspohcflrxjwwghvvqc.supabase.co';
+  // ── Supabase ──
+  const SUPABASE_URL      = 'https://ryspohcflrxjwwghvvqc.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_OzoD3gbIn4GoJ6szjwdkhw_KFGAGNsh';
-
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const BRL = v => (v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  const NUM = v => (v || 0).toLocaleString('pt-BR');
-  const escapeHtml = s => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  // ── Utils ──
+  const NUM = v => (Number(v) || 0).toLocaleString('pt-BR');
+  const BRL = v => (Number(v) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const escapeHtml = s => (s == null ? '' : String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const initialFor = nome => (nome || '?').trim().charAt(0).toUpperCase();
+  const fmtData = d => d ? new Date(d).toLocaleDateString('pt-BR') : '—';
+  const daysSince = d => d ? Math.floor((Date.now() - new Date(d).getTime()) / (1000*60*60*24)) : null;
 
   function toast(msg, tipo = 'info') {
     const el = document.getElementById('toast');
     el.textContent = msg;
     el.className = 'toast show ' + tipo;
-    setTimeout(() => el.classList.remove('show'), 3500);
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), 3500);
   }
 
-  // ==========================================================
-  // Sidebar / Theme
-  // ==========================================================
-  function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
-
+  // ── Theme ──
   function toggleTheme() {
     const html = document.documentElement;
     const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -342,74 +561,374 @@
     localStorage.setItem('theme', next);
     updateThemeIcon(next);
   }
-
   function updateThemeIcon(theme) {
     const icon = document.getElementById('theme-icon');
-    if (theme === 'dark') {
-      icon.innerHTML = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>';
-    } else {
-      icon.innerHTML = '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>';
-    }
+    icon.innerHTML = theme === 'dark'
+      ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>'
+      : '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>';
   }
-
   (function initTheme() {
     const saved = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
     updateThemeIcon(saved);
   })();
 
-  document.getElementById('config-toggle').addEventListener('click', () => {
-    const btn = document.getElementById('config-toggle');
-    const sub = document.getElementById('config-sub');
-    btn.classList.toggle('open');
-    sub.style.display = sub.style.display === 'none' ? 'flex' : 'none';
-  });
+  // ── Tabs ──
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+    localStorage.setItem('config-tab', name);
+    if (name === 'briefing' && !briefingCarregado) carregarBriefing();
+  }
+  (function initTab() {
+    const params = new URLSearchParams(location.search);
+    const wanted = params.get('tab') || localStorage.getItem('config-tab') || 'metas';
+    if (['metas','concorrentes','briefing','sistema'].includes(wanted)) switchTab(wanted);
+  })();
 
-  // ==========================================================
-  // STATUS DO SISTEMA (preservado)
-  // ==========================================================
-  async function carregarHealth() {
-    const painel = document.getElementById('health');
+  // ══════════════════════════════════════════════
+  // METAS
+  // ══════════════════════════════════════════════
+  const METRICA_META = {
+    receita:            { label: 'Receita',           icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>', fmt: BRL },
+    inscritos:          { label: 'Inscritos',         icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', fmt: NUM },
+    videos_publicados:  { label: 'Vídeos',            icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg>', fmt: NUM },
+  };
+
+  const QUARTER_LABEL = q => {
+    if (/^\d{4}$/.test(q)) return { tag: q, full: 'Ano ' + q, dot: 'muted', current: false };
+    const m = q.match(/^(\d{4})-Q(\d)$/i);
+    if (m) {
+      const hoje = new Date();
+      const qNum = (Math.floor(hoje.getMonth()/3) + 1);
+      const yNum = hoje.getFullYear();
+      const isCur = (parseInt(m[1]) === yNum && parseInt(m[2]) === qNum);
+      return { tag: q, full: `Trimestre ${m[2]} · ${m[1]}`, dot: isCur ? 'amber' : 'muted', current: isCur };
+    }
+    return { tag: q, full: q, dot: 'muted', current: false };
+  };
+
+  async function carregarMetas() {
+    const cont = document.getElementById('metas-container');
     try {
-      const [ultimaMet, ultimaSug, ultimaColConc, totalVideos, totalSugestoes] = await Promise.all([
+      const { data, error } = await db.from('metas').select('*').order('quarter').order('metrica');
+      if (error) throw error;
+      if (!data.length) {
+        cont.innerHTML = '<div class="empty">Nenhuma meta cadastrada. Rode o coletor para popular automaticamente.</div>';
+        return;
+      }
+
+      // Agrupa por quarter
+      const grupos = {};
+      data.forEach(m => {
+        if (!grupos[m.quarter]) grupos[m.quarter] = [];
+        grupos[m.quarter].push(m);
+      });
+
+      // Ordena: trimestre corrente primeiro, depois outros trimestres mais recentes, depois anos
+      const ordem = Object.keys(grupos).sort((a, b) => {
+        const ma = QUARTER_LABEL(a), mb = QUARTER_LABEL(b);
+        if (ma.current && !mb.current) return -1;
+        if (!ma.current && mb.current) return 1;
+        const isQa = a.includes('-Q'), isQb = b.includes('-Q');
+        if (isQa && !isQb) return -1;
+        if (!isQa && isQb) return 1;
+        return b.localeCompare(a);
+      });
+
+      cont.innerHTML = ordem.map(quarter => {
+        const meta = QUARTER_LABEL(quarter);
+        const cards = grupos[quarter].map(m => {
+          const def = METRICA_META[m.metrica] || { label: m.metrica, icon: '', fmt: NUM };
+          const atual = Number(m.valor_atual) || 0;
+          const alvo  = Number(m.valor_alvo)  || 0;
+          const pct = alvo > 0 ? Math.min(100, Math.round((atual / alvo) * 100)) : 0;
+          const barClass = pct >= 75 ? 'on-track' : pct >= 40 ? 'at-risk' : 'behind';
+          return `
+            <div class="meta-card">
+              <div class="meta-row-label">${def.icon} ${escapeHtml(def.label)}</div>
+              <div class="meta-row-values">
+                <span class="meta-row-atual">${def.fmt(atual)}</span>
+                <span class="meta-row-slash">/</span>
+                <input class="meta-row-alvo-input mono" type="number" step="any" value="${alvo}" data-id="${m.id}" onblur="salvarAlvo(this)" onkeydown="if(event.key==='Enter')this.blur()">
+              </div>
+              <div class="meta-bar-wrap"><div class="meta-bar ${barClass}" style="width:${pct}%"></div></div>
+              <div class="meta-foot">
+                <span class="auto-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                  auto
+                </span>
+                <span class="meta-pct">${pct}%</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="metas-group">
+            <div class="metas-group-head">
+              <div class="metas-group-label"><span class="dot ${meta.dot}"></span>${escapeHtml(meta.full)}${meta.current ? ' · corrente' : ''}</div>
+              <div class="metas-group-line"></div>
+              <span class="metas-group-tag mono">${escapeHtml(meta.tag)}</span>
+            </div>
+            <div class="metas-grid">${cards}</div>
+          </div>
+        `;
+      }).join('');
+    } catch (e) {
+      cont.innerHTML = `<div class="error-msg">Erro ao carregar metas: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  async function salvarAlvo(input) {
+    const id = input.dataset.id;
+    const novo = parseFloat(input.value);
+    if (isNaN(novo) || novo < 0) { toast('Valor inválido', 'error'); return; }
+    const { error } = await db.from('metas').update({ valor_alvo: novo }).eq('id', id);
+    if (error) return toast('Erro: ' + error.message, 'error');
+    toast('Alvo salvo', 'success');
+    carregarMetas();
+  }
+
+  // ══════════════════════════════════════════════
+  // CONCORRENTES
+  // ══════════════════════════════════════════════
+  async function carregarConcorrentes() {
+    const cont = document.getElementById('conc-list-container');
+    try {
+      const { data, error } = await db.from('concorrentes').select('*').order('nome');
+      if (error) throw error;
+
+      document.getElementById('count-conc').textContent = data.length;
+
+      if (!data.length) {
+        cont.innerHTML = '<div class="empty">Nenhum concorrente cadastrado ainda. Adicione um acima.</div>';
+        return;
+      }
+
+      cont.innerHTML = data.map(c => {
+        const d = daysSince(c.ultima_coleta);
+        const dTxt = d === null ? 'nunca coletado' : d === 0 ? 'hoje' : `${d}d atrás`;
+        return `
+          <div class="conc-item">
+            <div class="conc-main">
+              <div class="conc-avatar">${initialFor(c.nome)}</div>
+              <div class="conc-info">
+                <div class="conc-name">${escapeHtml(c.nome || '—')}</div>
+                <div class="conc-handle">@${escapeHtml(c.handle || '—')}</div>
+              </div>
+            </div>
+            <div class="conc-meta">
+              <span title="Última coleta">📡 ${dTxt}</span>
+              <span class="conc-status-pill ${c.ativo ? '' : 'inactive'}">${c.ativo ? 'Ativo' : 'Inativo'}</span>
+            </div>
+            <div class="conc-actions">
+              <button class="btn btn-outline btn-sm" onclick="toggleAtivo('${escapeHtml(c.channel_id)}', ${!c.ativo})" title="${c.ativo ? 'Pausar coleta' : 'Reativar coleta'}">
+                ${c.ativo
+                  ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="4" height="16" x="6" y="4"/><rect width="4" height="16" x="14" y="4"/></svg>'
+                  : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>'}
+              </button>
+              <button class="btn btn-danger-ghost btn-sm" onclick="removerConcorrente('${escapeHtml(c.channel_id)}', '${escapeHtml(c.nome).replace(/'/g,"\\'")}')" title="Remover">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } catch (e) {
+      cont.innerHTML = `<div class="error-msg">Erro: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  async function adicionarConcorrente() {
+    const handle    = document.getElementById('conc-handle').value.trim().replace(/^@/, '');
+    const nome      = document.getElementById('conc-nome').value.trim();
+    const channelId = document.getElementById('conc-channel-id').value.trim();
+
+    if (!handle || !nome) return toast('Handle e nome são obrigatórios', 'error');
+
+    const finalId = channelId || `PENDING-${handle}-${Date.now()}`;
+    const { error } = await db.from('concorrentes').insert([{ channel_id: finalId, handle, nome, ativo: true }]);
+    if (error) return toast('Erro: ' + error.message, 'error');
+
+    document.getElementById('conc-handle').value = '';
+    document.getElementById('conc-nome').value = '';
+    document.getElementById('conc-channel-id').value = '';
+    toast('Adicionado — será coletado no próximo Action', 'success');
+    carregarConcorrentes();
+  }
+
+  async function toggleAtivo(channelId, ativo) {
+    const { error } = await db.from('concorrentes').update({ ativo }).eq('channel_id', channelId);
+    if (error) return toast('Erro: ' + error.message, 'error');
+    toast(ativo ? 'Reativado' : 'Pausado', 'success');
+    carregarConcorrentes();
+  }
+
+  async function removerConcorrente(channelId, nome) {
+    if (!confirm(`Remover "${nome}"?\nIsso apaga o canal e todos os vídeos dele do banco.`)) return;
+    const { error } = await db.from('concorrentes').delete().eq('channel_id', channelId);
+    if (error) return toast('Erro: ' + error.message, 'error');
+    toast('Removido', 'success');
+    carregarConcorrentes();
+  }
+
+  // ══════════════════════════════════════════════
+  // BRIEFING
+  // ══════════════════════════════════════════════
+  let briefingCarregado = false;
+  let briefingRegistroId = null;
+  let briefingOriginal = '';
+
+  async function carregarBriefing() {
+    const editor = document.getElementById('briefing-editor');
+    try {
+      const { data, error } = await db.from('config_editorial')
+        .select('*').order('updated_at', { ascending: false }).limit(1);
+      if (error) throw error;
+
+      if (!data || !data.length) {
+        const { data: novo, error: insErr } = await db.from('config_editorial').insert([{ briefing: '' }]).select().single();
+        if (insErr) throw insErr;
+        briefingRegistroId = novo.id;
+        briefingOriginal = '';
+      } else {
+        briefingRegistroId = data[0].id;
+        briefingOriginal   = data[0].briefing || '';
+        document.getElementById('brief-updated').textContent = new Date(data[0].updated_at).toLocaleString('pt-BR');
+      }
+      editor.value = briefingOriginal;
+      editor.placeholder = 'Cole aqui seu manifesto editorial em markdown…';
+      editor.disabled = false;
+      briefingCarregado = true;
+      atualizarBriefingStats();
+    } catch (e) {
+      toast('Erro: ' + e.message, 'error');
+      editor.placeholder = 'Erro ao carregar';
+    }
+  }
+
+  function atualizarBriefingStats() {
+    const t = document.getElementById('briefing-editor').value;
+    document.getElementById('brief-chars').textContent = t.length.toLocaleString('pt-BR');
+    document.getElementById('brief-words').textContent = (t.trim().split(/\s+/).filter(Boolean).length).toLocaleString('pt-BR');
+  }
+
+  async function salvarBriefing() {
+    if (!briefingRegistroId) return;
+    const btn = document.getElementById('btn-salvar-briefing');
+    btn.disabled = true;
+    const texto = document.getElementById('briefing-editor').value;
+    const { error } = await db.from('config_editorial')
+      .update({ briefing: texto, updated_at: new Date().toISOString() })
+      .eq('id', briefingRegistroId);
+    if (error) {
+      toast('Erro: ' + error.message, 'error');
+    } else {
+      briefingOriginal = texto;
+      document.getElementById('brief-updated').textContent = new Date().toLocaleString('pt-BR');
+      toast('Briefing salvo — a IA usará na próxima chamada', 'success');
+    }
+    btn.disabled = false;
+  }
+
+  function inserirTemplate() {
+    const editor = document.getElementById('briefing-editor');
+    const template = `# BRIEFING EDITORIAL — canal @guilhermecapovilla
+_Preenchido em: ${new Date().toLocaleDateString('pt-BR')}_
+
+## 1. Quem sou eu
+[Descreva: nome, idade, contexto, por que faz YouTube, sua tese principal]
+
+## 2. Meu público
+[Descreva: faixa etária, perfil emocional, o que buscam, que dores têm]
+
+## 3. Três coisas que SEMPRE acontecem nos meus vídeos
+### 3.1. [Primeiro padrão fixo]
+[Descrição + exemplo real de frase sua]
+### 3.2. [Segundo padrão fixo]
+### 3.3. [Terceiro padrão fixo]
+
+## 4. Três coisas que eu NUNCA faço
+- [Veto 1 com o porquê]
+- [Veto 2]
+- [Veto 3]
+
+## 5. Meu tom de comunicação
+[Cordial ou casual? Gírias? Como muda em contextos diferentes?]
+
+## 6. Fórmulas de abertura que funcionam
+- "[Exemplo 1]"
+- "[Exemplo 2]"
+
+## 7. Fórmulas que eu NUNCA uso
+- [Padrão evitado]
+
+## 8. Estrutura padrão de um vídeo meu
+1. [Passo 1]
+2. [Passo 2]
+
+## 9. Texto padrão de fechamento
+> "[Sua despedida padrão]"
+
+## 10. Produtos e temas que converteram bem
+[Hits históricos com notas sobre por que funcionaram]
+`;
+    if (editor.value.trim() && !confirm('Já tem conteúdo. Substituir pelo template?')) return;
+    editor.value = template;
+    atualizarBriefingStats();
+    toast('Template inserido — edite e salve', 'info');
+  }
+
+  // ══════════════════════════════════════════════
+  // SISTEMA (health)
+  // ══════════════════════════════════════════════
+  async function carregarSistema() {
+    const painel = document.getElementById('health-grid');
+    try {
+      const [ultimaMet, ultimaSug, ultimaColConc, totalVideos, totalSugestoes, ultimaChannelMet] = await Promise.all([
         db.from('videos_metricas').select('data_coleta').order('data_coleta', { ascending: false }).limit(1),
         db.from('sugestoes').select('created_at').order('created_at', { ascending: false }).limit(1),
         db.from('concorrentes').select('ultima_coleta').not('ultima_coleta','is',null).order('ultima_coleta', { ascending: false }).limit(1),
         db.from('videos').select('video_id', { count: 'exact', head: true }),
-        db.from('sugestoes').select('id', { count: 'exact', head: true }),
+        db.from('sugestoes').select('id',       { count: 'exact', head: true }),
+        db.from('channel_metricas').select('data').order('data', { ascending: false }).limit(1),
       ]);
 
-      const hoje = new Date().toISOString().slice(0, 10);
       const ultimaColetaDate = ultimaMet.data?.[0]?.data_coleta;
-      const diasSemColetar = ultimaColetaDate
-        ? Math.floor((new Date(hoje) - new Date(ultimaColetaDate)) / (1000*60*60*24))
-        : 999;
+      const diasSemColetar = daysSince(ultimaColetaDate);
 
       const ultimaSugDate = ultimaSug.data?.[0]?.created_at;
       const horasSemSugerir = ultimaSugDate
         ? Math.floor((Date.now() - new Date(ultimaSugDate).getTime()) / (1000*60*60))
         : 9999;
 
+      const channelMetData = ultimaChannelMet.data?.[0]?.data;
+
       const cards = [
         {
           label: 'Última coleta YouTube',
-          valor: ultimaColetaDate ? new Date(ultimaColetaDate).toLocaleDateString('pt-BR') : '—',
-          sub: diasSemColetar === 0 ? 'hoje' : `${diasSemColetar}d atrás`,
-          status: diasSemColetar === 0 ? 'ok' : diasSemColetar <= 1 ? 'warn' : 'alert',
+          valor: fmtData(ultimaColetaDate),
+          sub: diasSemColetar === 0 ? 'hoje' : diasSemColetar == null ? '—' : `${diasSemColetar}d atrás`,
+          status: diasSemColetar === 0 ? 'ok' : diasSemColetar != null && diasSemColetar <= 1 ? 'warn' : 'alert',
         },
         {
-          label: 'Última sugestão gerada',
-          valor: ultimaSugDate ? new Date(ultimaSugDate).toLocaleDateString('pt-BR') : '—',
-          sub: horasSemSugerir < 24 ? `${horasSemSugerir}h atrás` : `${Math.floor(horasSemSugerir/24)}d atrás`,
-          status: horasSemSugerir < 168 ? 'ok' : 'warn',
+          label: 'Métricas do canal',
+          valor: fmtData(channelMetData),
+          sub: channelMetData ? `tabela channel_metricas` : 'sem registros',
+          status: channelMetData ? 'ok' : 'warn',
         },
         {
           label: 'Última coleta concorrentes',
-          valor: ultimaColConc.data?.[0]?.ultima_coleta
-            ? new Date(ultimaColConc.data[0].ultima_coleta).toLocaleDateString('pt-BR')
-            : '—',
+          valor: fmtData(ultimaColConc.data?.[0]?.ultima_coleta),
           sub: '',
           status: ultimaColConc.data?.[0]?.ultima_coleta ? 'ok' : 'warn',
+        },
+        {
+          label: 'Última sugestão gerada',
+          valor: fmtData(ultimaSugDate),
+          sub: horasSemSugerir < 24 ? `${horasSemSugerir}h atrás` : `${Math.floor(horasSemSugerir/24)}d atrás`,
+          status: horasSemSugerir < 168 ? 'ok' : 'warn',
         },
         {
           label: 'Vídeos no catálogo',
@@ -428,160 +947,23 @@
       painel.innerHTML = cards.map(c => `
         <div class="health-card ${c.status}">
           <span class="health-dot"></span>
-          <div class="label">${c.label}</div>
-          <div class="valor mono">${c.valor}</div>
-          ${c.sub ? `<div class="sub">${c.sub}</div>` : ''}
+          <div class="health-label">${escapeHtml(c.label)}</div>
+          <div class="health-value">${c.valor}</div>
+          ${c.sub ? `<div class="health-sub">${escapeHtml(c.sub)}</div>` : ''}
         </div>
       `).join('');
     } catch (e) {
-      painel.innerHTML = `<div class="error-msg">Erro: ${e.message}</div>`;
+      painel.innerHTML = `<div class="error-msg">Erro: ${escapeHtml(e.message)}</div>`;
     }
   }
 
-  // ==========================================================
-  // METAS (preservado)
-  // ==========================================================
-  async function carregarMetas() {
-    const { data, error } = await db.from('metas').select('*').order('quarter').order('metrica');
-    if (error) {
-      document.getElementById('metas-lista').innerHTML = `<div class="error-msg">${error.message}</div>`;
-      return;
-    }
-
-    if (!data.length) {
-      document.getElementById('metas-lista').innerHTML = '<div class="loading">Nenhuma meta cadastrada.</div>';
-      return;
-    }
-
-    const rows = data.map(m => {
-      const pct = m.valor_alvo > 0 ? Math.min(100, Math.round((m.valor_atual / m.valor_alvo) * 100)) : 0;
-      const barClass = pct >= 75 ? '' : 'amber';
-      return `
-        <tr data-id="${m.id}">
-          <td><span class="badge badge-secondary mono">${escapeHtml(m.quarter)}</span></td>
-          <td style="text-transform: capitalize; font-weight: 500;">${escapeHtml(m.metrica)}</td>
-          <td>
-            <input class="input-inline mono" type="number" step="0.01" value="${m.valor_atual || 0}" data-field="valor_atual">
-          </td>
-          <td>
-            <input class="input-inline mono" type="number" step="0.01" value="${m.valor_alvo || 0}" data-field="valor_alvo">
-          </td>
-          <td style="min-width: 160px;">
-            <div class="row gap-2 items-center">
-              <div class="progress" style="flex:1;"><div class="progress-bar ${barClass}" style="width:${pct}%"></div></div>
-              <span class="mono" style="font-size: 11px; color: hsl(var(--muted-foreground)); min-width: 32px; text-align: right;">${pct}%</span>
-            </div>
-          </td>
-          <td>
-            <button class="btn btn-default btn-sm" onclick="salvarMeta('${m.id}')">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-              Salvar
-            </button>
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-    document.getElementById('metas-lista').innerHTML = `
-      <table class="table">
-        <thead><tr><th>Trimestre</th><th>Métrica</th><th>Atual</th><th>Alvo</th><th>Progresso</th><th></th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    `;
-  }
-
-  async function salvarMeta(id) {
-    const row = document.querySelector(`tr[data-id="${id}"]`);
-    const atual = parseFloat(row.querySelector('[data-field="valor_atual"]').value) || 0;
-    const alvo  = parseFloat(row.querySelector('[data-field="valor_alvo"]').value) || 0;
-    const { error } = await db.from('metas').update({
-      valor_atual: atual,
-      valor_alvo: alvo,
-    }).eq('id', id);
-    if (error) return toast('Erro: ' + error.message, 'error');
-    toast('Meta salva', 'success');
-    await carregarMetas();
-  }
-
-  // ==========================================================
-  // CONCORRENTES (preservado)
-  // ==========================================================
-  async function carregarConcorrentes() {
-    const { data, error } = await db.from('concorrentes').select('*').order('nome');
-    if (error) {
-      document.getElementById('concorrentes-lista').innerHTML = `<div class="error-msg">${error.message}</div>`;
-      return;
-    }
-    if (!data.length) {
-      document.getElementById('concorrentes-lista').innerHTML = '<div class="loading">Nenhum concorrente cadastrado.</div>';
-      return;
-    }
-
-    const rows = data.map(c => `
-      <tr>
-        <td style="font-weight: 500;">${escapeHtml(c.nome)}</td>
-        <td class="mono" style="font-size: 12px;">@${escapeHtml(c.handle || '—')}</td>
-        <td class="mono" style="font-size: 11px; color: hsl(var(--muted-foreground));">${escapeHtml((c.channel_id || '').substring(0, 16))}${c.channel_id && c.channel_id.length > 16 ? '…' : ''}</td>
-        <td>${c.ativo ? '<span class="badge badge-success">Ativo</span>' : '<span class="badge badge-outline" style="opacity:.6;">Inativo</span>'}</td>
-        <td class="mono" style="font-size: 11px; color: hsl(var(--muted-foreground));">${c.ultima_coleta ? new Date(c.ultima_coleta).toLocaleDateString('pt-BR') : '—'}</td>
-        <td>
-          <button class="btn btn-danger-outline btn-sm" onclick="removerConcorrente('${c.channel_id}', '${escapeHtml(c.nome)}')" title="Remover">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-          </button>
-        </td>
-      </tr>
-    `).join('');
-
-    document.getElementById('concorrentes-lista').innerHTML = `
-      <table class="table">
-        <thead><tr><th>Nome</th><th>Handle</th><th>Channel ID</th><th>Status</th><th>Última coleta</th><th></th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    `;
-  }
-
-  async function adicionarConcorrente() {
-    const nome = document.getElementById('conc-nome').value.trim();
-    const handle = document.getElementById('conc-handle').value.trim().replace('@', '');
-    const channelId = document.getElementById('conc-channel-id').value.trim();
-
-    if (!nome || !handle) return toast('Nome e handle são obrigatórios', 'error');
-    if (!channelId) {
-      const tempId = `PENDING-${handle}-${Date.now()}`;
-      const { error } = await db.from('concorrentes').insert([{
-        channel_id: tempId,
-        handle, nome, ativo: true,
-      }]);
-      if (error) return toast('Erro: ' + error.message, 'error');
-    } else {
-      const { error } = await db.from('concorrentes').insert([{
-        channel_id: channelId,
-        handle, nome, ativo: true,
-      }]);
-      if (error) return toast('Erro: ' + error.message, 'error');
-    }
-
-    document.getElementById('conc-nome').value = '';
-    document.getElementById('conc-handle').value = '';
-    document.getElementById('conc-channel-id').value = '';
-    toast('Concorrente adicionado — será coletado no próximo Action', 'success');
-    await carregarConcorrentes();
-  }
-
-  async function removerConcorrente(channelId, nome) {
-    if (!confirm(`Remover "${nome}" dos concorrentes?\nIsso apaga o canal e todos os vídeos dele do banco.`)) return;
-    const { error } = await db.from('concorrentes').delete().eq('channel_id', channelId);
-    if (error) return toast('Erro: ' + error.message, 'error');
-    toast('Concorrente removido', 'success');
-    await carregarConcorrentes();
-  }
-
-  // ==========================================================
+  // ══════════════════════════════════════════════
   // BOOT
-  // ==========================================================
-  carregarHealth();
+  // ══════════════════════════════════════════════
   carregarMetas();
   carregarConcorrentes();
+  carregarSistema();
+  if (document.querySelector('.tab[data-tab="briefing"]').classList.contains('active')) carregarBriefing();
 </script>
 </body>
 </html>

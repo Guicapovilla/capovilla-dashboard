@@ -577,6 +577,11 @@
             Radar de concorrentes
           </div>
           <div class="section-head-line"></div>
+          <button onclick="abrirAddConcorrente()" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:hsl(var(--info));cursor:pointer;background:none;border:none;padding:0;white-space:nowrap;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            Adicionar
+          </button>
+          <span style="font-size:11px;color:hsl(var(--muted-foreground) / 0.5);">·</span>
           <span style="font-size:11px;color:hsl(var(--muted-foreground));white-space:nowrap;">últimas 48h</span>
         </div>
 
@@ -1118,6 +1123,76 @@
       loadRadar(),
     ]);
   })();
+
+  // ── Mini modal: adicionar concorrente inline ──
+  function abrirAddConcorrente() {
+    document.getElementById('add-conc-modal').style.display = 'flex';
+    setTimeout(() => document.getElementById('add-conc-handle').focus(), 50);
+  }
+  function fecharAddConcorrente() {
+    document.getElementById('add-conc-modal').style.display = 'none';
+    document.getElementById('add-conc-handle').value = '';
+    document.getElementById('add-conc-nome').value = '';
+    document.getElementById('add-conc-channel-id').value = '';
+  }
+  async function salvarAddConcorrente() {
+    const handle    = document.getElementById('add-conc-handle').value.trim().replace(/^@/, '');
+    const nome      = document.getElementById('add-conc-nome').value.trim();
+    const channelId = document.getElementById('add-conc-channel-id').value.trim();
+    if (!handle || !nome) {
+      alert('Handle e nome são obrigatórios');
+      return;
+    }
+    const finalId = channelId || `PENDING-${handle}-${Date.now()}`;
+    const btn = document.getElementById('add-conc-save-btn');
+    btn.disabled = true;
+    btn.textContent = 'Adicionando…';
+    const { error } = await db.from('concorrentes').insert([{ channel_id: finalId, handle, nome, ativo: true }]);
+    btn.disabled = false;
+    btn.textContent = 'Adicionar';
+    if (error) {
+      alert('Erro: ' + error.message);
+      return;
+    }
+    fecharAddConcorrente();
+    loadRadar();
+  }
 </script>
+
+<!-- ── Mini modal: adicionar concorrente ── -->
+<div id="add-conc-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;align-items:center;justify-content:center;padding:24px;" onclick="if(event.target===this)fecharAddConcorrente()">
+  <div style="background:hsl(var(--card));border:1px solid hsl(var(--border));border-radius:10px;width:100%;max-width:440px;padding:20px 22px;box-shadow:0 25px 60px -10px rgba(0,0,0,.5);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div>
+        <div style="font-size:15px;font-weight:600;letter-spacing:-.01em;">Adicionar concorrente</div>
+        <div style="font-size:12px;color:hsl(var(--muted-foreground));margin-top:2px;">Será coletado no próximo Action do GitHub</div>
+      </div>
+      <button onclick="fecharAddConcorrente()" style="width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:hsl(var(--muted-foreground));cursor:pointer;background:none;border:none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:hsl(var(--muted-foreground));margin-bottom:5px;">Handle *</label>
+        <input id="add-conc-handle" type="text" placeholder="@nomedoCanal" style="width:100%;background:hsl(var(--background));color:hsl(var(--foreground));border:1px solid hsl(var(--input));border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;">
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:hsl(var(--muted-foreground));margin-bottom:5px;">Nome do canal *</label>
+        <input id="add-conc-nome" type="text" placeholder="Nome amigável" style="width:100%;background:hsl(var(--background));color:hsl(var(--foreground));border:1px solid hsl(var(--input));border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;">
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:hsl(var(--muted-foreground));margin-bottom:5px;">Channel ID <span style="text-transform:none;opacity:.7;font-weight:400;">(opcional)</span></label>
+        <input id="add-conc-channel-id" type="text" placeholder="UCxxxx — coletor descobre se vazio" style="width:100%;background:hsl(var(--background));color:hsl(var(--foreground));border:1px solid hsl(var(--input));border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;">
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:8px;">
+      <a href="configuracoes.html?tab=concorrentes" style="font-size:11px;color:hsl(var(--muted-foreground));text-decoration:underline;">Gerenciar todos →</a>
+      <div style="display:flex;gap:6px;">
+        <button onclick="fecharAddConcorrente()" class="btn btn-outline btn-sm">Cancelar</button>
+        <button id="add-conc-save-btn" onclick="salvarAddConcorrente()" class="btn btn-default btn-sm">Adicionar</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
