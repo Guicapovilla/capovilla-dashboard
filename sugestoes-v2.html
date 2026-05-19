@@ -847,14 +847,17 @@
       <div class="field-label">Notas / o que quero adaptar (opcional)</div>
       <textarea class="textarea" id="modelar-notas" placeholder="Ex: usar o mesmo ângulo mas focar em Nintendo Switch, adaptar para audiência brasileira..."></textarea>
     </div>
-    <div style="padding:12px 14px;background:hsl(var(--secondary));border-radius:8px;font-size:12px;color:hsl(var(--muted-foreground));line-height:1.55;">
+    <div id="modelar-info" style="padding:12px 14px;background:hsl(var(--secondary));border-radius:8px;font-size:12px;color:hsl(var(--muted-foreground));line-height:1.55;">
       <strong style="color:hsl(var(--foreground));display:block;margin-bottom:4px;">Como funciona</strong>
-      A IA cruza o vídeo do concorrente com seus 20 vídeos mais vistos e propõe uma versão adaptada ao seu estilo, ângulo e audiência.
+      A IA cruza o vídeo do concorrente com seus top vídeos por RPM e propõe título, gancho e estrutura adaptados ao seu estilo e audiência.
     </div>
+
+    <!-- Resultado da modelagem -->
+    <div id="modelar-resultado" style="display:none;border:1px solid hsl(var(--border));border-radius:8px;overflow:hidden;"></div>
   </div>
   <div class="drawer-footer">
     <button class="btn btn-outline" onclick="fecharModelar()" style="flex:none;">Cancelar</button>
-    <button class="btn btn-default" style="flex:1;justify-content:center;">
+    <button class="btn btn-default" id="btn-modelar" onclick="modelarConcorrente()" style="flex:1;justify-content:center;">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
       Modelar para meu canal
     </button>
@@ -872,8 +875,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const SUPABASE_URL     = 'https://ryspohcflrxjwwghvvqc.supabase.co';
+  const SUPABASE_URL      = 'https://ryspohcflrxjwwghvvqc.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_OzoD3gbIn4GoJ6szjwdkhw_KFGAGNsh';
+  const API_URL           = 'https://capovilla-api.vercel.app/api/claude';
+  const DASHBOARD_SECRET  = 'capovilla-dashboard-2026-secreto-aleatorio-x7k9m2p4';
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -963,6 +968,179 @@
       expandRow.classList.remove('hidden');
       titleEl.classList.add('open');
       _openRow = id;
+    }
+  }
+
+  // ── Helpers ──
+  const escapeHtml = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  function toast(msg, type = 'info') {
+    const t = document.createElement('div');
+    t.textContent = msg;
+    Object.assign(t.style, {
+      position:'fixed', bottom:'80px', left:'50%', transform:'translateX(-50%)',
+      background: type === 'error' ? 'hsl(0 72% 51%)' : 'hsl(142 70% 50%)',
+      color:'#fff', padding:'10px 18px', borderRadius:'8px', fontSize:'13px',
+      fontWeight:'500', zIndex:'9999', boxShadow:'0 4px 16px rgba(0,0,0,.3)',
+      whiteSpace:'nowrap',
+    });
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  async function callClaude(prompt, maxTokens = 2000, systemPrompt = null) {
+    const body = { prompt, max_tokens: maxTokens };
+    if (systemPrompt) body.system = systemPrompt;
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-dashboard-secret': DASHBOARD_SECRET },
+      body: JSON.stringify(body),
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+    return data.text;
+  }
+
+  async function carregarBriefing() {
+    try {
+      const { data } = await db.from('config_editorial').select('briefing')
+        .order('updated_at', { ascending: false }).limit(1).single();
+      const texto = (data?.briefing || '').trim();
+      return texto.startsWith('Ainda não preenchido') ? '' : texto;
+    } catch { return ''; }
+  }
+
+  function montarSystemPromptComBriefing(base, briefing) {
+    if (!briefing) return base;
+    return `# BRIEFING EDITORIAL DO CRIADOR\n${briefing}\n\n---\n\n# INSTRUÇÕES DA TAREFA\n\n${base}`;
+  }
+
+  // ── Modelar concorrente ──
+  async function modelarConcorrente() {
+    const url   = document.getElementById('modelar-url-input').value.trim();
+    const notas = document.getElementById('modelar-notas').value.trim();
+    if (!url && !notas) return toast('Cole a URL ou descreva o vídeo', 'error');
+
+    const btn = document.getElementById('btn-modelar');
+    const resultado = document.getElementById('modelar-resultado');
+    const info = document.getElementById('modelar-info');
+    btn.disabled = true;
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Analisando…';
+    resultado.style.display = 'none';
+    info.style.display = 'none';
+
+    try {
+      // Busca top vídeos por RPM para contexto
+      const { data: metricas } = await db.from('videos_metricas')
+        .select('video_id,rpm,views').order('rpm', { ascending: false }).limit(8);
+      const ids = (metricas || []).map(m => m.video_id);
+      const { data: videos } = await db.from('videos')
+        .select('video_id,titulo,console,transcricao').in('video_id', ids);
+      const vMap = Object.fromEntries((videos || []).map(v => [v.video_id, v]));
+
+      const topVideos = (metricas || []).map(m => {
+        const v = vMap[m.video_id] || {};
+        return `- "${v.titulo}" (${v.console||'geral'}) — RPM R$${(m.rpm||0).toFixed(0)} | ${m.views} views`;
+      }).join('\n');
+
+      const vozAmostras = (videos || [])
+        .filter(v => v.transcricao?.length > 300).slice(0, 2)
+        .map(v => `--- "${v.titulo}":\n${v.transcricao.substring(0, 500).trim()}…`)
+        .join('\n\n');
+
+      const briefing = await carregarBriefing();
+      const system = montarSystemPromptComBriefing(
+        'Você é curador editorial do canal @guilhermecapovilla. Vai adaptar um vídeo de concorrente para o estilo e voz deste canal.',
+        briefing
+      );
+
+      const prompt = `## VÍDEO DE REFERÊNCIA (CONCORRENTE)
+${url ? `URL: ${url}` : ''}
+${notas ? `Notas do criador: ${notas}` : ''}
+
+## MEU CANAL — TOP VÍDEOS POR RPM
+${topVideos || '(sem dados)'}
+
+## MINHA VOZ
+${vozAmostras || '(sem transcrições disponíveis)'}
+
+---
+## TAREFA
+Adapte o vídeo de referência para o canal Guilherme Capovilla. Preserve o que funciona; mude o que não combina com a voz e público do canal.
+
+Responda APENAS em JSON:
+\`\`\`json
+{
+  "titulo_sugerido": "como você intitularia (até 70 chars, primeira pessoa)",
+  "angulo": "o que você preservou e o que você mudou — 2 frases",
+  "gancho": "abertura emocional de 2 frases no seu estilo",
+  "estrutura": ["ponto 1", "ponto 2", "ponto 3", "ponto 4"],
+  "rpm_previsto": 60
+}
+\`\`\``;
+
+      const resposta = await callClaude(prompt, 1500, system);
+      let parsed;
+      try {
+        const match = resposta.match(/\{[\s\S]*\}/);
+        if (!match) throw new Error();
+        parsed = JSON.parse(match[0]);
+      } catch { throw new Error('IA não retornou JSON válido'); }
+
+      resultado.innerHTML = `
+        <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:hsl(var(--muted-foreground));margin-bottom:4px;">Título sugerido</div>
+            <div style="font-size:15px;font-weight:600;line-height:1.3;">${escapeHtml(parsed.titulo_sugerido)}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:hsl(var(--muted-foreground));margin-bottom:4px;">Adaptação</div>
+            <div style="font-size:13px;line-height:1.5;">${escapeHtml(parsed.angulo)}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:hsl(var(--muted-foreground));margin-bottom:4px;">Gancho de abertura</div>
+            <div style="font-size:13px;line-height:1.5;font-style:italic;color:hsl(var(--foreground)/0.85);">"${escapeHtml(parsed.gancho)}"</div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:hsl(var(--muted-foreground));margin-bottom:4px;">Estrutura</div>
+            <ol style="margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px;font-size:13px;line-height:1.45;">
+              ${(parsed.estrutura||[]).map(p=>`<li>${escapeHtml(p)}</li>`).join('')}
+            </ol>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:4px;border-top:1px solid hsl(var(--border));">
+            <span style="font-size:12px;color:hsl(var(--success));font-weight:600;">RPM previsto: R$${parsed.rpm_previsto||'?'}</span>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('modelar-resultado').style.display='none';document.getElementById('modelar-info').style.display='block';">Descartar</button>
+              <button class="btn btn-default btn-sm" onclick='aprovarModelagem(${JSON.stringify(parsed).replace(/'/g,"&#39;")})'>Aprovar →</button>
+            </div>
+          </div>
+        </div>`;
+      resultado.style.display = 'block';
+
+    } catch (err) {
+      info.style.display = 'block';
+      toast('Erro: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg> Modelar para meu canal';
+    }
+  }
+
+  async function aprovarModelagem(parsed) {
+    try {
+      const { error } = await db.from('sugestoes').insert([{
+        legacy_id:       `MODELAR-${Date.now()}`,
+        titulo_sugerido: (parsed.titulo_sugerido || '').substring(0, 200),
+        tema:            'modelagem de concorrente',
+        motivo:          `${parsed.angulo}\n\nGancho: ${parsed.gancho}\n\nEstrutura:\n${(parsed.estrutura||[]).map((p,i)=>`${i+1}. ${p}`).join('\n')}`,
+        status:          'ideia',
+        rpm_previsto:    parsed.rpm_previsto || null,
+      }]);
+      if (error) throw error;
+      toast('✅ Sugestão criada! Aparecerá na fila.', 'success');
+      fecharModelar();
+    } catch (err) {
+      toast('Erro ao salvar: ' + err.message, 'error');
     }
   }
 
