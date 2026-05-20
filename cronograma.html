@@ -118,6 +118,10 @@
     .badge-outline { color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
     .badge-success { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); }
     .badge-amber { background: hsl(var(--amber) / 0.15); color: hsl(var(--amber)); }
+    /* Segmented control */
+    .seg-btn { background: transparent; border: none; border-radius: 4px; padding: 4px 12px; font-size: 11px; font-weight: 600; color: hsl(var(--muted-foreground)); cursor: pointer; transition: background .15s, color .15s; }
+    .seg-btn:hover { color: hsl(var(--foreground)); }
+    .seg-btn.active { background: hsl(var(--card)); color: hsl(var(--foreground)); box-shadow: 0 1px 3px hsl(0 0% 0% / .25); }
 
     /* Form controls */
     .input, .textarea, .select-input { width: 100%; background: hsl(var(--background)); color: hsl(var(--foreground)); border: 1px solid hsl(var(--input)); border-radius: calc(var(--radius) - 2px); padding: 8px 12px; font-family: inherit; font-size: 13px; line-height: 1.5; transition: border-color .12s, box-shadow .12s; }
@@ -316,7 +320,14 @@
           </div>
         </div>
 
-        <h2 class="section-title">Últimos vídeos publicados</h2>
+        <h2 class="section-title" style="display:flex;align-items:center;justify-content:space-between;">
+          Últimos vídeos publicados
+          <div class="segmented-control" id="filtro-tipo-video" style="display:flex;gap:2px;background:hsl(var(--muted));border-radius:6px;padding:3px;">
+            <button class="seg-btn active" data-tipo="todos" onclick="filtrarTipoVideo(this,'todos')">Todos</button>
+            <button class="seg-btn" data-tipo="longo" onclick="filtrarTipoVideo(this,'longo')">Longos</button>
+            <button class="seg-btn" data-tipo="short" onclick="filtrarTipoVideo(this,'short')">Shorts</button>
+          </div>
+        </h2>
         <div class="card">
           <div id="videos-lista">
             <div class="loading">Carregando vídeos…</div>
@@ -643,17 +654,33 @@
   async function carregarVideos() {
     const { data, error } = await db
       .from('videos')
-      .select('video_id, titulo, console, data_publicacao, slug_sugestao_id')
+      .select('video_id, titulo, console, tipo_video, data_publicacao, slug_sugestao_id')
       .order('data_publicacao', { ascending: false })
-      .limit(20);
+      .limit(40);
     if (error) { document.getElementById('videos-lista').innerHTML = `<div class="error-msg">${error.message}</div>`; return; }
     cacheVideos = data || [];
     renderizarVideos();
   }
 
+  let filtroTipoAtivo = 'todos';
+
+  function filtrarTipoVideo(btn, tipo) {
+    filtroTipoAtivo = tipo;
+    document.querySelectorAll('#filtro-tipo-video .seg-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderizarVideos();
+  }
+
   function renderizarVideos() {
     const sugestoesMap = Object.fromEntries(cacheSugestoes.map(s => [s.id, s]));
-    const rows = cacheVideos.map(v => {
+    const videosFiltrados = filtroTipoAtivo === 'todos'
+      ? cacheVideos
+      : cacheVideos.filter(v => (v.tipo_video || 'longo') === filtroTipoAtivo);
+    if (!videosFiltrados.length) {
+      document.getElementById('videos-lista').innerHTML = '<div style="padding:20px;text-align:center;color:hsl(var(--muted-foreground));font-size:13px;">Nenhum vídeo nessa categoria.</div>';
+      return;
+    }
+    const rows = videosFiltrados.map(v => {
       const sugestao = v.slug_sugestao_id ? sugestoesMap[v.slug_sugestao_id] : null;
       let vinculoCol;
       if (sugestao) {
