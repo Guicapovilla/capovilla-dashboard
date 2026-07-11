@@ -410,7 +410,7 @@
         <div class="page-header row items-center justify-between">
           <div class="col">
             <h1 class="page-title">Resumo</h1>
-            <p class="page-subtitle">Visão geral do canal · Q2 2026</p>
+            <p class="page-subtitle" id="page-subtitle">Visão geral do canal</p>
           </div>
         </div>
 
@@ -533,16 +533,21 @@
   // Metas do Q2
   // ==========================================================
   async function carregarMetas() {
-    const { data, error } = await db
-      .from('metas')
-      .select('*')
-      .eq('quarter', '2026-Q2');
+      const hoje = new Date();
+      const q = Math.floor(hoje.getMonth() / 3) + 1;
+      const quarterLabel = `${hoje.getFullYear()}-Q${q}`;
+      document.getElementById('page-subtitle').textContent = `Visão geral do canal · Q${q} ${hoje.getFullYear()}`;
 
-    if (error) return erro('#metas', error.message);
-    if (!data || data.length === 0) {
-      document.getElementById('metas').innerHTML = '<div class="loading">Nenhuma meta cadastrada pro Q2.</div>';
-      return;
-    }
+      const { data, error } = await db
+        .from('metas')
+        .select('*')
+        .eq('quarter', quarterLabel);
+
+      if (error) return erro('#metas', error.message);
+      if (!data || data.length === 0) {
+            document.getElementById('metas').innerHTML = `<div class="loading">Nenhuma meta cadastrada para ${quarterLabel}.</div>`;
+            return;
+      }
 
     const html = data.map(m => {
       const pct = m.valor_alvo > 0 ? Math.round((m.valor_atual / m.valor_alvo) * 100) : 0;
