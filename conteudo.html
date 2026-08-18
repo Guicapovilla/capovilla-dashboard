@@ -19,7 +19,7 @@
       --border: 240 5.9% 90%; --input: 240 5.9% 90%; --ring: 240 5.9% 10%;
       --radius: 0.5rem;
       --amber: 38 92% 50%; --amber-foreground: 38 92% 6%;
-      --success: 142 71% 45%; --danger: 0 84% 60%; --info: 217 91% 60%; --violet: 262 83% 58%;
+      --success: 142 71% 45%; --danger: 0 84% 60%; --info: 217 91% 60%; --violet: 262 83% 58%; --teal: 172 66% 40%;
     }
     [data-theme="dark"] {
       --background: 240 10% 3.9%; --foreground: 0 0% 98%;
@@ -30,7 +30,7 @@
       --accent: 240 3.7% 15.9%; --accent-foreground: 0 0% 98%;
       --border: 240 3.7% 15.9%; --input: 240 3.7% 15.9%; --ring: 240 4.9% 83.9%;
       --amber: 43 96% 56%; --amber-foreground: 38 92% 6%;
-      --success: 142 70% 50%; --danger: 0 72% 51%; --info: 217 91% 60%; --violet: 258 90% 66%;
+      --success: 142 70% 50%; --danger: 0 72% 51%; --info: 217 91% 60%; --violet: 258 90% 66%; --teal: 172 66% 50%;
     }
 
     * { box-sizing: border-box; }
@@ -114,6 +114,7 @@
     .badge-roteiro { background: hsl(var(--violet) / 0.15); color: hsl(var(--violet)); }
     .badge-gravacao{ background: hsl(var(--amber) / 0.15); color: hsl(var(--amber)); }
     .badge-edicao  { background: hsl(var(--info) / 0.15); color: hsl(var(--info)); }
+    .badge-agendado { background: hsl(var(--teal) / 0.15); color: hsl(var(--teal)); }
     .badge-publicado { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); }
     .badge-atrasado { background: hsl(var(--danger) / 0.15); color: hsl(var(--danger)); }
 
@@ -304,6 +305,8 @@
       width: 26px; height: 26px; display: none; align-items: center; justify-content: center;
     }
     .thumb-zone.has-img:hover .thumb-rm { display: flex; }
+    .thumb-url-row { display: flex; gap: 6px; margin-top: 8px; }
+    .thumb-url-row .input { flex: 1; font-size: 12px; height: 30px; padding: 0 10px; }
 
     /* status pills in drawer */
     .status-pills { display: flex; gap: 4px; flex-wrap: wrap; }
@@ -317,6 +320,7 @@
     .status-pill.active-roteiro { background: hsl(var(--violet) / 0.18); color: hsl(var(--violet)); border-color: hsl(var(--violet) / 0.4); }
     .status-pill.active-gravacao{ background: hsl(var(--amber) / 0.18); color: hsl(var(--amber)); border-color: hsl(var(--amber) / 0.4); }
     .status-pill.active-edicao  { background: hsl(var(--info) / 0.18); color: hsl(var(--info)); border-color: hsl(var(--info) / 0.4); }
+    .status-pill.active-agendado { background: hsl(var(--teal) / 0.18); color: hsl(var(--teal)); border-color: hsl(var(--teal) / 0.4); }
     .status-pill.active-publicado { background: hsl(var(--success) / 0.18); color: hsl(var(--success)); border-color: hsl(var(--success) / 0.4); }
 
     .seg { display: inline-flex; gap: 3px; background: hsl(var(--muted) / 0.6); border-radius: 7px; padding: 3px; }
@@ -504,6 +508,11 @@
         </button>
       </div>
       <input type="file" id="thumb-file" accept="image/*" style="display:none" onchange="thumbDeArquivo(this.files[0])">
+      <div class="thumb-url-row">
+        <input type="url" class="input" id="thumb-url" placeholder="ou cole o link de uma imagem…"
+          onkeydown="if(event.key==='Enter'){event.preventDefault(); usarThumbUrl();}" onclick="event.stopPropagation()">
+        <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); usarThumbUrl();">Usar link</button>
+      </div>
     </div>
 
     <div class="field">
@@ -606,9 +615,12 @@ const STATUS = [
   { id: 'roteiro',   label: 'Roteiro' },
   { id: 'gravacao',  label: 'Gravação' },
   { id: 'edicao',    label: 'Edição' },
+  { id: 'agendado',  label: 'Agendado' },
   { id: 'publicado', label: 'Publicado' },
 ];
 const STATUS_LABEL = Object.fromEntries(STATUS.map(s => [s.id, s.label]));
+// Com o vídeo agendado ou publicado, a entrega não conta mais como atraso mesmo se a data passar.
+const STATUS_EM_DIA = ['agendado', 'publicado'];
 
 const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const MESES_CURTO = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
@@ -762,7 +774,7 @@ function renderCalendario() {
     const shown = evs.slice(0, 3);
     const evHtml = shown.map(({ c, kind }) => {
       const done = c.status === 'publicado';
-      const late = !done && iso < hoje;
+      const late = !STATUS_EM_DIA.includes(c.status) && iso < hoje;
       const cls = done ? 'ev-done' : late ? 'ev-late' : (kind === 'grav' ? 'ev-grav' : 'ev-pub');
       const icon = kind === 'grav'
         ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.2 3.5a.5.5 0 0 0 .8-.42V7.87a.5.5 0 0 0-.75-.43L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>'
@@ -803,7 +815,7 @@ function renderListas() {
     return items.map(c => {
       const iso = c[dateKey];
       const [y, m, d] = iso.split('-');
-      const late = iso < hoje;
+      const late = !STATUS_EM_DIA.includes(c.status) && iso < hoje;
       return `<div class="mini-item" onclick="abrirConteudo('${c.id}')">
         <div class="mini-date ${late ? 'late' : ''}">
           <span class="d">${d}</span><span class="m">${MESES_CURTO[+m - 1]}</span>
@@ -928,6 +940,7 @@ function preencherDrawer() {
   $('drawer-id').textContent = abertoNovo ? '' : c.id.slice(0, 8).toUpperCase();
 
   // thumb
+  $('thumb-url').value = '';
   const zone = $('thumb-zone'), img = $('thumb-img');
   if (c.thumb) { img.src = c.thumb; img.style.display = 'block'; zone.classList.add('has-img'); }
   else { img.src = ''; img.style.display = 'none'; zone.classList.remove('has-img'); }
@@ -1009,6 +1022,20 @@ function processarImagem(file) {
   reader.readAsDataURL(file);
 }
 function thumbDeArquivo(f) { processarImagem(f); $('thumb-file').value = ''; }
+
+// Usa uma imagem hospedada em outro lugar (link direto), sem baixar/reprocessar —
+// evita problemas de CORS ao tentar redesenhar imagem de outro domínio em canvas.
+function usarThumbUrl() {
+  const input = $('thumb-url');
+  const url = input.value.trim();
+  if (!url) return;
+  if (!/^https?:\/\//i.test(url)) { toast('Cole um link válido (começando com http:// ou https://)', 'error'); return; }
+  if (!aberto) return;
+  aberto.thumb = url;
+  input.value = '';
+  preencherDrawer();
+  campoAlterado();
+}
 function removerThumb(ev) {
   ev.stopPropagation();
   if (!aberto) return;
