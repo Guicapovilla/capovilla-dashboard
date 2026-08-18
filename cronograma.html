@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capovilla · Cronograma</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* Tokens shadcn */
+    :root, [data-theme="light"] { --background: 0 0% 100%; --foreground: 240 10% 3.9%; --card: 0 0% 100%; --card-foreground: 240 10% 3.9%; --primary: 240 5.9% 10%; --primary-foreground: 0 0% 98%; --secondary: 240 4.8% 95.9%; --secondary-foreground: 240 5.9% 10%; --muted: 240 4.8% 95.9%; --muted-foreground: 240 3.8% 46.1%; --accent: 240 4.8% 95.9%; --accent-foreground: 240 5.9% 10%; --border: 240 5.9% 90%; --input: 240 5.9% 90%; --ring: 240 5.9% 10%; --radius: 0.5rem; --amber: 38 92% 50%; --amber-foreground: 38 92% 6%; --success: 142 71% 45%; --danger: 0 84% 60%; --info: 217 91% 60%; --sidebar-background: 0 0% 98%; --sidebar-foreground: 240 5.3% 26.1%; --sidebar-accent: 240 4.8% 95.9%; --sidebar-accent-foreground: 240 5.9% 10%; --sidebar-border: 220 13% 91%; }
+    [data-theme="dark"] { --background: 240 10% 3.9%; --foreground: 0 0% 98%; --card: 240 10% 3.9%; --card-foreground: 0 0% 98%; --primary: 0 0% 98%; --primary-foreground: 240 5.9% 10%; --secondary: 240 3.7% 15.9%; --secondary-foreground: 0 0% 98%; --muted: 240 3.7% 15.9%; --muted-foreground: 240 5% 64.9%; --accent: 240 3.7% 15.9%; --accent-foreground: 0 0% 98%; --border: 240 3.7% 15.9%; --input: 240 3.7% 15.9%; --ring: 240 4.9% 83.9%; --amber: 43 96% 56%; --amber-foreground: 38 92% 6%; --success: 142 70% 50%; --danger: 0 72% 51%; --info: 217 91% 60%; --sidebar-background: 240 5.9% 10%; --sidebar-foreground: 240 4.8% 95.9%; --sidebar-accent: 240 3.7% 15.9%; --sidebar-accent-foreground: 240 4.8% 95.9%; --sidebar-border: 240 3.7% 15.9%; }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body { font-family: 'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; font-feature-settings: 'cv11','ss01'; -webkit-font-smoothing: antialiased; background: hsl(var(--background)); color: hsl(var(--foreground)); font-size: 14px; line-height: 1.5; }
+    .mono { font-family: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace; font-feature-settings: 'tnum','zero'; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+
+    *::-webkit-scrollbar { width: 10px; height: 10px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 5px; border: 2px solid hsl(var(--background)); }
+    *::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.4); }
+
+    /* App layout */
+    .app { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+    .sidebar { display: flex; flex-direction: column; background: hsl(var(--sidebar-background)); color: hsl(var(--sidebar-foreground)); border-right: 1px solid hsl(var(--sidebar-border)); width: 256px; flex-shrink: 0; transition: width .2s ease; overflow: hidden; }
+    .sidebar.collapsed { width: 56px; }
+    .sidebar-header { padding: 8px; border-bottom: 1px solid hsl(var(--sidebar-border)); }
+    .sidebar-content { flex: 1; overflow-y: auto; padding: 8px; }
+    .sidebar-footer { padding: 8px; border-top: 1px solid hsl(var(--sidebar-border)); }
+    .sidebar-group { margin-top: 8px; }
+    .sidebar-group:first-child { margin-top: 0; }
+    .sidebar-group-label { font-size: 11px; font-weight: 500; color: hsl(var(--sidebar-foreground) / 0.6); padding: 8px 8px 4px; white-space: nowrap; overflow: hidden; }
+    .sidebar.collapsed .sidebar-group-label { opacity: 0; height: 0; padding: 0; }
+    .sidebar-menu { display: flex; flex-direction: column; gap: 1px; }
+    .sidebar-menu-button { display: flex; align-items: center; gap: 8px; width: 100%; height: 32px; padding: 0 8px; border-radius: calc(var(--radius) - 2px); font-size: 13px; font-weight: 400; color: hsl(var(--sidebar-foreground)); text-align: left; white-space: nowrap; overflow: hidden; transition: background-color .12s, color .12s; }
+    .sidebar-menu-button:hover { background: hsl(var(--sidebar-accent)); color: hsl(var(--sidebar-accent-foreground)); }
+    .sidebar-menu-button.active { background: hsl(var(--sidebar-accent)); color: hsl(var(--sidebar-accent-foreground)); font-weight: 500; }
+    .sidebar-menu-button .icon { flex-shrink: 0; width: 16px; height: 16px; }
+    .sidebar-menu-button .label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-menu-button .chevron { flex-shrink: 0; width: 14px; height: 14px; opacity: 0.6; transition: transform .15s; }
+    .sidebar-menu-button.open .chevron { transform: rotate(90deg); }
+    .sidebar-menu-sub { margin-left: 12px; padding-left: 10px; border-left: 1px solid hsl(var(--sidebar-border)); display: flex; flex-direction: column; gap: 1px; margin-top: 1px; }
+    .sidebar-menu-sub-button { display: flex; align-items: center; width: 100%; height: 28px; padding: 0 8px; border-radius: calc(var(--radius) - 4px); font-size: 13px; color: hsl(var(--sidebar-foreground) / 0.85); }
+    .sidebar-menu-sub-button:hover { background: hsl(var(--sidebar-accent)); color: hsl(var(--sidebar-accent-foreground)); }
+    .sidebar.collapsed .sidebar-menu-button .label, .sidebar.collapsed .sidebar-menu-button .chevron, .sidebar.collapsed .sidebar-menu-sub { display: none; }
+    .sidebar.collapsed .sidebar-menu-button { justify-content: center; padding: 0; width: 32px; margin: 0 auto; }
+
+    .team-switcher { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border-radius: calc(var(--radius) - 2px); text-align: left; }
+    .team-switcher:hover { background: hsl(var(--sidebar-accent)); }
+    .team-logo { width: 32px; height: 32px; border-radius: 6px; background: hsl(var(--amber)); color: hsl(var(--amber-foreground)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; font-size: 14px; }
+    .team-meta { flex: 1; overflow: hidden; min-width: 0; }
+    .team-name { font-size: 13px; font-weight: 600; line-height: 1.2; }
+    .team-plan { font-size: 11px; color: hsl(var(--sidebar-foreground) / 0.7); line-height: 1.2; margin-top: 1px; }
+    .sidebar.collapsed .team-meta { display: none; }
+    .sidebar.collapsed .team-switcher { padding: 4px; justify-content: center; }
+
+    .user-card { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border-radius: calc(var(--radius) - 2px); }
+    .user-card:hover { background: hsl(var(--sidebar-accent)); }
+    .avatar { width: 28px; height: 28px; border-radius: 50%; background: hsl(var(--secondary)); color: hsl(var(--secondary-foreground)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 600; }
+    .user-meta { flex: 1; overflow: hidden; min-width: 0; }
+    .user-name { font-size: 13px; font-weight: 500; line-height: 1.2; }
+    .user-email { font-size: 11px; color: hsl(var(--sidebar-foreground) / 0.7); line-height: 1.2; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar.collapsed .user-meta { display: none; }
+    .sidebar.collapsed .user-card { padding: 4px; justify-content: center; }
+
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+    .app-header { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 16px; border-bottom: 1px solid hsl(var(--border)); flex-shrink: 0; }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .breadcrumb-item { color: hsl(var(--muted-foreground)); }
+    .breadcrumb-item.current { color: hsl(var(--foreground)); font-weight: 500; }
+    .breadcrumb-sep { color: hsl(var(--muted-foreground)); opacity: 0.5; width: 14px; height: 14px; }
+    .separator-v { width: 1px; background: hsl(var(--border)); }
+    .app-content { flex: 1; overflow-y: auto; }
+    .page { padding: 24px 32px; max-width: 1500px; margin: 0 auto; }
+    .page-header { margin-bottom: 24px; }
+    .page-title { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0; }
+    .page-subtitle { font-size: 14px; color: hsl(var(--muted-foreground)); margin: 4px 0 0; }
+    .section-title { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: hsl(var(--muted-foreground)); margin: 32px 0 12px; }
+    .section-title:first-child { margin-top: 0; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 500; line-height: 1; border-radius: calc(var(--radius) - 2px); padding: 0 12px; height: 32px; border: 1px solid transparent; white-space: nowrap; transition: background-color .12s, border-color .12s, color .12s; user-select: none; }
+    .btn:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
+    .btn:disabled { opacity: 0.5; cursor: wait; }
+    .btn-default { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+    .btn-default:hover:not(:disabled) { background: hsl(var(--primary) / 0.9); }
+    .btn-secondary { background: hsl(var(--secondary)); color: hsl(var(--secondary-foreground)); }
+    .btn-secondary:hover:not(:disabled) { background: hsl(var(--secondary) / 0.8); }
+    .btn-outline { background: hsl(var(--background)); color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
+    .btn-outline:hover:not(:disabled) { background: hsl(var(--accent)); }
+    .btn-ghost { color: hsl(var(--foreground)); }
+    .btn-ghost:hover:not(:disabled) { background: hsl(var(--accent)); }
+    .btn-amber { background: hsl(var(--amber)); color: hsl(var(--amber-foreground)); font-weight: 600; }
+    .btn-amber:hover:not(:disabled) { background: hsl(var(--amber) / 0.9); }
+    .btn-info { background: hsl(var(--info) / 0.15); color: hsl(var(--info)); border-color: hsl(var(--info) / 0.3); }
+    .btn-info:hover:not(:disabled) { background: hsl(var(--info) / 0.25); }
+    .btn-danger-outline { background: transparent; color: hsl(var(--danger)); border-color: hsl(var(--danger) / 0.4); }
+    .btn-destructive { background: hsl(var(--danger, 0 72% 51%)); color: #fff; }
+    .btn-destructive:hover:not(:disabled) { background: hsl(var(--danger, 0 72% 51%) / 0.85); }
+    .btn-danger-outline:hover:not(:disabled) { background: hsl(var(--danger) / 0.1); }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+    .btn-icon-sm { width: 28px; height: 28px; padding: 0; }
+
+    /* Card */
+    .card { background: hsl(var(--card)); color: hsl(var(--card-foreground)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); }
+    .card-header { padding: 18px 20px 10px; border-bottom: 1px solid hsl(var(--border)); }
+    .card-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+    .card-description { font-size: 12px; color: hsl(var(--muted-foreground)); margin-top: 4px; }
+    .card-content { padding: 16px 20px 18px; }
+
+    /* Badge */
+    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; line-height: 1; padding: 3px 8px; border-radius: 999px; border: 1px solid transparent; white-space: nowrap; }
+    .badge-secondary { background: hsl(var(--secondary)); color: hsl(var(--secondary-foreground)); }
+    .badge-outline { color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
+    .badge-success { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); }
+    .badge-amber { background: hsl(var(--amber) / 0.15); color: hsl(var(--amber)); }
+    /* Segmented control */
+    .seg-btn { background: transparent; border: none; border-radius: 4px; padding: 4px 12px; font-size: 11px; font-weight: 600; color: hsl(var(--muted-foreground)); cursor: pointer; transition: background .15s, color .15s; }
+    .seg-btn:hover { color: hsl(var(--foreground)); }
+    .seg-btn.active { background: hsl(var(--card)); color: hsl(var(--foreground)); box-shadow: 0 1px 3px hsl(0 0% 0% / .25); }
+
+    /* Form controls */
+    .input, .textarea, .select-input { width: 100%; background: hsl(var(--background)); color: hsl(var(--foreground)); border: 1px solid hsl(var(--input)); border-radius: calc(var(--radius) - 2px); padding: 8px 12px; font-family: inherit; font-size: 13px; line-height: 1.5; transition: border-color .12s, box-shadow .12s; }
+    .input:focus, .textarea:focus, .select-input:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 1px hsl(var(--ring)); }
+    .input-label { display: block; font-size: 12px; font-weight: 500; color: hsl(var(--foreground)); margin-bottom: 6px; }
+
+    /* Layout helpers */
+    .row { display: flex; }
+    .col-flex { display: flex; flex-direction: column; }
+    .gap-2 { gap: 8px; } .gap-3 { gap: 12px; } .gap-4 { gap: 16px; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .flex-1 { flex: 1; }
+
+    /* ============================================================ Kanban */
+    .kanban { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .kanban-col { background: hsl(var(--secondary) / 0.4); border: 1px solid hsl(var(--border)); border-radius: var(--radius); display: flex; flex-direction: column; min-height: 380px; max-height: 600px; }
+    .kanban-col-header { padding: 12px 14px; border-bottom: 1px solid hsl(var(--border)); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .kanban-col-title { font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
+    .kanban-col-count { font-size: 11px; font-weight: 600; color: hsl(var(--muted-foreground)); background: hsl(var(--background)); padding: 2px 8px; border-radius: 999px; border: 1px solid hsl(var(--border)); }
+    .kanban-col-body { flex: 1; padding: 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; min-height: 100px; }
+    .kanban-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: calc(var(--radius) - 2px); padding: 10px 12px; cursor: grab; transition: border-color .12s, box-shadow .12s; }
+    .kanban-card:hover { border-color: hsl(var(--ring) / 0.5); }
+    .kanban-card:active { cursor: grabbing; }
+    .kanban-card.ghost { opacity: 0.4; }
+    .kanban-card-title { font-size: 13px; font-weight: 500; line-height: 1.4; margin-bottom: 6px; }
+    .kanban-card-meta { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+    .kanban-card-id { font-size: 10px; color: hsl(var(--muted-foreground)); font-family: 'Geist Mono', monospace; }
+
+    /* ============================================================ Calendar */
+    .calendar-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .calendar-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+    .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: hsl(var(--border)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); overflow: hidden; }
+    .cal-header { background: hsl(var(--secondary)); padding: 8px 6px; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; color: hsl(var(--muted-foreground)); text-align: center; text-transform: uppercase; }
+    .cal-day { background: hsl(var(--card)); min-height: 90px; padding: 8px; font-size: 12px; position: relative; cursor: pointer; transition: background-color .12s; display: flex; flex-direction: column; gap: 3px; }
+    .cal-day:hover { background: hsl(var(--accent)); }
+    .cal-day.other-month { opacity: 0.4; cursor: default; }
+    .cal-day.other-month:hover { background: hsl(var(--card)); }
+    .cal-day.today { background: hsl(var(--amber) / 0.08); }
+    .cal-day.today .day-num { color: hsl(var(--amber)); font-weight: 700; }
+    .cal-day .day-num { color: hsl(var(--muted-foreground)); font-size: 11px; font-weight: 500; }
+    .cal-event { background: hsl(var(--info) / 0.15); color: hsl(var(--info)); font-size: 10px; font-weight: 500; padding: 2px 4px 2px 6px; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; display: flex; align-items: center; gap: 3px; }
+    .cal-event:hover { background: hsl(var(--info) / 0.25); }
+    .cal-event.is-publicado { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); }
+    .cal-event.is-publicado:hover { background: hsl(var(--success) / 0.25); }
+    .cal-event.is-atrasado { background: hsl(var(--danger) / 0.15); color: hsl(var(--danger)); }
+    .cal-event.is-atrasado:hover { background: hsl(var(--danger) / 0.25); }
+    .cal-event-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cal-event-rm { flex-shrink: 0; line-height: 1; font-size: 11px; opacity: 0.5; padding: 0 2px; border-radius: 2px; cursor: pointer; }
+    .cal-event-rm:hover { opacity: 1; background: hsl(var(--danger) / 0.25); color: hsl(var(--danger)); }
+    .cal-more { font-size: 10px; color: hsl(var(--muted-foreground)); font-weight: 500; }
+
+    /* ============================================================ Table (videos) */
+    .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .table thead tr { border-bottom: 1px solid hsl(var(--border)); }
+    .table th { text-align: left; padding: 10px 12px; font-weight: 500; color: hsl(var(--muted-foreground)); font-size: 12px; }
+    .table td { padding: 10px 12px; border-bottom: 1px solid hsl(var(--border)); vertical-align: middle; }
+    .table tbody tr:last-child td { border-bottom: none; }
+    .table tbody tr:hover { background: hsl(var(--muted) / 0.4); }
+    .vinculado-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: hsl(var(--success)); font-family: 'Geist Mono', monospace; }
+
+    /* ============================================================ Modal */
+    .modal-bg { display: none; position: fixed; inset: 0; background: hsl(0 0% 0% / 0.5); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+    .modal-bg.show { display: flex; }
+    .modal { background: hsl(var(--card)); color: hsl(var(--card-foreground)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+    .modal-header { padding: 20px 24px 12px; border-bottom: 1px solid hsl(var(--border)); }
+    .modal-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+    .modal-description { font-size: 13px; color: hsl(var(--muted-foreground)); margin-top: 4px; }
+    .modal-body { padding: 16px 24px; display: flex; flex-direction: column; gap: 14px; }
+    .modal-footer { padding: 14px 24px 18px; border-top: 1px solid hsl(var(--border)); display: flex; gap: 8px; justify-content: flex-end; }
+
+    .preview-block { padding: 12px 14px; background: hsl(var(--muted) / 0.4); border: 1px solid hsl(var(--border)); border-radius: calc(var(--radius) - 2px); font-size: 13px; color: hsl(var(--foreground) / 0.85); }
+
+    /* Loading & error */
+    .loading { color: hsl(var(--muted-foreground)); font-style: italic; padding: 16px; text-align: center; }
+    .error-msg { color: hsl(var(--danger)); background: hsl(var(--danger) / 0.08); padding: 12px 16px; border-radius: calc(var(--radius) - 2px); border: 1px solid hsl(var(--danger) / 0.2); font-size: 13px; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: hsl(var(--info) / 0.15); color: hsl(var(--info)); border: 1px solid hsl(var(--info) / 0.3); padding: 10px 16px; border-radius: calc(var(--radius) - 2px); font-size: 13px; font-weight: 500; z-index: 200; display: none; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
+    .toast.show { display: block; animation: slideUp .2s ease; }
+    .toast.success { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); border-color: hsl(var(--success) / 0.3); }
+    .toast.error { background: hsl(var(--danger) / 0.15); color: hsl(var(--danger)); border-color: hsl(var(--danger) / 0.3); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <button class="team-switcher">
+        <div class="team-logo">C</div>
+        <div class="team-meta">
+          <div class="team-name">Capovilla</div>
+          <div class="team-plan">Editorial Studio</div>
+        </div>
+      </button>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">Plataforma</div>
+        <div class="sidebar-menu">
+          <a href="index.html" class="sidebar-menu-button">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+            <span class="label">Resumo</span>
+          </a>
+          <a href="sugestoes.html" class="sidebar-menu-button">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+            <span class="label">Sugestões</span>
+          </a>
+          <a href="cronograma.html" class="sidebar-menu-button active">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+            <span class="label">Cronograma</span>
+          </a>
+          <a href="conteudo.html" class="sidebar-menu-button">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+            <span class="label">Conteúdo <span style="font-size:9px;font-weight:700;color:hsl(var(--amber));vertical-align:middle;">NOVO</span></span>
+          </a>
+          <button class="sidebar-menu-button" id="config-toggle">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span class="label">Configurações</span>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <div class="sidebar-menu-sub" id="config-sub" style="display:none;">
+            <a href="configuracoes.html" class="sidebar-menu-sub-button">Geral</a>
+            <a href="briefing.html" class="sidebar-menu-sub-button">Briefing</a>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">Canais</div>
+        <div class="sidebar-menu">
+          <button class="sidebar-menu-button">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258A4 4 0 0 0 17.32 5z"/></svg>
+            <span class="label">@guilhermecapovilla</span>
+          </button>
+          <button class="sidebar-menu-button">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            <span class="label" style="color: hsl(var(--muted-foreground));">Adicionar canal</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="user-card">
+        <div class="avatar">GC</div>
+        <div class="user-meta">
+          <div class="user-name">Guilherme Capovilla</div>
+          <div class="user-email">guilherme@capovilla.tv</div>
+        </div>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="app-header">
+      <button class="btn btn-ghost btn-icon-sm" onclick="toggleSidebar()" title="Toggle sidebar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
+      </button>
+      <div class="separator-v" style="height:16px;margin:0 4px;"></div>
+      <nav class="breadcrumb">
+        <span class="breadcrumb-item">Plataforma</span>
+        <svg class="breadcrumb-sep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        <span class="breadcrumb-item current">Cronograma</span>
+      </nav>
+      <div class="flex-1"></div>
+      <button class="btn btn-ghost btn-icon-sm" onclick="toggleTheme()" title="Alternar tema">
+        <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+      </button>
+    </header>
+
+    <div class="app-content">
+      <div class="page">
+        <div class="page-header">
+          <h1 class="page-title">Cronograma</h1>
+          <p class="page-subtitle">Pipeline de produção · agendamento · vínculo de vídeos publicados</p>
+        </div>
+
+        <h2 class="section-title">Kanban de produção</h2>
+        <div class="kanban" id="kanban">
+          <div class="loading">Carregando kanban…</div>
+        </div>
+
+        <h2 class="section-title">Calendário de publicação</h2>
+        <div class="card">
+          <div class="card-content">
+            <div class="calendar-nav">
+              <button class="btn btn-outline btn-sm" onclick="mudarMes(-1)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                Anterior
+              </button>
+              <div class="calendar-title" id="cal-title">—</div>
+              <button class="btn btn-outline btn-sm" onclick="mudarMes(1)">
+                Próximo
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+            <div class="calendar" id="calendar">
+              <div class="loading">Carregando calendário…</div>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="section-title" style="display:flex;align-items:center;justify-content:space-between;">
+          Últimos vídeos publicados
+          <div class="segmented-control" id="filtro-tipo-video" style="display:flex;gap:2px;background:hsl(var(--muted));border-radius:6px;padding:3px;">
+            <button class="seg-btn active" data-tipo="todos" onclick="filtrarTipoVideo(this,'todos')">Todos</button>
+            <button class="seg-btn" data-tipo="longo" onclick="filtrarTipoVideo(this,'longo')">Longos</button>
+            <button class="seg-btn" data-tipo="short" onclick="filtrarTipoVideo(this,'short')">Shorts</button>
+          </div>
+        </h2>
+        <div class="card">
+          <div id="videos-lista">
+            <div class="loading">Carregando vídeos…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal linkar -->
+<div class="modal-bg" id="modal-link">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Linkar sugestão ao vídeo</h3>
+      <p class="modal-description">Conecta o vídeo publicado à sugestão original que o gerou. Loop de aprendizado fecha aqui.</p>
+    </div>
+    <div class="modal-body">
+      <div class="preview-block" id="link-video-info"></div>
+      <input type="hidden" id="link-video-id">
+      <div>
+        <label class="input-label">Escolha a sugestão que originou esse vídeo</label>
+        <select id="link-sugestao-select" class="select-input">
+          <option value="">— nenhuma —</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-link')">Cancelar</button>
+      <button class="btn btn-default" onclick="salvarLink()">Linkar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal agendar -->
+<div class="modal-bg" id="modal-agendar">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Agendar sugestão</h3>
+      <p class="modal-description">Define a data prevista de publicação. Aparece no calendário.</p>
+    </div>
+    <div class="modal-body">
+      <div class="preview-block" id="agendar-data-info"></div>
+      <input type="hidden" id="agendar-data">
+      <div>
+        <label class="input-label">Qual sugestão agendar para esse dia?</label>
+        <select id="agendar-sugestao-select" class="select-input">
+          <option value="">— nenhuma —</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-agendar')">Cancelar</button>
+      <button class="btn btn-default" onclick="salvarAgendamento()">Agendar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal confirmar remoção do calendário -->
+<div class="modal-bg" id="modal-desagendar">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Remover do calendário</h3>
+      <p class="modal-description">A sugestão volta ao kanban sem data prevista e pode ser reagendada.</p>
+    </div>
+    <div class="modal-body">
+      <div class="preview-block" id="desagendar-titulo"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-desagendar')">Cancelar</button>
+      <button class="btn btn-destructive" onclick="confirmarDesagendar()">Remover</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+  // ==========================================================
+  // CONFIG
+  // ==========================================================
+  const SUPABASE_URL = 'https://ryspohcflrxjwwghvvqc.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_OzoD3gbIn4GoJ6szjwdkhw_KFGAGNsh';
+  const API_BASE = 'https://capovilla-api.vercel.app';
+  const DASHBOARD_SECRET = 'capovilla-dashboard-2026-secreto-aleatorio-x7k9m2p4';
+
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const COLUNAS = [
+    { status: 'ideia',     titulo: 'Ideia' },
+    { status: 'planejado', titulo: 'Planejado' },
+    { status: 'gravando',  titulo: 'Gravando' },
+    { status: 'edicao',    titulo: 'Edição' },
+    { status: 'publicado', titulo: 'Publicado' },
+  ];
+
+  let cacheSugestoes = [];
+  let cacheVideos = [];
+  let mesAtual = new Date(); mesAtual.setDate(1);
+
+  const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const DIAS_SEM = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const escapeHtml = s => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtData = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
+
+  function toast(msg, tipo = 'info') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast show ' + tipo;
+    setTimeout(() => el.classList.remove('show'), 3500);
+  }
+
+  function fecharModal(id) { document.getElementById(id).classList.remove('show'); }
+
+  // ==========================================================
+  // Sidebar / Theme
+  // ==========================================================
+  function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    updateThemeIcon(next);
+  }
+
+  function updateThemeIcon(theme) {
+    const icon = document.getElementById('theme-icon');
+    if (theme === 'dark') {
+      icon.innerHTML = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>';
+    } else {
+      icon.innerHTML = '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>';
+    }
+  }
+
+  (function initTheme() {
+    const saved = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    updateThemeIcon(saved);
+  })();
+
+  document.getElementById('config-toggle').addEventListener('click', () => {
+    const btn = document.getElementById('config-toggle');
+    const sub = document.getElementById('config-sub');
+    btn.classList.toggle('open');
+    sub.style.display = sub.style.display === 'none' ? 'flex' : 'none';
+  });
+
+  // ==========================================================
+  // KANBAN (preservado, com classes shadcn)
+  // ==========================================================
+  async function carregarKanban() {
+    const { data, error } = await db.from('sugestoes').select('*').order('created_at', { ascending: false });
+    if (error) { document.getElementById('kanban').innerHTML = `<div class="error-msg">${error.message}</div>`; return; }
+    cacheSugestoes = data || [];
+    renderizarKanban();
+  }
+
+  function renderizarKanban() {
+    const k = document.getElementById('kanban');
+    k.innerHTML = COLUNAS.map(col => {
+      const cards = cacheSugestoes.filter(s => s.status === col.status);
+      return `
+        <div class="kanban-col">
+          <div class="kanban-col-header">
+            <span class="kanban-col-title">${col.titulo}</span>
+            <span class="kanban-col-count">${cards.length}</span>
+          </div>
+          <div class="kanban-col-body" data-status="${col.status}">
+            ${cards.map(c => `
+              <div class="kanban-card" data-id="${c.id}" title="${escapeHtml(c.motivo || '')}">
+                <div class="kanban-card-title">${escapeHtml(c.titulo_sugerido || c.tema || 'Sem título')}</div>
+                <div class="kanban-card-meta">
+                  <span class="mono kanban-card-id">${escapeHtml((c.legacy_id || c.id.substring(0,8)).toUpperCase())}</span>
+                  ${c.script ? '<span class="badge badge-success">📜 Script</span>' : ''}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Sortable preservado
+    document.querySelectorAll('.kanban-col-body').forEach(el => {
+      new Sortable(el, {
+        group: 'kanban',
+        animation: 150,
+        ghostClass: 'ghost',
+        onEnd: async (evt) => {
+          const id = evt.item.dataset.id;
+          const novoStatus = evt.to.dataset.status;
+          const { error } = await db.from('sugestoes').update({ status: novoStatus }).eq('id', id);
+          if (error) {
+            toast('Erro ao mover: ' + error.message, 'error');
+            carregarKanban();
+          } else {
+            toast(`Movido pra ${novoStatus}`, 'success');
+            const s = cacheSugestoes.find(x => x.id === id);
+            if (s) s.status = novoStatus;
+            COLUNAS.forEach(c => {
+              const el = document.querySelector(`[data-status="${c.status}"]`)?.closest('.kanban-col')?.querySelector('.kanban-col-count');
+              if (el) el.textContent = cacheSugestoes.filter(s => s.status === c.status).length;
+            });
+          }
+        }
+      });
+    });
+  }
+
+  // ==========================================================
+  // CALENDÁRIO (preservado)
+  // ==========================================================
+  function renderizarCalendario() {
+    const titulo = document.getElementById('cal-title');
+    titulo.textContent = `${MESES[mesAtual.getMonth()]} ${mesAtual.getFullYear()}`;
+
+    const primeiroDia = new Date(mesAtual);
+    const ultimoDia = new Date(mesAtual.getFullYear(), mesAtual.getMonth() + 1, 0);
+    const diaSemanaInicio = primeiroDia.getDay();
+    const totalDias = ultimoDia.getDate();
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+
+    const eventosPorDia = {};
+    cacheSugestoes.forEach(s => {
+      if (s.data_publicacao_prevista) {
+        const d = s.data_publicacao_prevista;
+        eventosPorDia[d] = eventosPorDia[d] || [];
+        eventosPorDia[d].push(s);
+      }
+    });
+
+    let html = DIAS_SEM.map(d => `<div class="cal-header">${d}</div>`).join('');
+
+    for (let i = 0; i < diaSemanaInicio; i++) {
+      html += '<div class="cal-day other-month"></div>';
+    }
+
+    for (let d = 1; d <= totalDias; d++) {
+      const dataObj = new Date(mesAtual.getFullYear(), mesAtual.getMonth(), d);
+      const isoData = dataObj.toISOString().slice(0, 10);
+      const isToday = dataObj.getTime() === hoje.getTime();
+      const eventos = eventosPorDia[isoData] || [];
+      const eventosHtml = eventos.slice(0, 2).map(e => {
+        const publicado = e.status === 'publicado' || !!e.video_id_vinculado;
+        const atrasado = !publicado && dataObj < hoje;
+        const cls = publicado ? 'is-publicado' : atrasado ? 'is-atrasado' : '';
+        const rmBtn = publicado ? '' :
+          `<span class="cal-event-rm" onclick="event.stopPropagation(); desagendar('${e.id}', '${escapeHtml(e.titulo_sugerido?.substring(0, 40))}')" title="Remover do dia">×</span>`;
+        return `<div class="cal-event ${cls}" title="${escapeHtml(e.titulo_sugerido)}" onclick="event.stopPropagation()">
+          <span class="cal-event-label">${escapeHtml(e.titulo_sugerido?.substring(0, 22))}</span>
+          ${rmBtn}
+        </div>`;
+      }).join('');
+      const maisEventos = eventos.length > 2 ? `<div class="cal-more">+${eventos.length - 2} mais</div>` : '';
+      html += `
+        <div class="cal-day ${isToday ? 'today' : ''}" onclick="abrirAgendar('${isoData}')">
+          <div class="day-num">${d}</div>
+          ${eventosHtml}${maisEventos}
+        </div>
+      `;
+    }
+
+    document.getElementById('calendar').innerHTML = html;
+  }
+
+  function mudarMes(delta) {
+    mesAtual.setMonth(mesAtual.getMonth() + delta);
+    renderizarCalendario();
+  }
+
+  function abrirAgendar(isoData) {
+    document.getElementById('agendar-data').value = isoData;
+    document.getElementById('agendar-data-info').textContent = `Data: ${fmtData(isoData)}`;
+    const sel = document.getElementById('agendar-sugestao-select');
+    sel.innerHTML = '<option value="">— nenhuma —</option>' + cacheSugestoes
+      .filter(s => !['publicado', 'rejeitada'].includes(s.status))
+      .map(s => `<option value="${s.id}">${escapeHtml(s.titulo_sugerido || s.tema)} (${s.status})</option>`)
+      .join('');
+    document.getElementById('modal-agendar').classList.add('show');
+  }
+
+  async function salvarAgendamento() {
+    const data = document.getElementById('agendar-data').value;
+    const id = document.getElementById('agendar-sugestao-select').value;
+    if (!id) return toast('Escolha uma sugestão', 'error');
+    const { error } = await db.from('sugestoes').update({ data_publicacao_prevista: data }).eq('id', id);
+    if (error) return toast('Erro: ' + error.message, 'error');
+    const s = cacheSugestoes.find(x => x.id === id);
+    if (s) s.data_publicacao_prevista = data;
+    fecharModal('modal-agendar');
+    toast('Sugestão agendada', 'success');
+    renderizarCalendario();
+  }
+
+  let _desagendarId = null;
+
+  function desagendar(id, titulo) {
+    _desagendarId = id;
+    document.getElementById('desagendar-titulo').textContent = titulo;
+    document.getElementById('modal-desagendar').classList.add('show');
+  }
+
+  async function confirmarDesagendar() {
+    if (!_desagendarId) return;
+    const id = _desagendarId;
+    fecharModal('modal-desagendar');
+    const { error } = await db.from('sugestoes').update({ data_publicacao_prevista: null }).eq('id', id);
+    if (error) return toast('Erro: ' + error.message, 'error');
+    const s = cacheSugestoes.find(x => x.id === id);
+    if (s) s.data_publicacao_prevista = null;
+    _desagendarId = null;
+    toast('Removido do calendário', 'success');
+    renderizarCalendario();
+  }
+
+  // ==========================================================
+  // VÍDEOS PUBLICADOS + LINKAR (com fix bug duplicado)
+  // ==========================================================
+  async function carregarVideos() {
+    const { data, error } = await db
+      .from('videos')
+      .select('video_id, titulo, console, tipo_video, data_publicacao, slug_sugestao_id')
+      .order('data_publicacao', { ascending: false })
+      .limit(40);
+    if (error) { document.getElementById('videos-lista').innerHTML = `<div class="error-msg">${error.message}</div>`; return; }
+    cacheVideos = data || [];
+    renderizarVideos();
+  }
+
+  let filtroTipoAtivo = 'todos';
+
+  function filtrarTipoVideo(btn, tipo) {
+    filtroTipoAtivo = tipo;
+    document.querySelectorAll('#filtro-tipo-video .seg-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderizarVideos();
+  }
+
+  function renderizarVideos() {
+    const sugestoesMap = Object.fromEntries(cacheSugestoes.map(s => [s.id, s]));
+    const videosFiltrados = filtroTipoAtivo === 'todos'
+      ? cacheVideos
+      : cacheVideos.filter(v => (v.tipo_video || 'longo') === filtroTipoAtivo);
+    if (!videosFiltrados.length) {
+      document.getElementById('videos-lista').innerHTML = '<div style="padding:20px;text-align:center;color:hsl(var(--muted-foreground));font-size:13px;">Nenhum vídeo nessa categoria.</div>';
+      return;
+    }
+    const rows = videosFiltrados.map(v => {
+      const sugestao = v.slug_sugestao_id ? sugestoesMap[v.slug_sugestao_id] : null;
+      let vinculoCol;
+      if (sugestao) {
+        // FIX: vídeo já vinculado mostra "Desvincular" em vez de poder linkar de novo
+        const idCurto = (sugestao.legacy_id || sugestao.id.substring(0,8)).toUpperCase();
+        vinculoCol = `
+          <div class="row gap-2 items-center">
+            <span class="vinculado-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              ${escapeHtml(idCurto)}
+            </span>
+            <button class="btn btn-outline btn-sm" onclick="desvincular('${v.video_id}', '${sugestao.id}')" title="Desvincular">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 17 6-5-6-5"/><path d="M14.5 17a5.5 5.5 0 1 0 0-11h-1.5"/></svg>
+              Desvincular
+            </button>
+          </div>
+        `;
+      } else {
+        vinculoCol = `<button class="btn btn-info btn-sm" onclick="abrirLink('${v.video_id}')">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Linkar
+        </button>`;
+      }
+      const dt = v.data_publicacao ? new Date(v.data_publicacao).toLocaleDateString('pt-BR') : '—';
+      return `
+        <tr>
+          <td class="mono" style="font-size:11px; color: hsl(var(--muted-foreground));">${dt}</td>
+          <td style="font-weight: 500; max-width: 360px;">${escapeHtml(v.titulo)}</td>
+          <td><span class="badge badge-outline">${escapeHtml(v.console)}</span></td>
+          <td>${vinculoCol}</td>
+        </tr>
+      `;
+    }).join('');
+    document.getElementById('videos-lista').innerHTML = `
+      <table class="table">
+        <thead><tr><th>Publicado</th><th>Título</th><th>Console</th><th>Sugestão de origem</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  function abrirLink(videoId) {
+    const v = cacheVideos.find(x => x.video_id === videoId);
+    document.getElementById('link-video-id').value = videoId;
+    document.getElementById('link-video-info').textContent = v.titulo;
+    const sel = document.getElementById('link-sugestao-select');
+    // Exclui sugestões vinculadas a OUTRO vídeo; mantém as não vinculadas e as já apontando pra este
+    const disponiveis = cacheSugestoes.filter(s =>
+      !s.video_id_vinculado || s.video_id_vinculado === videoId
+    );
+    if (disponiveis.length === 0) {
+      sel.innerHTML = '<option value="">Nenhuma sugestão disponível pra linkar</option>';
+    } else {
+      sel.innerHTML = '<option value="">— escolha uma —</option>' + disponiveis
+        .map(s => `<option value="${s.id}">${escapeHtml(s.titulo_sugerido || s.tema)} [${s.status}]</option>`)
+        .join('');
+    }
+    document.getElementById('modal-link').classList.add('show');
+  }
+
+  async function salvarLink() {
+    const videoId = document.getElementById('link-video-id').value;
+    const sugestaoId = document.getElementById('link-sugestao-select').value;
+    if (!sugestaoId) return toast('Escolha uma sugestão', 'error');
+
+    // FIX: try/catch + tratamento friendly de erro de constraint UNIQUE
+    try {
+      const { error: e1 } = await db.from('videos')
+        .update({ slug_sugestao_id: sugestaoId })
+        .eq('video_id', videoId);
+      if (e1) {
+        if (e1.code === '23505' || e1.message?.includes('unique')) {
+          toast('Esta sugestão já está linkada a outro vídeo', 'error');
+          return;
+        }
+        throw e1;
+      }
+
+      const { error: e2 } = await db.from('sugestoes')
+        .update({ video_id_vinculado: videoId, status: 'publicado' })
+        .eq('id', sugestaoId);
+      if (e2) {
+        if (e2.code === '23505' || e2.message?.includes('unique')) {
+          // Reverte primeiro update
+          await db.from('videos').update({ slug_sugestao_id: null }).eq('video_id', videoId);
+          toast('Este vídeo já está linkado a outra sugestão', 'error');
+          return;
+        }
+        throw e2;
+      }
+
+      fecharModal('modal-link');
+      toast('Vínculo criado! Analisando aprendizado...', 'success');
+      await carregarTudo();
+      dispararAprendizado(sugestaoId, videoId);
+    } catch (err) {
+      toast('Erro ao linkar: ' + err.message, 'error');
+    }
+  }
+
+  // Dispara análise de aprendizado em background após vincular
+  async function dispararAprendizado(sugestaoId, videoId) {
+    try {
+      const sugestao = cacheSugestoes.find(s => s.id === sugestaoId);
+      const video    = cacheVideos.find(v => v.video_id === videoId);
+      if (!sugestao) return;
+
+      const { data: metricas } = await db
+        .from('videos_metricas')
+        .select('rpm')
+        .eq('video_id', videoId)
+        .order('data_coleta', { ascending: false })
+        .limit(1);
+
+      const rpm_real     = metricas?.[0]?.rpm || 0;
+      const rpm_previsto = sugestao.rpm_previsto || 0;
+
+      const resp = await fetch(`${API_BASE}/api/aprendizado`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-dashboard-secret': DASHBOARD_SECRET },
+        body: JSON.stringify({
+          titulo_sugerido:  sugestao.titulo_sugerido || sugestao.tema,
+          motivo:           sugestao.motivo || '',
+          titulo_publicado: video?.titulo || '',
+          rpm_previsto,
+          rpm_real,
+        }),
+      });
+
+      if (!resp.ok) return;
+      const { analise, resultado } = await resp.json();
+
+      await db.from('aprendizados').insert([{
+        sugestao_id:      sugestaoId,
+        video_id:         videoId,
+        titulo_sugerido:  sugestao.titulo_sugerido || sugestao.tema,
+        titulo_publicado: video?.titulo || '',
+        rpm_previsto,
+        rpm_real,
+        resultado,
+        analise_ia: analise,
+      }]);
+
+      toast('Aprendizado registrado ✓', 'success');
+    } catch (err) {
+      console.warn('Aprendizado falhou (não crítico):', err.message);
+    }
+  }
+
+  // FIX: nova função - desvincular pra corrigir vínculo errado
+  async function desvincular(videoId, sugestaoId) {
+    if (!confirm('Desvincular este vídeo da sugestão?\nVocê poderá linkar a outra sugestão depois.')) return;
+
+    try {
+      // Limpa ambos os lados
+      const { error: e1 } = await db.from('videos')
+        .update({ slug_sugestao_id: null })
+        .eq('video_id', videoId);
+      if (e1) throw e1;
+
+      const { error: e2 } = await db.from('sugestoes')
+        .update({ video_id_vinculado: null })
+        .eq('id', sugestaoId);
+      if (e2) throw e2;
+
+      toast('Vínculo desfeito', 'success');
+      await carregarTudo();
+    } catch (err) {
+      toast('Erro: ' + err.message, 'error');
+    }
+  }
+
+  // ==========================================================
+  // BOOT
+  // ==========================================================
+  async function carregarTudo() {
+    await carregarKanban();
+    renderizarCalendario();
+    await carregarVideos();
+  }
+
+  document.querySelectorAll('.modal-bg').forEach(bg => {
+    bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('show'); });
+  });
+
+  carregarTudo();
+</script>
+</body>
+</html>

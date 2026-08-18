@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capovilla · Dashboard v2 (Protótipo)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Tokens ── */
+    :root, [data-theme="light"] {
+      --background: 0 0% 100%; --foreground: 240 10% 3.9%;
+      --card: 0 0% 100%; --card-foreground: 240 10% 3.9%;
+      --primary: 240 5.9% 10%; --primary-foreground: 0 0% 98%;
+      --secondary: 240 4.8% 95.9%; --secondary-foreground: 240 5.9% 10%;
+      --muted: 240 4.8% 95.9%; --muted-foreground: 240 3.8% 46.1%;
+      --accent: 240 4.8% 95.9%; --accent-foreground: 240 5.9% 10%;
+      --border: 240 5.9% 90%; --input: 240 5.9% 90%; --ring: 240 5.9% 10%;
+      --radius: 0.5rem;
+      --amber: 38 92% 50%; --amber-foreground: 38 92% 6%;
+      --success: 142 71% 45%; --danger: 0 84% 60%; --info: 217 91% 60%;
+      --sidebar-background: 0 0% 98%; --sidebar-foreground: 240 5.3% 26.1%;
+      --sidebar-accent: 240 4.8% 95.9%; --sidebar-border: 220 13% 91%;
+    }
+    [data-theme="dark"] {
+      --background: 240 10% 3.9%; --foreground: 0 0% 98%;
+      --card: 240 10% 3.9%; --card-foreground: 0 0% 98%;
+      --primary: 0 0% 98%; --primary-foreground: 240 5.9% 10%;
+      --secondary: 240 3.7% 15.9%; --secondary-foreground: 0 0% 98%;
+      --muted: 240 3.7% 15.9%; --muted-foreground: 240 5% 64.9%;
+      --accent: 240 3.7% 15.9%; --accent-foreground: 0 0% 98%;
+      --border: 240 3.7% 15.9%; --input: 240 3.7% 15.9%; --ring: 240 4.9% 83.9%;
+      --amber: 43 96% 56%; --amber-foreground: 38 92% 6%;
+      --success: 142 70% 50%; --danger: 0 72% 51%; --info: 217 91% 60%;
+      --sidebar-background: 240 5.9% 10%; --sidebar-foreground: 240 4.8% 95.9%;
+      --sidebar-accent: 240 3.7% 15.9%; --sidebar-border: 240 3.7% 15.9%;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+      font-family: 'Geist', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: hsl(var(--background)); color: hsl(var(--foreground));
+      font-size: 14px; line-height: 1.5;
+    }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    *::-webkit-scrollbar { width: 8px; height: 8px; }
+    *::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 4px; }
+
+    /* ── Layout ── */
+    .app { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+    .sidebar {
+      display: flex; flex-direction: column;
+      background: hsl(var(--sidebar-background)); color: hsl(var(--sidebar-foreground));
+      border-right: 1px solid hsl(var(--sidebar-border));
+      width: 220px; flex-shrink: 0;
+    }
+    .sidebar-header { padding: 8px; border-bottom: 1px solid hsl(var(--sidebar-border)); }
+    .sidebar-content { flex: 1; overflow-y: auto; padding: 8px; }
+    .sidebar-footer { padding: 8px; border-top: 1px solid hsl(var(--sidebar-border)); }
+    .team-switcher { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border-radius: 6px; }
+    .team-logo { width: 32px; height: 32px; border-radius: 6px; background: hsl(var(--amber)); color: hsl(var(--amber-foreground)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; font-size: 14px; }
+    .team-name { font-size: 13px; font-weight: 600; }
+    .team-plan { font-size: 11px; color: hsl(var(--sidebar-foreground) / 0.7); }
+    .sidebar-group { margin-top: 8px; }
+    .sidebar-group-label { font-size: 11px; font-weight: 500; color: hsl(var(--sidebar-foreground) / 0.6); padding: 8px 8px 4px; }
+    .nav-item { display: flex; align-items: center; gap: 8px; width: 100%; height: 32px; padding: 0 8px; border-radius: 6px; font-size: 13px; color: hsl(var(--sidebar-foreground)); }
+    .nav-item:hover { background: hsl(var(--sidebar-accent)); }
+    .nav-item.active { background: hsl(var(--sidebar-accent)); font-weight: 500; }
+    .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .user-card { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border-radius: 6px; }
+    .avatar { width: 28px; height: 28px; border-radius: 50%; background: hsl(var(--secondary)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 600; }
+    .user-name { font-size: 13px; font-weight: 500; }
+    .user-email { font-size: 11px; color: hsl(var(--sidebar-foreground) / 0.7); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+    .app-header {
+      display: flex; align-items: center; gap: 8px;
+      height: 48px; padding: 0 16px;
+      border-bottom: 1px solid hsl(var(--border)); flex-shrink: 0;
+    }
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: hsl(var(--muted-foreground)); }
+    .breadcrumb .current { color: hsl(var(--foreground)); font-weight: 500; }
+    .app-content { flex: 1; overflow-y: auto; }
+    .page { padding: 28px 36px; max-width: 1280px; }
+
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 500; border-radius: 6px; padding: 0 14px; height: 34px; border: 1px solid transparent; white-space: nowrap; transition: all .12s; }
+    .btn-default { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+    .btn-outline { background: hsl(var(--background)); color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
+    .btn-outline:hover { background: hsl(var(--accent)); }
+    .btn-ghost:hover { background: hsl(var(--accent)); }
+    .btn-amber { background: hsl(var(--amber)); color: hsl(var(--amber-foreground)); font-weight: 600; }
+    .btn-amber:hover { background: hsl(var(--amber) / 0.9); }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+    .btn-xs { height: 24px; padding: 0 8px; font-size: 11px; }
+    .btn-icon-sm { width: 28px; height: 28px; padding: 0; }
+
+    /* ═════════════════════════════════
+       Page header
+    ═════════════════════════════════ */
+    .greeting {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 28px; gap: 16px;
+    }
+    .greeting-title { font-size: 22px; font-weight: 600; letter-spacing: -.02em; margin: 0 0 3px; }
+    .greeting-sub { font-size: 13px; color: hsl(var(--muted-foreground)); margin: 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .greeting-sub .sep { opacity: .35; }
+    .greeting-sub .badge-dot {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; padding: 2px 9px; border-radius: 999px;
+      background: hsl(var(--success) / 0.1); color: hsl(var(--success));
+      border: 1px solid hsl(var(--success) / 0.25);
+    }
+    .greeting-sub .badge-dot::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: hsl(var(--success)); }
+
+    /* ═════════════════════════════════
+       KPI cards
+    ═════════════════════════════════ */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .kpi-card {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+    .kpi-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .06em; color: hsl(var(--muted-foreground));
+      display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+    }
+    .kpi-label svg { width: 13px; height: 13px; }
+    .kpi-value { font-size: 26px; font-weight: 600; letter-spacing: -.02em; line-height: 1.1; }
+    .kpi-value .currency { font-size: 16px; color: hsl(var(--muted-foreground)); margin-right: 3px; font-weight: 500; }
+    .kpi-meta { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12px; }
+    .kpi-delta { display: inline-flex; align-items: center; gap: 3px; font-weight: 600; padding: 1px 7px; border-radius: 999px; }
+    .kpi-delta.up { color: hsl(var(--success)); background: hsl(var(--success) / 0.1); }
+    .kpi-delta.down { color: hsl(var(--danger)); background: hsl(var(--danger) / 0.1); }
+    .kpi-delta svg { width: 11px; height: 11px; }
+    .kpi-period { font-size: 11px; color: hsl(var(--muted-foreground)); }
+
+    /* ═════════════════════════════════
+       Metas do trimestre
+    ═════════════════════════════════ */
+    .metas-card {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: 8px;
+      padding: 14px 18px 16px;
+      margin-bottom: 28px;
+    }
+    .metas-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .metas-title {
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .metas-title svg { width: 13px; height: 13px; color: hsl(var(--amber)); }
+    .metas-period {
+      font-size: 11px; color: hsl(var(--muted-foreground));
+      display: flex; align-items: center; gap: 6px;
+    }
+    .metas-period .days-left {
+      background: hsl(var(--secondary)); padding: 1px 8px;
+      border-radius: 999px; font-weight: 500;
+    }
+    .metas-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .meta-item {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .meta-header {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .meta-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .06em; color: hsl(var(--muted-foreground));
+      display: flex; align-items: center; gap: 5px;
+    }
+    .meta-label svg { width: 12px; height: 12px; }
+    .meta-pct { font-size: 12px; font-weight: 600; font-family: 'Geist Mono', monospace; color: hsl(var(--foreground)); }
+    .meta-values { font-size: 13px; display: flex; align-items: baseline; gap: 4px; }
+    .meta-current { font-weight: 600; font-size: 15px; }
+    .meta-target { color: hsl(var(--muted-foreground)); font-size: 12px; }
+    .meta-bar-wrap {
+      height: 6px; background: hsl(var(--secondary));
+      border-radius: 999px; overflow: hidden; margin-top: 4px; position: relative;
+    }
+    .meta-bar {
+      height: 100%; border-radius: 999px;
+      transition: width .3s ease;
+    }
+    .meta-bar.on-track { background: hsl(var(--success)); }
+    .meta-bar.at-risk { background: hsl(var(--amber)); }
+    .meta-bar.behind { background: hsl(var(--danger)); }
+    .meta-projection {
+      font-size: 11px; color: hsl(var(--muted-foreground));
+      display: flex; align-items: center; gap: 4px; margin-top: 2px;
+    }
+    .meta-projection.warn { color: hsl(var(--amber)); }
+    .meta-projection.danger { color: hsl(var(--danger)); }
+    .meta-projection.ok { color: hsl(var(--success)); }
+
+    /* ═════════════════════════════════
+       Section divider
+    ═════════════════════════════════ */
+    .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .section-head-line { flex: 1; height: 1px; background: hsl(var(--border)); }
+    .section-label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: hsl(var(--muted-foreground));
+      white-space: nowrap;
+    }
+    .section-label .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    /* ═════════════════════════════════
+       Pick da semana compact
+    ═════════════════════════════════ */
+    .pick-mini {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--amber) / 0.3);
+      border-left: 3px solid hsl(var(--amber));
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center;
+    }
+    .pick-mini-title { font-size: 16px; font-weight: 600; letter-spacing: -.01em; margin-bottom: 6px; }
+    .pick-mini-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 12px; color: hsl(var(--muted-foreground)); }
+    .pick-mini-meta .rpm-pill {
+      font-weight: 600; color: hsl(var(--success));
+      background: hsl(var(--success) / 0.1); padding: 1px 8px; border-radius: 999px;
+      border: 1px solid hsl(var(--success) / 0.25);
+    }
+    .pick-mini-actions { display: flex; gap: 6px; }
+
+    /* ═════════════════════════════════
+       Main grid (Desempenho + Side)
+    ═════════════════════════════════ */
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .panel {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .panel-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid hsl(var(--border));
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .panel-title { font-size: 13px; font-weight: 600; }
+    .panel-action { font-size: 12px; color: hsl(var(--info)); display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+    .panel-action:hover { color: hsl(var(--info) / 0.8); }
+    .panel-action svg { width: 11px; height: 11px; }
+    .panel-body { padding: 6px 16px 14px; }
+
+    /* Desempenho list */
+    .perf-item {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid hsl(var(--border) / 0.6);
+      align-items: center;
+    }
+    .perf-item:last-child { border-bottom: none; }
+    .perf-bar-wrap {
+      height: 32px; background: hsl(var(--secondary) / 0.5); border-radius: 4px;
+      overflow: hidden; position: relative;
+    }
+    .perf-bar { height: 100%; background: hsl(var(--info)); }
+    .perf-bar.bar-good { background: hsl(var(--success)); }
+    .perf-bar.bar-low  { background: hsl(var(--muted-foreground) / 0.5); }
+    .perf-bar.bar-err  { background: hsl(var(--amber) / 0.75); }
+    .perf-info-title { font-size: 13px; font-weight: 500; line-height: 1.3; margin-bottom: 3px; }
+    .perf-info-meta { font-size: 11px; color: hsl(var(--muted-foreground)); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .perf-info-meta .sep { opacity: .4; }
+    .perf-info-tag { font-size: 10px; padding: 1px 6px; border-radius: 999px; }
+    .perf-tag-ok   { background: hsl(var(--success) / 0.12); color: hsl(var(--success)); }
+    .perf-tag-err  { background: hsl(var(--amber) / 0.15); color: hsl(var(--amber)); }
+    .perf-tag-down { background: hsl(var(--danger) / 0.12); color: hsl(var(--danger)); }
+    .perf-date { font-size: 11px; color: hsl(var(--muted-foreground)); white-space: nowrap; font-family: 'Geist Mono', monospace; }
+
+    /* Side panels */
+    .side-stack { display: flex; flex-direction: column; gap: 16px; }
+    .agenda-item {
+      display: flex; gap: 12px; padding: 10px 0;
+      border-bottom: 1px solid hsl(var(--border) / 0.6);
+    }
+    .agenda-item:last-child { border-bottom: none; }
+    .agenda-date {
+      flex-shrink: 0; width: 46px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: hsl(var(--secondary)); border-radius: 6px;
+      padding: 4px 0;
+    }
+    .agenda-date .day { font-size: 17px; font-weight: 600; line-height: 1; letter-spacing: -.02em; }
+    .agenda-date .month { font-size: 9px; font-weight: 600; text-transform: uppercase; color: hsl(var(--muted-foreground)); letter-spacing: .06em; margin-top: 2px; }
+    .agenda-meta { flex: 1; min-width: 0; }
+    .agenda-title { font-size: 13px; font-weight: 500; line-height: 1.3; margin-bottom: 3px; }
+    .agenda-sub { font-size: 11px; color: hsl(var(--muted-foreground)); display: flex; gap: 6px; align-items: center; }
+    .agenda-status {
+      font-size: 10px; padding: 1px 7px; border-radius: 999px; font-weight: 500;
+    }
+    .status-edicao { background: hsl(280 65% 60% / 0.15); color: hsl(280 65% 60%); }
+    .status-gravando { background: hsl(var(--amber) / 0.15); color: hsl(var(--amber)); }
+    .status-aprovado { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); }
+
+    /* Aprendizado list */
+    .learn-item {
+      display: flex; gap: 9px; padding: 9px 0;
+      border-bottom: 1px solid hsl(var(--border) / 0.6);
+    }
+    .learn-item:last-child { border-bottom: none; }
+    .learn-bullet {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px;
+      background: hsl(var(--info) / 0.1); color: hsl(var(--info));
+      display: flex; align-items: center; justify-content: center;
+    }
+    .learn-bullet svg { width: 11px; height: 11px; }
+    .learn-text { font-size: 12px; line-height: 1.45; }
+    .learn-text strong { color: hsl(var(--foreground)); font-weight: 600; }
+
+    /* ═════════════════════════════════
+       Radar de concorrentes
+    ═════════════════════════════════ */
+    .radar-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    .radar-card {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: 8px;
+      padding: 12px;
+      display: flex; flex-direction: column; gap: 8px;
+      transition: border-color .12s;
+    }
+    .radar-card:hover { border-color: hsl(var(--muted-foreground) / 0.4); }
+    .radar-thumb {
+      aspect-ratio: 16/9; background: hsl(var(--secondary));
+      border-radius: 4px; position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      color: hsl(var(--muted-foreground) / 0.4); font-size: 9px; letter-spacing: .1em;
+    }
+    .radar-thumb.hot::after {
+      content: '🔥'; position: absolute; top: 4px; right: 5px; font-size: 12px;
+    }
+    .radar-channel { font-size: 11px; color: hsl(var(--info)); font-weight: 500; }
+    .radar-title {
+      font-size: 12px; font-weight: 500; line-height: 1.35;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden; min-height: 2.7em;
+    }
+    .radar-meta { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: hsl(var(--muted-foreground)); }
+    .radar-actions { display: flex; gap: 4px; }
+    .radar-actions .btn { flex: 1; height: 26px; font-size: 11px; padding: 0 6px; }
+
+    /* Proto banner */
+    .proto-banner {
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      background: hsl(var(--info) / 0.12); color: hsl(var(--info));
+      border: 1px solid hsl(var(--info) / 0.25);
+      padding: 7px 16px; border-radius: 999px;
+      font-size: 12px; font-weight: 500; z-index: 200;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap;
+      backdrop-filter: blur(8px);
+    }
+    .proto-banner a { color: hsl(var(--info)); text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="team-switcher">
+        <div class="team-logo">C</div>
+        <div>
+          <div class="team-name">Capovilla</div>
+          <div class="team-plan">Editorial Studio</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">Plataforma</div>
+        <div style="display:flex;flex-direction:column;gap:1px;">
+          <a href="index-v2.html" class="nav-item active">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+            Resumo
+          </a>
+          <a href="sugestoes-v2.html" class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+            Sugestões
+          </a>
+          <a href="cronograma.html" class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+            Cronograma
+          </a>
+          <a href="configuracoes.html" class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/></svg>
+            Configurações
+          </a>
+        </div>
+      </div>
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">Canais</div>
+        <div style="display:flex;flex-direction:column;gap:1px;">
+          <a href="index-v2.html" class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg>
+            @guilhermecapovilla
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="avatar">GC</div>
+        <div style="min-width:0;">
+          <div class="user-name">Guilherme Capovilla</div>
+          <div class="user-email">guilherme@capovilla.tv</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <header class="app-header">
+      <button class="btn btn-ghost btn-icon-sm" title="Toggle sidebar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
+      </button>
+      <div class="breadcrumb">
+        <span>Plataforma</span>
+        <span style="opacity:.4;margin:0 2px;">›</span>
+        <span class="current">Resumo</span>
+      </div>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost btn-icon-sm" title="Alternar tema" onclick="toggleTheme()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+    </header>
+
+    <div class="app-content">
+      <div class="page">
+
+        <!-- ── Saudação ── -->
+        <div class="greeting">
+          <div>
+            <h1 class="greeting-title">Boa tarde, Guilherme</h1>
+            <p class="greeting-sub">
+              <span>@guilhermecapovilla</span>
+              <span class="sep">·</span>
+              <span class="badge-dot">briefing ativo</span>
+              <span class="sep">·</span>
+              <span>segunda, 18 de maio</span>
+            </p>
+          </div>
+          <button class="btn btn-outline btn-sm">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+            Atualizar
+          </button>
+        </div>
+
+        <!-- ── KPIs ── -->
+        <div class="kpi-grid" id="kpi-grid">
+          <div class="kpi-card kpi-skeleton"><div class="kpi-label">Views · 30d</div><div class="kpi-value">—</div><div class="kpi-meta"><span class="kpi-period">carregando…</span></div></div>
+          <div class="kpi-card kpi-skeleton"><div class="kpi-label">RPM Médio</div><div class="kpi-value">—</div><div class="kpi-meta"><span class="kpi-period">carregando…</span></div></div>
+          <div class="kpi-card kpi-skeleton"><div class="kpi-label">Receita · 30d</div><div class="kpi-value">—</div><div class="kpi-meta"><span class="kpi-period">carregando…</span></div></div>
+          <div class="kpi-card kpi-skeleton"><div class="kpi-label">Acerto da IA</div><div class="kpi-value">—</div><div class="kpi-meta"><span class="kpi-period">carregando…</span></div></div>
+        </div>
+
+        <!-- ── Metas do trimestre ── -->
+        <div class="metas-card">
+          <div class="metas-head">
+            <div class="metas-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              <span id="metas-quarter-label">Metas do trimestre</span>
+            </div>
+            <div class="metas-period">
+              <span id="metas-period-range">—</span>
+              <span class="days-left" id="metas-days-left">—</span>
+            </div>
+          </div>
+          <div class="metas-grid" id="metas-grid">
+            <div style="grid-column: 1 / -1; padding: 20px; text-align: center; color: hsl(var(--muted-foreground)); font-size: 13px;">Carregando metas…</div>
+          </div>
+        </div>
+
+        <!-- ── Pick mini ── -->
+        <div class="section-head">
+          <div class="section-label">
+            <span class="dot" style="background:hsl(var(--amber))"></span>
+            Decisão de hoje
+          </div>
+          <div class="section-head-line"></div>
+        </div>
+
+        <div id="pick-mini-wrap">
+          <div class="pick-mini" style="display:block; text-align:center; color:hsl(var(--muted-foreground)); font-size:13px;">Carregando pick…</div>
+        </div>
+
+        <!-- ── Main grid ── -->
+        <div class="main-grid">
+
+          <!-- Desempenho dos últimos vídeos -->
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Desempenho dos últimos vídeos</div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:hsl(var(--muted-foreground));cursor:pointer;user-select:none;">
+                  <input type="checkbox" id="show-shorts" onchange="loadPerf()" style="cursor:pointer;accent-color:hsl(var(--info));width:13px;height:13px;">
+                  Shorts
+                </label>
+                <a class="panel-action">Ver todos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+              </div>
+            </div>
+            <div class="panel-body" id="perf-list">
+              <div style="padding:20px;text-align:center;color:hsl(var(--muted-foreground));font-size:13px;">Carregando vídeos…</div>
+            </div>
+          </div>
+
+          <!-- Side: agenda + aprendizado -->
+          <div class="side-stack">
+
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title">Próximas na agenda</div>
+                <a class="panel-action">Cronograma <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+              </div>
+              <div class="panel-body" id="agenda-list">
+                <div style="padding:16px;text-align:center;color:hsl(var(--muted-foreground));font-size:13px;">Carregando…</div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title">Aprendizado recente da IA</div>
+                <a class="panel-action">Ver mais <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+              </div>
+              <div class="panel-body" id="learn-list">
+                <div style="padding:16px;text-align:center;color:hsl(var(--muted-foreground));font-size:13px;">Carregando…</div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ── Radar concorrentes ── -->
+        <div class="section-head">
+          <div class="section-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><path d="M16.24 7.76a6 6 0 1 0-8.49 8.49"/><path d="M9 12a3 3 0 1 0 5.12-2.12"/><path d="M11 17h.01"/></svg>
+            Radar de concorrentes
+          </div>
+          <div class="section-head-line"></div>
+          <button onclick="abrirAddConcorrente()" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:hsl(var(--info));cursor:pointer;background:none;border:none;padding:0;white-space:nowrap;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            Adicionar
+          </button>
+          <span style="font-size:11px;color:hsl(var(--muted-foreground) / 0.5);">·</span>
+          <span style="font-size:11px;color:hsl(var(--muted-foreground));white-space:nowrap;">últimas 48h</span>
+        </div>
+
+        <div class="radar-grid" id="radar-grid">
+          <div style="grid-column:1/-1;padding:24px;text-align:center;color:hsl(var(--muted-foreground));font-size:13px;border:1px dashed hsl(var(--border));border-radius:8px;">Carregando radar…</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="proto-banner">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+  Dashboard v2 · dados reais do Supabase
+  <span style="margin:0 4px;opacity:.4;">·</span>
+  <a href="index.html">← original</a>
+  <span style="margin:0 4px;opacity:.4;">·</span>
+  <a href="sugestoes-v2.html">Sugestões v2</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ── Supabase ──
+  const SUPABASE_URL = 'https://ryspohcflrxjwwghvvqc.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_OzoD3gbIn4GoJ6szjwdkhw_KFGAGNsh';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ── Utils ──
+  const BRL = v => 'R$ ' + (v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const NUM = v => (v || 0).toLocaleString('pt-BR');
+  const compact = n => {
+    if (n >= 1e6) return (n/1e6).toFixed(1).replace('.0','') + 'M';
+    if (n >= 1e3) return (n/1e3).toFixed(1).replace('.0','') + 'k';
+    return String(n);
+  };
+  const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const fmtDate = iso => {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+  };
+  const daysAgo = iso => {
+    if (!iso) return '';
+    const ms = Date.now() - new Date(iso).getTime();
+    const h = Math.floor(ms / 3600000);
+    if (h < 1)  return 'agora';
+    if (h < 24) return `há ${h}h`;
+    const d = Math.floor(h / 24);
+    return `há ${d}d`;
+  };
+  const empty = (msg, hint) => `<div style="padding:24px 16px;text-align:center;color:hsl(var(--muted-foreground));font-size:13px;line-height:1.55;"><div>${msg}</div>${hint ? `<div style="font-size:11px;margin-top:6px;opacity:.7;">${hint}</div>` : ''}</div>`;
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  }
+
+  // ══ Quarter helper ══
+  function currentQuarter() {
+    const d = new Date();
+    const q = Math.floor(d.getMonth() / 3) + 1;
+    const y = d.getFullYear();
+    const startMonth = (q - 1) * 3;
+    const endMonth   = startMonth + 2;
+    const start = new Date(y, startMonth, 1);
+    const end   = new Date(y, endMonth + 1, 0);
+    const daysLeft = Math.max(0, Math.ceil((end - d) / 86400000));
+    const totalDays = Math.ceil((end - start) / 86400000) + 1;
+    const elapsed = totalDays - daysLeft;
+    return { quarter: `${y}-Q${q}`, year: y, q, start, end, daysLeft, totalDays, elapsed, label: `${y}-Q${q}` };
+  }
+
+  // ══ KPIs — channel_metricas (daily rows) ══
+  async function loadKPIs() {
+    const grid = document.getElementById('kpi-grid');
+    try {
+      // Janela de 30 dias (data = dia do faturamento, não da coleta)
+      const since30 = new Date(); since30.setDate(since30.getDate() - 30);
+      const since30str = since30.toISOString().split('T')[0];
+
+      const [{ data: chanRows }, { data: aprend }, { data: ultCol }] = await Promise.all([
+        db.from('channel_metricas').select('receita_brl,views').gte('data', since30str),
+        db.from('aprendizados').select('resultado').neq('resultado', 'sem_dados')
+           .order('created_at', { ascending: false }).limit(7),
+        db.from('channel_metricas').select('data').order('data', { ascending: false }).limit(1),
+      ]);
+
+      const receita30 = (chanRows || []).reduce((s, x) => s + (x.receita_brl || 0), 0);
+      const views30   = (chanRows || []).reduce((s, x) => s + (x.views || 0), 0);
+      const diasComDados = (chanRows || []).length;
+      const ultimaData = ultCol?.[0]?.data;
+
+      // RPM médio via videos_metricas (última coleta — granularidade por vídeo)
+      let rpmMed = 0, rpmColetaDate = null;
+      try {
+        const { data: latCol } = await db.from('videos_metricas')
+          .select('data_coleta').order('data_coleta', { ascending: false }).limit(1);
+        const dc = latCol?.[0]?.data_coleta;
+        if (dc) {
+          rpmColetaDate = dc;
+          const { data: rpmRows } = await db.from('videos_metricas')
+            .select('rpm').eq('data_coleta', dc);
+          const rpms = (rpmRows || []).map(x => x.rpm).filter(x => x > 0);
+          rpmMed = rpms.length ? rpms.reduce((a, b) => a + b, 0) / rpms.length : 0;
+        }
+      } catch (_) {}
+
+      // Acerto IA
+      const totalA   = (aprend || []).length;
+      const acertosA = (aprend || []).filter(a => a.resultado === 'acertou').length;
+      const acertoPct = totalA ? Math.round((acertosA / totalA) * 100) : null;
+
+      // Label do período (se temos menos de 30 dias de dados)
+      const periodoLabel = diasComDados < 30 && ultimaData
+        ? `${diasComDados}d de dados · até ${fmtDate(ultimaData)}`
+        : 'últimos 30 dias';
+
+      const card = (label, value, deltaHTML, period) => `
+        <div class="kpi-card">
+          <div class="kpi-label">${label}</div>
+          <div class="kpi-value">${value}</div>
+          <div class="kpi-meta">${deltaHTML}<span class="kpi-period">${period}</span></div>
+        </div>
+      `;
+      const delta = (v, suffix = '%') => {
+        if (v === null || v === undefined) return '';
+        const up = v >= 0;
+        return `<span class="kpi-delta ${up ? 'up' : 'down'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11">${up ? '<path d="m6 15 6-6 6 6"/>' : '<path d="m6 9 6 6 6-6"/>'}</svg>${Math.abs(v)}${suffix}</span>`;
+      };
+
+      // Se channel_metricas ainda não tem dados, mostra aviso
+      const semDados = `<span style="color:hsl(var(--muted-foreground))">—</span>`;
+      const receitaVal = receita30 > 0
+        ? BRL(receita30)
+        : (chanRows !== null ? semDados : semDados);
+      const viewsVal = views30 > 0 ? compact(views30) : semDados;
+
+      grid.innerHTML =
+        card('Views · 30d', viewsVal, '', periodoLabel) +
+        card('RPM Médio',
+             rpmMed ? `<span class="currency">R$</span>${rpmMed.toFixed(2).replace('.', ',')}` : semDados,
+             '', rpmColetaDate ? `coleta ${fmtDate(rpmColetaDate)}` : 'aguardando coletor') +
+        card('Receita · 30d', receitaVal, '',
+             receita30 > 0 ? periodoLabel : (chanRows?.length === 0 ? 'rodar coletor para popular' : periodoLabel)) +
+        card('Acerto da IA',
+             acertoPct !== null
+               ? `${acertoPct}<span style="font-size:18px;color:hsl(var(--muted-foreground))">%</span>`
+               : semDados,
+             totalA ? delta(acertoPct >= 70 ? acertoPct : acertoPct - 100) : '',
+             totalA ? `${acertosA}/${totalA} previsões` : 'aguardando vínculos');
+    } catch (err) {
+      grid.innerHTML = `<div style="grid-column:1/-1;padding:16px;color:hsl(var(--danger));font-size:12px;">Erro: ${err.message}</div>`;
+    }
+  }
+
+  // ══ Metas — lê valor_atual (auto-calculado pelo coletor Python via Analytics API)
+  //           e sobrepõe videos_publicados com contagem direta do Supabase ══
+  async function loadMetas() {
+    const grid = document.getElementById('metas-grid');
+    const Q = currentQuarter();
+    document.getElementById('metas-quarter-label').textContent = `Metas do Q${Q.q} · ${Q.year}`;
+    document.getElementById('metas-period-range').textContent =
+      `${Q.start.getDate()} ${MONTHS[Q.start.getMonth()].toLowerCase()} – ${Q.end.getDate()} ${MONTHS[Q.end.getMonth()].toLowerCase()}`;
+    document.getElementById('metas-days-left').textContent = `${Q.daysLeft} dias restantes`;
+
+    try {
+      const quarterStartISO = Q.start.toISOString().split('T')[0];
+      const todayISO = new Date().toISOString().split('T')[0];
+
+      // Lê metas + contagem de vídeos em paralelo
+      const [{ data: metasData }, { data: chanRec }] = await Promise.all([
+        db.from('metas').select('*').eq('quarter', Q.quarter),
+        // Receita acumulada do quarter via channel_metricas (billing date = dia da impressão)
+        db.from('channel_metricas').select('receita_brl')
+          .gte('data', quarterStartISO).lte('data', todayISO),
+      ]);
+
+      if (!metasData?.length) {
+        grid.innerHTML = `<div style="grid-column:1/-1;padding:24px;text-align:center;color:hsl(var(--muted-foreground));font-size:13px;line-height:1.6;">
+          Nenhuma meta cadastrada para ${Q.quarter}.
+          <div style="margin-top:6px;font-size:11px;">Adicione em <a href="configuracoes.html" style="color:hsl(var(--info))">Configurações → Metas</a></div>
+        </div>`;
+        return;
+      }
+
+      // Receita do quarter via channel_metricas (mais preciso — inclui todas as fontes)
+      // Se channel_metricas ainda vazio, cai no valor_atual do coletor como fallback
+      const receitaChannel = (chanRec || []).reduce((s, x) => s + (x.receita_brl || 0), 0);
+      const temReceitaChannel = (chanRec || []).length > 0;
+
+      // Contagem de vídeos longos publicados no quarter (direto do Supabase, sempre fresco)
+      let videosCount = null;
+      try {
+        const { count } = await db.from('videos')
+          .select('video_id', { count: 'exact', head: true })
+          .gte('data_publicacao', quarterStartISO)
+          .lte('data_publicacao', todayISO)
+          .neq('tipo_video', 'short');
+        videosCount = count ?? 0;
+      } catch (_) {}
+
+      const ICONS = {
+        receita:          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+        videos:           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect width="15" height="14" x="1" y="5" rx="2" ry="2"/></svg>',
+        videos_publicados:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect width="15" height="14" x="1" y="5" rx="2" ry="2"/></svg>',
+        seguidores:       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+        inscritos:        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+      };
+      const LABELS = {
+        receita: 'Receita', videos: 'Vídeos publicados',
+        videos_publicados: 'Vídeos publicados', seguidores: 'Inscritos novos', inscritos: 'Inscritos novos',
+      };
+
+      const html = metasData.map(m => {
+        // Fonte de dados por métrica:
+        // receita          → channel_metricas.SUM(receita_brl) do quarter (se disponível) ou metas.valor_atual
+        // inscritos        → metas.valor_atual (= subscribersGained no quarter, via Analytics API)
+        // videos_publicados → contagem direta na tabela videos (mais fresca)
+        let atual = m.valor_atual || 0;
+        let fonte = '';
+        if (m.metrica === 'receita') {
+          if (temReceitaChannel) {
+            atual = receitaChannel;
+            fonte = 'channel_metricas';
+          } else {
+            fonte = 'estimativa coletor';
+          }
+        } else if (m.metrica === 'videos' || m.metrica === 'videos_publicados') {
+          if (videosCount !== null) { atual = videosCount; fonte = 'supabase'; }
+        } else if (m.metrica === 'inscritos' || m.metrica === 'seguidores') {
+          fonte = 'Analytics API'; // valor_atual já é subscribersGained do quarter
+        }
+
+        const alvo  = m.valor_alvo || 0;
+        const label = LABELS[m.metrica] || m.metrica.replace(/_/g, ' ');
+        const pct = alvo > 0 ? Math.min(100, Math.round((atual / alvo) * 100)) : 0;
+        const expectedPct = Math.round((Q.elapsed / Q.totalDays) * 100);
+        const ahead  = pct >= expectedPct + 5;
+        const onPace = pct >= expectedPct - 5;
+        const barClass = ahead ? 'on-track' : (onPace ? 'on-track' : (pct >= expectedPct - 15 ? 'at-risk' : 'behind'));
+        const projecao = Q.elapsed > 0 ? Math.round((atual / Q.elapsed) * Q.totalDays) : atual;
+        const projOk = projecao >= alvo;
+
+        const fmt = v => m.metrica === 'receita' ? BRL(v) : NUM(v);
+        const projectionTxt = alvo
+          ? (projOk
+              ? `Projeção: ${fmt(projecao)} · no caminho`
+              : `Projeção: ${fmt(projecao)} · ${fmt(alvo - projecao)} abaixo`)
+          : 'Sem alvo definido';
+
+        return `
+          <div class="meta-item">
+            <div class="meta-header">
+              <div class="meta-label">${ICONS[m.metrica] || ICONS.receita}${label}</div>
+              <span class="meta-pct">${pct}%</span>
+            </div>
+            <div class="meta-values">
+              <span class="meta-current">${fmt(atual)}</span>
+              <span class="meta-target">/ ${fmt(alvo)}</span>
+            </div>
+            <div class="meta-bar-wrap"><div class="meta-bar ${barClass}" style="width:${pct}%"></div></div>
+            <div class="meta-projection ${projOk ? 'ok' : 'warn'}">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">${projOk ? '<path d="m5 12 5 5L20 7"/>' : '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>'}</svg>
+              ${projectionTxt}
+            </div>
+          </div>
+        `;
+      }).join('');
+      grid.innerHTML = html;
+    } catch (err) {
+      grid.innerHTML = `<div style="grid-column:1/-1;padding:16px;color:hsl(var(--danger));font-size:12px;">Erro: ${err.message}</div>`;
+    }
+  }
+
+  // ══ Pick da semana ══
+  async function loadPick() {
+    const wrap = document.getElementById('pick-mini-wrap');
+    try {
+      const { data } = await db.from('sugestoes')
+        .select('id,titulo_sugerido,motivo,rpm_previsto,console,created_at,status')
+        .eq('status', 'ideia')
+        .order('created_at', { ascending: false })
+        .limit(1);
+      if (!data?.length) {
+        wrap.innerHTML = `<div class="pick-mini" style="display:block;text-align:center;padding:20px;color:hsl(var(--muted-foreground));font-size:13px;">
+          Nenhuma sugestão pendente da IA.
+          <div style="margin-top:6px;font-size:11px;"><a href="sugestoes-v2.html" style="color:hsl(var(--info))">Gerar Pick + Oportunidades →</a></div>
+        </div>`;
+        return;
+      }
+      const s = data[0];
+      const rpm = s.rpm_previsto ? `<span class="rpm-pill">RPM ~${BRL(s.rpm_previsto)}</span>` : '';
+      wrap.innerHTML = `
+        <div class="pick-mini">
+          <div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+              <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:hsl(var(--amber));">◆ Pick da semana</span>
+              <span style="font-size:11px;color:hsl(var(--muted-foreground));">gerado ${fmtDate(s.created_at)}</span>
+            </div>
+            <div class="pick-mini-title">${s.titulo_sugerido}</div>
+            <div class="pick-mini-meta">
+              ${rpm}
+              ${s.console ? `<span class="sep">·</span><span>${s.console}</span>` : ''}
+            </div>
+          </div>
+          <div class="pick-mini-actions">
+            <a class="btn btn-outline btn-sm" href="sugestoes-v2.html">Ver raciocínio</a>
+            <a class="btn btn-amber btn-sm" href="sugestoes-v2.html">Aprovar →</a>
+          </div>
+        </div>
+      `;
+    } catch (err) {
+      wrap.innerHTML = `<div class="pick-mini" style="display:block;color:hsl(var(--danger));font-size:12px;">Erro: ${err.message}</div>`;
+    }
+  }
+
+  // ══ Desempenho dos últimos vídeos ══
+  async function loadPerf() {
+    const list = document.getElementById('perf-list');
+    const showShorts = document.getElementById('show-shorts')?.checked;
+    try {
+      const { data: vids } = await db.from('videos')
+        .select('video_id,titulo,data_publicacao,slug_sugestao_id,tipo_video')
+        .order('data_publicacao', { ascending: false })
+        .limit(20);
+      const all = vids || [];
+      const longOnly = all.filter(v => v.tipo_video !== 'short');
+      // Default: long videos; with toggle: all
+      let chosen = showShorts ? all.slice(0, 5) : (longOnly.length ? longOnly.slice(0, 5) : []);
+      const nonShorts = chosen;
+      if (!nonShorts.length) {
+        list.innerHTML = empty('Nenhum vídeo publicado ainda.');
+        return;
+      }
+
+      const ids = nonShorts.map(v => v.video_id);
+      const { data: ultCol } = await db.from('videos_metricas').select('data_coleta').order('data_coleta',{ascending:false}).limit(1);
+      const dc = ultCol?.[0]?.data_coleta;
+      const metricsMap = {};
+      if (dc) {
+        const { data: m } = await db.from('videos_metricas').select('video_id,views,rpm,receita_estimada').eq('data_coleta', dc).in('video_id', ids);
+        (m || []).forEach(x => metricsMap[x.video_id] = x);
+      }
+
+      // Sugestões vinculadas (rpm_previsto)
+      const sugIds = nonShorts.map(v => v.slug_sugestao_id).filter(Boolean);
+      const sugMap = {};
+      if (sugIds.length) {
+        const { data: sugs } = await db.from('sugestoes').select('id,rpm_previsto').in('id', sugIds);
+        (sugs || []).forEach(s => sugMap[s.id] = s);
+      }
+
+      // Encontra max views pra normalizar barra
+      const maxViews = Math.max(...nonShorts.map(v => (metricsMap[v.video_id]?.views) || 0), 1);
+
+      list.innerHTML = nonShorts.map(v => {
+        const met = metricsMap[v.video_id] || {};
+        const rpmPrev = v.slug_sugestao_id ? sugMap[v.slug_sugestao_id]?.rpm_previsto : null;
+        const views = met.views || 0;
+        const pct = Math.round((views / maxViews) * 100);
+        const rpmReal = met.rpm || 0;
+        let tagHTML = '', barClass = 'bar-low';
+        if (rpmPrev && rpmReal) {
+          const ratio = rpmReal / rpmPrev;
+          if (ratio >= 0.9) { tagHTML = '<span class="perf-info-tag perf-tag-ok">IA acertou ✓</span>'; barClass = 'bar-good'; }
+          else if (ratio < 0.5) { tagHTML = '<span class="perf-info-tag perf-tag-err">IA errou ↓</span>'; barClass = 'bar-err'; }
+          else { tagHTML = '<span class="perf-info-tag perf-tag-err">parcial ➖</span>'; barClass = 'bar-err'; }
+        } else if (views > 0) {
+          barClass = pct > 50 ? 'bar-good' : 'bar-low';
+        }
+
+        const metaParts = [];
+        if (views) metaParts.push(`${compact(views)} views`);
+        if (rpmReal) metaParts.push(`RPM ${BRL(rpmReal)}`);
+        if (rpmPrev && rpmReal) metaParts.push(`previsto ${BRL(rpmPrev)}`);
+
+        return `
+          <div class="perf-item">
+            <div class="perf-bar-wrap"><div class="perf-bar ${barClass}" style="width:${pct}%"></div></div>
+            <div>
+              <div class="perf-info-title">${v.titulo}</div>
+              <div class="perf-info-meta">
+                ${metaParts.map(p => `<span>${p}</span>`).join('<span class="sep">·</span>')}
+                ${tagHTML ? '<span class="sep">·</span>' + tagHTML : ''}
+              </div>
+            </div>
+            <div class="perf-date">${fmtDate(v.data_publicacao)}</div>
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      list.innerHTML = empty('Erro: ' + err.message);
+    }
+  }
+
+  // ══ Agenda ══
+  async function loadAgenda() {
+    const list = document.getElementById('agenda-list');
+    try {
+      const { data } = await db.from('sugestoes')
+        .select('id,titulo_sugerido,status,data_publicacao_prevista,script')
+        .in('status', ['aprovada','planejado','gravando','edicao'])
+        .order('data_publicacao_prevista', { ascending: true, nullsFirst: false })
+        .limit(4);
+      if (!data?.length) {
+        list.innerHTML = empty('Nenhum vídeo aprovado em produção.');
+        return;
+      }
+      const statusMap = {
+        aprovada: { txt: 'aprovado', cls: 'status-aprovado' },
+        planejado: { txt: 'aprovado', cls: 'status-aprovado' },
+        gravando: { txt: 'gravando', cls: 'status-gravando' },
+        edicao:   { txt: 'edição',   cls: 'status-edicao' },
+      };
+      list.innerHTML = data.map(s => {
+        const d = s.data_publicacao_prevista ? new Date(s.data_publicacao_prevista) : null;
+        const dateBlock = d
+          ? `<div class="agenda-date"><div class="day">${d.getDate()}</div><div class="month">${MONTHS[d.getMonth()]}</div></div>`
+          : `<div class="agenda-date" style="background:hsl(var(--secondary)/0.4)"><div class="day" style="font-size:11px;color:hsl(var(--muted-foreground));line-height:1.4;text-align:center;">sem<br>data</div></div>`;
+        const st = statusMap[s.status] || { txt: s.status, cls: 'status-aprovado' };
+        const extra = s.script && s.status === 'edicao' ? '<span>script pronto</span>' : '';
+        return `
+          <div class="agenda-item">
+            ${dateBlock}
+            <div class="agenda-meta">
+              <div class="agenda-title">${s.titulo_sugerido}</div>
+              <div class="agenda-sub">
+                <span class="agenda-status ${st.cls}">${st.txt}</span>
+                ${extra}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      list.innerHTML = empty('Erro: ' + err.message);
+    }
+  }
+
+  // ══ Aprendizado recente ══
+  async function loadLearn() {
+    const list = document.getElementById('learn-list');
+    try {
+      const { data } = await db.from('aprendizados')
+        .select('analise_ia,resultado,created_at,titulo_sugerido,titulo_publicado')
+        .neq('analise_ia', null)
+        .order('created_at', { ascending: false })
+        .limit(3);
+      if (!data?.length) {
+        list.innerHTML = empty('Nenhum aprendizado ainda.', 'O sistema aprende quando você vincula um vídeo publicado a uma sugestão no Cronograma.');
+        return;
+      }
+      list.innerHTML = data.map(a => {
+        const isWin = a.resultado === 'acertou';
+        const isMiss = a.resultado === 'errou';
+        const bulletColor = isWin ? 'var(--success)' : (isMiss ? 'var(--amber)' : 'var(--info)');
+        const bulletIcon = isWin
+          ? '<path d="m5 12 5 5L20 7"/>'
+          : (isMiss ? '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>' : '<path d="m6 15 6-6 6 6"/>');
+        // Pega 1ª frase ou primeiros ~120 chars do analise_ia
+        const txt = (a.analise_ia || '').replace(/\*\*/g,'').replace(/^#+ /gm,'').trim();
+        const firstSentence = txt.split(/(?<=[.!?])\s/)[0] || txt.slice(0, 140);
+        const short = firstSentence.length > 160 ? firstSentence.slice(0,157) + '…' : firstSentence;
+        return `
+          <div class="learn-item">
+            <div class="learn-bullet" style="background:hsl(${bulletColor}/0.1);color:hsl(${bulletColor});">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">${bulletIcon}</svg>
+            </div>
+            <div class="learn-text">${short}</div>
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      list.innerHTML = empty('Erro: ' + err.message);
+    }
+  }
+
+  // ══ Radar concorrentes ══
+  async function loadRadar() {
+    const grid = document.getElementById('radar-grid');
+    try {
+      const { data } = await db.from('concorrentes_videos')
+        .select('video_id,titulo,views,data_publicacao,channel_id,concorrentes(nome)')
+        .order('data_publicacao', { ascending: false })
+        .limit(5);
+      if (!data?.length) {
+        grid.innerHTML = `<div style="grid-column:1/-1;padding:24px;text-align:center;color:hsl(var(--muted-foreground));font-size:13px;border:1px dashed hsl(var(--border));border-radius:8px;">
+          Nenhum vídeo de concorrente coletado.
+          <div style="font-size:11px;margin-top:6px;opacity:.8;">Adicione concorrentes em <a href="configuracoes.html" style="color:hsl(var(--info))">Configurações</a> e rode o coletor.</div>
+        </div>`;
+        return;
+      }
+      const maxV = Math.max(...data.map(v => v.views || 0));
+      grid.innerHTML = data.map(v => {
+        const isHot = (v.views || 0) >= maxV * 0.6 && (v.views || 0) > 10000;
+        const channel = v.concorrentes?.nome || v.channel_id?.slice(0,12) || '—';
+        return `
+          <div class="radar-card">
+            <div class="radar-thumb${isHot?' hot':''}" style="background-image:url('https://i.ytimg.com/vi/${v.video_id}/mqdefault.jpg');background-size:cover;background-position:center;"></div>
+            <div>
+              <div class="radar-channel">@${channel}</div>
+              <div class="radar-title">${v.titulo || '(sem título)'}</div>
+            </div>
+            <div class="radar-meta"><span>${compact(v.views || 0)} views</span><span>${daysAgo(v.data_publicacao)}</span></div>
+            <div class="radar-actions">
+              <a class="btn btn-outline" href="sugestoes-v2.html?modelar=${v.video_id}">Modelar</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      grid.innerHTML = `<div style="grid-column:1/-1;padding:16px;color:hsl(var(--danger));font-size:12px;">Erro: ${err.message}</div>`;
+    }
+  }
+
+  // ══ Boot ══
+  (async function() {
+    // Greeting baseado na hora
+    const h = new Date().getHours();
+    const g = h < 12 ? 'Bom dia' : (h < 18 ? 'Boa tarde' : 'Boa noite');
+    const t = document.querySelector('.greeting-title');
+    if (t) t.textContent = `${g}, Guilherme`;
+
+    // Subtitle data
+    const dt = new Date();
+    const wd = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'][dt.getDay()];
+    const sub = document.querySelector('.greeting-sub span:last-child');
+    if (sub) sub.textContent = `${wd}, ${dt.getDate()} de ${MONTHS[dt.getMonth()].toLowerCase()}`;
+
+    await Promise.all([
+      loadKPIs(),
+      loadMetas(),
+      loadPick(),
+      loadPerf(),
+      loadAgenda(),
+      loadLearn(),
+      loadRadar(),
+    ]);
+  })();
+
+  // ── Mini modal: adicionar concorrente inline ──
+  function abrirAddConcorrente() {
+    document.getElementById('add-conc-modal').style.display = 'flex';
+    setTimeout(() => document.getElementById('add-conc-handle').focus(), 50);
+  }
+  function fecharAddConcorrente() {
+    document.getElementById('add-conc-modal').style.display = 'none';
+    document.getElementById('add-conc-handle').value = '';
+    document.getElementById('add-conc-nome').value = '';
+    document.getElementById('add-conc-channel-id').value = '';
+  }
+  async function salvarAddConcorrente() {
+    const handle    = document.getElementById('add-conc-handle').value.trim().replace(/^@/, '');
+    const nome      = document.getElementById('add-conc-nome').value.trim();
+    const channelId = document.getElementById('add-conc-channel-id').value.trim();
+    if (!handle || !nome) {
+      alert('Handle e nome são obrigatórios');
+      return;
+    }
+    const finalId = channelId || `PENDING-${handle}-${Date.now()}`;
+    const btn = document.getElementById('add-conc-save-btn');
+    btn.disabled = true;
+    btn.textContent = 'Adicionando…';
+    const { error } = await db.from('concorrentes').insert([{ channel_id: finalId, handle, nome, ativo: true }]);
+    btn.disabled = false;
+    btn.textContent = 'Adicionar';
+    if (error) {
+      alert('Erro: ' + error.message);
+      return;
+    }
+    fecharAddConcorrente();
+    loadRadar();
+  }
+</script>
+
+<!-- ── Mini modal: adicionar concorrente ── -->
+<div id="add-conc-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;align-items:center;justify-content:center;padding:24px;" onclick="if(event.target===this)fecharAddConcorrente()">
+  <div style="background:hsl(var(--card));border:1px solid hsl(var(--border));border-radius:10px;width:100%;max-width:440px;padding:20px 22px;box-shadow:0 25px 60px -10px rgba(0,0,0,.5);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div>
+        <div style="font-size:15px;font-weight:600;letter-spacing:-.01em;">Adicionar concorrente</div>
+        <div style="font-size:12px;color:hsl(var(--muted-foreground));margin-top:2px;">Será coletado no próximo Action do GitHub</div>
+      </div>
+      <button onclick="fecharAddConcorrente()" style="width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:hsl(var(--muted-foreground));cursor:pointer;background:none;border:none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:hsl(var(--muted-foreground));margin-bottom:5px;">Handle *</label>
+        <input id="add-conc-handle" type="text" placeholder="@nomedoCanal" style="width:100%;background:hsl(var(--background));color:hsl(var(--foreground));border:1px solid hsl(var(--input));border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;">
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:hsl(var(--muted-foreground));margin-bottom:5px;">Nome do canal *</label>
+        <input id="add-conc-nome" type="text" placeholder="Nome amigável" style="width:100%;background:hsl(var(--background));color:hsl(var(--foreground));border:1px solid hsl(var(--input));border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;">
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:hsl(var(--muted-foreground));margin-bottom:5px;">Channel ID <span style="text-transform:none;opacity:.7;font-weight:400;">(opcional)</span></label>
+        <input id="add-conc-channel-id" type="text" placeholder="UCxxxx — coletor descobre se vazio" style="width:100%;background:hsl(var(--background));color:hsl(var(--foreground));border:1px solid hsl(var(--input));border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;">
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:8px;">
+      <a href="configuracoes.html?tab=concorrentes" style="font-size:11px;color:hsl(var(--muted-foreground));text-decoration:underline;">Gerenciar todos →</a>
+      <div style="display:flex;gap:6px;">
+        <button onclick="fecharAddConcorrente()" class="btn btn-outline btn-sm">Cancelar</button>
+        <button id="add-conc-save-btn" onclick="salvarAddConcorrente()" class="btn btn-default btn-sm">Adicionar</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

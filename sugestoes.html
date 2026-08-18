@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capovilla · Sugestões</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================ Tokens shadcn */
+    :root, [data-theme="light"] {
+      --background: 0 0% 100%; --foreground: 240 10% 3.9%;
+      --card: 0 0% 100%; --card-foreground: 240 10% 3.9%;
+      --primary: 240 5.9% 10%; --primary-foreground: 0 0% 98%;
+      --secondary: 240 4.8% 95.9%; --secondary-foreground: 240 5.9% 10%;
+      --muted: 240 4.8% 95.9%; --muted-foreground: 240 3.8% 46.1%;
+      --accent: 240 4.8% 95.9%; --accent-foreground: 240 5.9% 10%;
+      --border: 240 5.9% 90%; --input: 240 5.9% 90%; --ring: 240 5.9% 10%;
+      --radius: 0.5rem;
+      --amber: 38 92% 50%; --amber-foreground: 38 92% 6%;
+      --success: 142 71% 45%; --danger: 0 84% 60%; --info: 217 91% 60%;
+      --sidebar-background: 0 0% 98%; --sidebar-foreground: 240 5.3% 26.1%;
+      --sidebar-accent: 240 4.8% 95.9%; --sidebar-accent-foreground: 240 5.9% 10%;
+      --sidebar-border: 220 13% 91%;
+    }
+    [data-theme="dark"] {
+      --background: 240 10% 3.9%; --foreground: 0 0% 98%;
+      --card: 240 10% 3.9%; --card-foreground: 0 0% 98%;
+      --primary: 0 0% 98%; --primary-foreground: 240 5.9% 10%;
+      --secondary: 240 3.7% 15.9%; --secondary-foreground: 0 0% 98%;
+      --muted: 240 3.7% 15.9%; --muted-foreground: 240 5% 64.9%;
+      --accent: 240 3.7% 15.9%; --accent-foreground: 0 0% 98%;
+      --border: 240 3.7% 15.9%; --input: 240 3.7% 15.9%; --ring: 240 4.9% 83.9%;
+      --amber: 43 96% 56%; --amber-foreground: 38 92% 6%;
+      --success: 142 70% 50%; --danger: 0 72% 51%; --info: 217 91% 60%;
+      --sidebar-background: 240 5.9% 10%; --sidebar-foreground: 240 4.8% 95.9%;
+      --sidebar-accent: 240 3.7% 15.9%; --sidebar-accent-foreground: 240 4.8% 95.9%;
+      --sidebar-border: 240 3.7% 15.9%;
+    }
+
+    /* ============================================================ Base */
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      font-feature-settings: 'cv11','ss01';
+      -webkit-font-smoothing: antialiased;
+      background: hsl(var(--background)); color: hsl(var(--foreground));
+      font-size: 14px; line-height: 1.5;
+    }
+    .mono { font-family: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace; font-feature-settings: 'tnum','zero'; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+
+    *::-webkit-scrollbar { width: 10px; height: 10px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 5px; border: 2px solid hsl(var(--background)); }
+    *::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.4); }
+
+    /* ============================================================ App layout (igual index) */
+    .app { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+    .sidebar { display: flex; flex-direction: column; background: hsl(var(--sidebar-background)); color: hsl(var(--sidebar-foreground)); border-right: 1px solid hsl(var(--sidebar-border)); width: 256px; flex-shrink: 0; transition: width .2s ease; overflow: hidden; }
+    .sidebar.collapsed { width: 56px; }
+    .sidebar-header { padding: 8px; border-bottom: 1px solid hsl(var(--sidebar-border)); }
+    .sidebar-content { flex: 1; overflow-y: auto; padding: 8px; }
+    .sidebar-footer { padding: 8px; border-top: 1px solid hsl(var(--sidebar-border)); }
+    .sidebar-group { margin-top: 8px; }
+    .sidebar-group:first-child { margin-top: 0; }
+    .sidebar-group-label { font-size: 11px; font-weight: 500; color: hsl(var(--sidebar-foreground) / 0.6); padding: 8px 8px 4px; white-space: nowrap; overflow: hidden; }
+    .sidebar.collapsed .sidebar-group-label { opacity: 0; height: 0; padding: 0; }
+    .sidebar-menu { display: flex; flex-direction: column; gap: 1px; }
+    .sidebar-menu-button { display: flex; align-items: center; gap: 8px; width: 100%; height: 32px; padding: 0 8px; border-radius: calc(var(--radius) - 2px); font-size: 13px; font-weight: 400; color: hsl(var(--sidebar-foreground)); text-align: left; white-space: nowrap; overflow: hidden; transition: background-color .12s, color .12s; }
+    .sidebar-menu-button:hover { background: hsl(var(--sidebar-accent)); color: hsl(var(--sidebar-accent-foreground)); }
+    .sidebar-menu-button.active { background: hsl(var(--sidebar-accent)); color: hsl(var(--sidebar-accent-foreground)); font-weight: 500; }
+    .sidebar-menu-button .icon { flex-shrink: 0; width: 16px; height: 16px; }
+    .sidebar-menu-button .label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-menu-button .chevron { flex-shrink: 0; width: 14px; height: 14px; opacity: 0.6; transition: transform .15s; }
+    .sidebar-menu-button.open .chevron { transform: rotate(90deg); }
+    .sidebar-menu-sub { margin-left: 12px; padding-left: 10px; border-left: 1px solid hsl(var(--sidebar-border)); display: flex; flex-direction: column; gap: 1px; margin-top: 1px; }
+    .sidebar-menu-sub-button { display: flex; align-items: center; width: 100%; height: 28px; padding: 0 8px; border-radius: calc(var(--radius) - 4px); font-size: 13px; color: hsl(var(--sidebar-foreground) / 0.85); text-align: left; }
+    .sidebar-menu-sub-button:hover { background: hsl(var(--sidebar-accent)); color: hsl(var(--sidebar-accent-foreground)); }
+    .sidebar.collapsed .sidebar-menu-button .label, .sidebar.collapsed .sidebar-menu-button .chevron, .sidebar.collapsed .sidebar-menu-sub { display: none; }
+    .sidebar.collapsed .sidebar-menu-button { justify-content: center; padding: 0; width: 32px; margin: 0 auto; }
+
+    .team-switcher { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border-radius: calc(var(--radius) - 2px); text-align: left; }
+    .team-switcher:hover { background: hsl(var(--sidebar-accent)); }
+    .team-logo { width: 32px; height: 32px; border-radius: 6px; background: hsl(var(--amber)); color: hsl(var(--amber-foreground)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; font-size: 14px; }
+    .team-meta { flex: 1; overflow: hidden; min-width: 0; }
+    .team-name { font-size: 13px; font-weight: 600; line-height: 1.2; }
+    .team-plan { font-size: 11px; color: hsl(var(--sidebar-foreground) / 0.7); line-height: 1.2; margin-top: 1px; }
+    .sidebar.collapsed .team-meta, .sidebar.collapsed .team-chev { display: none; }
+    .sidebar.collapsed .team-switcher { padding: 4px; justify-content: center; }
+
+    .user-card { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border-radius: calc(var(--radius) - 2px); }
+    .user-card:hover { background: hsl(var(--sidebar-accent)); }
+    .avatar { width: 28px; height: 28px; border-radius: 50%; background: hsl(var(--secondary)); color: hsl(var(--secondary-foreground)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 600; }
+    .user-meta { flex: 1; overflow: hidden; min-width: 0; }
+    .user-name { font-size: 13px; font-weight: 500; line-height: 1.2; }
+    .user-email { font-size: 11px; color: hsl(var(--sidebar-foreground) / 0.7); line-height: 1.2; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar.collapsed .user-meta { display: none; }
+    .sidebar.collapsed .user-card { padding: 4px; justify-content: center; }
+
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+    .app-header { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 16px; border-bottom: 1px solid hsl(var(--border)); flex-shrink: 0; }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .breadcrumb-item { color: hsl(var(--muted-foreground)); }
+    .breadcrumb-item.current { color: hsl(var(--foreground)); font-weight: 500; }
+    .breadcrumb-sep { color: hsl(var(--muted-foreground)); opacity: 0.5; width: 14px; height: 14px; }
+    .separator-v { width: 1px; background: hsl(var(--border)); }
+    .app-content { flex: 1; overflow-y: auto; }
+    .page { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+    .page-header { margin-bottom: 24px; }
+    .page-title { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin: 0; }
+    .page-subtitle { font-size: 14px; color: hsl(var(--muted-foreground)); margin: 4px 0 0; }
+
+    /* ============================================================ Buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 500; line-height: 1; border-radius: calc(var(--radius) - 2px); padding: 0 12px; height: 32px; border: 1px solid transparent; white-space: nowrap; transition: background-color .12s, border-color .12s, color .12s; user-select: none; }
+    .btn:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
+    .btn:disabled { opacity: 0.5; cursor: wait; }
+    .btn-default { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+    .btn-default:hover:not(:disabled) { background: hsl(var(--primary) / 0.9); }
+    .btn-secondary { background: hsl(var(--secondary)); color: hsl(var(--secondary-foreground)); }
+    .btn-secondary:hover:not(:disabled) { background: hsl(var(--secondary) / 0.8); }
+    .btn-outline { background: hsl(var(--background)); color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
+    .btn-outline:hover:not(:disabled) { background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
+    .btn-ghost { color: hsl(var(--foreground)); }
+    .btn-ghost:hover:not(:disabled) { background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
+    .btn-amber { background: hsl(var(--amber)); color: hsl(var(--amber-foreground)); font-weight: 600; }
+    .btn-amber:hover:not(:disabled) { background: hsl(var(--amber) / 0.9); }
+    .btn-success { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); border-color: hsl(var(--success) / 0.3); }
+    .btn-success:hover:not(:disabled) { background: hsl(var(--success) / 0.25); }
+    .btn-danger-outline { background: transparent; color: hsl(var(--danger)); border-color: hsl(var(--danger) / 0.4); }
+    .btn-danger-outline:hover:not(:disabled) { background: hsl(var(--danger) / 0.1); border-color: hsl(var(--danger)); }
+    .btn-danger { background: hsl(var(--danger)); color: hsl(0 0% 100%); }
+    .btn-danger:hover:not(:disabled) { background: hsl(var(--danger) / 0.9); }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+    .btn-icon-sm { width: 28px; height: 28px; padding: 0; }
+
+    /* ============================================================ Card */
+    .card { background: hsl(var(--card)); color: hsl(var(--card-foreground)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); }
+    .card-header { padding: 20px 20px 12px; }
+    .card-title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+    .card-description { font-size: 13px; color: hsl(var(--muted-foreground)); margin-top: 4px; }
+    .card-content { padding: 0 20px 20px; }
+
+    /* ============================================================ Badge */
+    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; line-height: 1; padding: 3px 8px; border-radius: 999px; border: 1px solid transparent; white-space: nowrap; }
+    .badge-secondary { background: hsl(var(--secondary)); color: hsl(var(--secondary-foreground)); }
+    .badge-outline { color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
+    .badge-success { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); }
+    .badge-amber { background: hsl(var(--amber) / 0.15); color: hsl(var(--amber)); }
+    .badge-danger { background: hsl(var(--danger) / 0.15); color: hsl(var(--danger)); }
+    .badge-info { background: hsl(var(--info) / 0.15); color: hsl(var(--info)); }
+
+    /* Status badges para sugestões */
+    .status-ideia        { background: hsl(var(--info) / 0.15); color: hsl(var(--info)); }
+    .status-planejado    { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); }
+    .status-aprovada     { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); }
+    .status-gravando     { background: hsl(var(--amber) / 0.15); color: hsl(var(--amber)); }
+    .status-edicao       { background: hsl(280 65% 60% / 0.15); color: hsl(280 65% 60%); }
+    .status-publicado    { background: hsl(265 70% 60% / 0.15); color: hsl(265 70% 60%); }
+    .status-rejeitada    { background: hsl(var(--danger) / 0.15); color: hsl(var(--danger)); }
+
+    /* ============================================================ Form controls */
+    .input, .textarea, .select-input {
+      width: 100%; background: hsl(var(--background)); color: hsl(var(--foreground));
+      border: 1px solid hsl(var(--input)); border-radius: calc(var(--radius) - 2px);
+      padding: 8px 12px; font-family: inherit; font-size: 13px; line-height: 1.5;
+      transition: border-color .12s, box-shadow .12s;
+    }
+    .input:focus, .textarea:focus, .select-input:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 1px hsl(var(--ring)); }
+    .textarea { min-height: 100px; resize: vertical; }
+    .input-label { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 500; color: hsl(var(--foreground)); margin-bottom: 6px; }
+
+    /* ── Microfone ── */
+    .mic-btn {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 10px; font-weight: 500; font-family: inherit;
+      color: hsl(var(--muted-foreground));
+      padding: 2px 7px; border-radius: 99px;
+      border: 1px solid hsl(var(--border));
+      background: transparent; cursor: pointer;
+      transition: all .15s; flex-shrink: 0;
+    }
+    .mic-btn:hover { color: hsl(var(--foreground)); background: hsl(var(--accent)); }
+    .mic-btn.recording { color: hsl(var(--danger)); border-color: hsl(var(--danger)); background: hsl(var(--danger) / 0.08); animation: mic-pulse 1.2s ease infinite; }
+    @keyframes mic-pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+    .mic-btn svg { width: 10px; height: 10px; }
+
+    /* ── Modelar concorrente ── */
+    .modelar-result {
+      margin-top: 14px; padding: 16px; border-radius: calc(var(--radius) - 2px);
+      background: hsl(var(--secondary)); border: 1px solid hsl(var(--border));
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .modelar-result-titulo { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+    .modelar-result-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: hsl(var(--muted-foreground)); margin-bottom: 4px; }
+    .modelar-result-block { font-size: 13px; line-height: 1.5; }
+    .modelar-result-block ol { margin: 6px 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+    .modelar-result-rpm { font-size: 12px; color: hsl(var(--success)); font-weight: 600; }
+    .modelar-result-actions { display: flex; gap: 8px; padding-top: 4px; }
+
+    /* ============================================================ Toolbar / filters */
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+    .filter-tabs { display: inline-flex; background: hsl(var(--secondary)); border-radius: calc(var(--radius) - 2px); padding: 3px; gap: 2px; }
+    .filter-tabs button {
+      background: transparent; color: hsl(var(--muted-foreground));
+      padding: 5px 12px; border-radius: calc(var(--radius) - 4px);
+      font-size: 12px; font-weight: 500;
+      transition: background-color .12s, color .12s;
+    }
+    .filter-tabs button:hover { color: hsl(var(--foreground)); }
+    .filter-tabs button.active { background: hsl(var(--background)); color: hsl(var(--foreground)); box-shadow: 0 1px 2px hsla(0 0% 0% / 0.05); }
+
+    /* ============================================================ Focus panel (consoles) */
+    .focus-panel { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px; }
+    .focus-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 13px; color: hsl(var(--foreground)); }
+    .focus-header .arrow { transition: transform .2s; width: 14px; height: 14px; opacity: 0.6; }
+    .focus-header.open .arrow { transform: rotate(90deg); }
+    .focus-body { display: none; padding-top: 12px; border-top: 1px solid hsl(var(--border)); margin-top: 12px; }
+    .focus-body.open { display: block; }
+    .focus-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px; margin-top: 4px; }
+    .focus-chip {
+      display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+      background: hsl(var(--secondary)); border: 1px solid hsl(var(--border));
+      border-radius: calc(var(--radius) - 2px);
+      cursor: pointer; font-size: 12px; transition: border-color .12s, background-color .12s;
+    }
+    .focus-chip:hover { border-color: hsl(var(--ring)); }
+    .focus-chip.checked { border-color: hsl(var(--amber)); background: hsl(var(--amber) / 0.1); color: hsl(var(--amber)); }
+    .focus-chip input { margin: 0; accent-color: hsl(var(--amber)); }
+    .focus-hint { font-size: 11px; color: hsl(var(--muted-foreground)); margin-top: 8px; font-style: italic; }
+
+    /* ============================================================ Sugestão card (style SG-2847) */
+    .sug-card {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      margin-bottom: 12px;
+      position: relative;
+      transition: border-color .12s;
+    }
+    .sug-card:hover { border-color: hsl(var(--muted-foreground) / 0.4); }
+    .sug-card-actions-corner { position: absolute; top: 14px; right: 16px; display: flex; gap: 4px; opacity: 0.5; transition: opacity .12s; }
+    .sug-card:hover .sug-card-actions-corner { opacity: 1; }
+    .sug-card-actions-corner button {
+      width: 26px; height: 26px; border-radius: calc(var(--radius) - 4px);
+      border: 1px solid hsl(var(--border)); background: transparent; color: hsl(var(--muted-foreground));
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sug-card-actions-corner button:hover { color: hsl(var(--foreground)); border-color: hsl(var(--ring)); }
+    .sug-card-actions-corner button.danger:hover { color: hsl(var(--danger)); border-color: hsl(var(--danger) / 0.4); }
+
+    .sug-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; padding-right: 80px; }
+    .sug-card-id { font-size: 11px; color: hsl(var(--muted-foreground)); font-family: 'Geist Mono', monospace; }
+    .sug-card-title { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; margin: 0 0 8px; padding-right: 80px; }
+
+    /* Tipo (rationale block) */
+    .sug-rationale-block {
+      margin-top: 14px; padding: 12px 14px;
+      background: hsl(var(--muted) / 0.4);
+      border: 1px solid hsl(var(--border));
+      border-radius: calc(var(--radius) - 2px);
+    }
+    .sug-rationale-label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+      color: hsl(var(--muted-foreground)); margin-bottom: 6px;
+    }
+    .sug-rationale-text {
+      color: hsl(var(--foreground) / 0.85); font-size: 13px; line-height: 1.55;
+      max-height: 4.8em; overflow: hidden; white-space: pre-wrap;
+      transition: max-height .2s ease;
+    }
+    .sug-rationale-text.expanded { max-height: 4000px; }
+    .sug-expand-btn {
+      margin-top: 6px; font-size: 12px; color: hsl(var(--info)); font-weight: 500;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .sug-expand-btn:hover { color: hsl(var(--info) / 0.85); }
+    .sug-expand-btn .chev { width: 12px; height: 12px; transition: transform .15s; }
+    .sug-expand-btn.open .chev { transform: rotate(180deg); }
+
+    /* Feedback rejeição */
+    .sug-feedback {
+      margin-top: 12px; padding: 10px 14px;
+      background: hsl(var(--danger) / 0.06);
+      border-left: 3px solid hsl(var(--danger));
+      border-radius: 4px;
+      font-size: 12px; color: hsl(var(--danger));
+    }
+    .sug-feedback strong { color: hsl(var(--danger)); }
+    .sug-feedback em { color: hsl(var(--danger) / 0.8); }
+
+    /* Console tags */
+    .console-tag-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+
+    /* Script preview */
+    .sug-script-preview { margin-top: 12px; }
+
+    /* Action row */
+    .sug-actions {
+      display: flex; gap: 8px; margin-top: 16px; padding-top: 14px;
+      border-top: 1px solid hsl(var(--border));
+    }
+
+    /* ============================================================ Modal */
+    .modal-bg {
+      display: none; position: fixed; inset: 0;
+      background: hsl(0 0% 0% / 0.5); backdrop-filter: blur(4px);
+      z-index: 100; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .modal-bg.show { display: flex; }
+    .modal {
+      background: hsl(var(--card)); color: hsl(var(--card-foreground));
+      border: 1px solid hsl(var(--border)); border-radius: var(--radius);
+      width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .modal-lg { max-width: 800px; }
+    .modal-xl { max-width: 900px; }
+    .modal-header { padding: 20px 24px 12px; border-bottom: 1px solid hsl(var(--border)); }
+    .modal-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+    .modal-description { font-size: 13px; color: hsl(var(--muted-foreground)); margin-top: 4px; }
+    .modal-body { padding: 16px 24px; display: flex; flex-direction: column; gap: 14px; }
+    .modal-footer { padding: 14px 24px 18px; border-top: 1px solid hsl(var(--border)); display: flex; gap: 8px; justify-content: flex-end; }
+
+    /* Radio cards (rejeição) */
+    .radio-card-group { display: flex; flex-direction: column; gap: 6px; }
+    .radio-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      background: hsl(var(--background)); border: 1px solid hsl(var(--border));
+      border-radius: calc(var(--radius) - 2px);
+      cursor: pointer; font-size: 13px;
+      transition: border-color .12s, background-color .12s;
+    }
+    .radio-card:hover { background: hsl(var(--accent)); }
+    .radio-card.checked { border-color: hsl(var(--danger)); background: hsl(var(--danger) / 0.06); }
+    .radio-card input[type=radio] { margin: 0; accent-color: hsl(var(--danger)); }
+
+    .preview-block {
+      padding: 12px 14px; background: hsl(var(--muted) / 0.4);
+      border: 1px solid hsl(var(--border)); border-radius: calc(var(--radius) - 2px);
+      font-size: 13px; color: hsl(var(--foreground) / 0.85);
+    }
+
+    .script-pre {
+      background: hsl(var(--muted) / 0.4);
+      color: hsl(var(--foreground)); border: 1px solid hsl(var(--border));
+      border-radius: calc(var(--radius) - 2px);
+      padding: 14px; max-height: 60vh; overflow-y: auto;
+      white-space: pre-wrap; font-family: inherit;
+      font-size: 13px; line-height: 1.55; margin: 0;
+    }
+
+    /* ============================================================ Misc */
+    .row { display: flex; }
+    .col { display: flex; flex-direction: column; }
+    .gap-2 { gap: 8px; } .gap-3 { gap: 12px; } .gap-4 { gap: 16px; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .flex-1 { flex: 1; }
+
+    .loading { color: hsl(var(--muted-foreground)); font-style: italic; padding: 16px; text-align: center; }
+    .empty {
+      color: hsl(var(--muted-foreground)); text-align: center;
+      padding: 48px 16px; font-style: italic;
+      background: hsl(var(--card)); border: 1px dashed hsl(var(--border));
+      border-radius: var(--radius);
+    }
+    .error-msg {
+      color: hsl(var(--danger));
+      background: hsl(var(--danger) / 0.08);
+      padding: 12px 16px; border-radius: calc(var(--radius) - 2px);
+      border: 1px solid hsl(var(--danger) / 0.2);
+      font-size: 13px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: hsl(var(--info) / 0.15); color: hsl(var(--info));
+      border: 1px solid hsl(var(--info) / 0.3);
+      padding: 10px 16px; border-radius: calc(var(--radius) - 2px);
+      font-size: 13px; font-weight: 500;
+      z-index: 200; display: none;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .toast.show { display: block; animation: slideUp .2s ease; }
+    .toast.success { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); border-color: hsl(var(--success) / 0.3); }
+    .toast.error { background: hsl(var(--danger) / 0.15); color: hsl(var(--danger)); border-color: hsl(var(--danger) / 0.3); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- ============================ SIDEBAR ============================ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <button class="team-switcher">
+        <div class="team-logo">C</div>
+        <div class="team-meta">
+          <div class="team-name">Capovilla</div>
+          <div class="team-plan">Editorial Studio</div>
+        </div>
+        <svg class="team-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;flex-shrink:0;"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+      </button>
+    </div>
+
+    <div class="sidebar-content">
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">Plataforma</div>
+        <div class="sidebar-menu">
+          <div class="sidebar-menu-item">
+            <a href="index.html" class="sidebar-menu-button">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+              <span class="label">Resumo</span>
+            </a>
+          </div>
+          <div class="sidebar-menu-item">
+            <a href="sugestoes.html" class="sidebar-menu-button active">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+              <span class="label">Sugestões</span>
+            </a>
+          </div>
+          <div class="sidebar-menu-item">
+            <a href="cronograma.html" class="sidebar-menu-button">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+              <span class="label">Cronograma</span>
+            </a>
+          </div>
+          <div class="sidebar-menu-item">
+            <a href="conteudo.html" class="sidebar-menu-button">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+              <span class="label">Conteúdo <span style="font-size:9px;font-weight:700;color:hsl(var(--amber));vertical-align:middle;">NOVO</span></span>
+            </a>
+          </div>
+          <div class="sidebar-menu-item">
+            <button class="sidebar-menu-button" id="config-toggle">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span class="label">Configurações</span>
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+            <div class="sidebar-menu-sub" id="config-sub" style="display:none;">
+              <a href="configuracoes.html" class="sidebar-menu-sub-button">Geral</a>
+              <a href="briefing.html" class="sidebar-menu-sub-button">Briefing</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">Canais</div>
+        <div class="sidebar-menu">
+          <button class="sidebar-menu-button" title="@guilhermecapovilla">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258A4 4 0 0 0 17.32 5z"/></svg>
+            <span class="label">@guilhermecapovilla</span>
+          </button>
+          <button class="sidebar-menu-button" title="Adicionar canal">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            <span class="label" style="color: hsl(var(--muted-foreground));">Adicionar canal</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="user-card">
+        <div class="avatar">GC</div>
+        <div class="user-meta">
+          <div class="user-name">Guilherme Capovilla</div>
+          <div class="user-email">guilherme@capovilla.tv</div>
+        </div>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============================ MAIN ============================ -->
+  <main class="main">
+    <header class="app-header">
+      <button class="btn btn-ghost btn-icon-sm" onclick="toggleSidebar()" title="Toggle sidebar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
+      </button>
+      <div class="separator-v" style="height:16px;margin:0 4px;"></div>
+      <nav class="breadcrumb">
+        <span class="breadcrumb-item">Plataforma</span>
+        <svg class="breadcrumb-sep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        <span class="breadcrumb-item current">Sugestões</span>
+      </nav>
+      <div class="flex-1"></div>
+      <button class="btn btn-ghost btn-icon-sm" onclick="toggleTheme()" title="Alternar tema" id="theme-btn">
+        <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+      </button>
+    </header>
+
+    <div class="app-content">
+      <div class="page">
+        <div class="page-header row items-center justify-between">
+          <div class="col">
+            <h1 class="page-title">Sugestões</h1>
+            <p class="page-subtitle">Pipeline editorial guiado por IA · briefing ativo</p>
+          </div>
+          <div class="row gap-2">
+            <button class="btn btn-outline" onclick="abrirNovaSugestao()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              Nova manual
+            </button>
+            <button class="btn btn-amber" onclick="gerarSugestoesIA()" id="btn-gerar-ia">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
+              Gerar Pick + Oportunidades
+            </button>
+          </div>
+        </div>
+
+        <!-- Painel foco consoles -->
+        <div class="focus-panel">
+          <div class="focus-header" id="focus-toggle" onclick="toggleFocusPanel()">
+            <span class="row items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              <strong>Focar em consoles específicos</strong>
+              <span id="focus-counter" style="color:hsl(var(--success));font-size:11px;"></span>
+            </span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="focus-body" id="focus-body">
+            <div class="focus-grid" id="focus-grid">
+              <div class="loading">Carregando consoles…</div>
+            </div>
+            <div class="focus-hint">Se nenhum for marcado, a IA escolhe com base em performance do canal.</div>
+            <div style="margin-top: 8px;">
+              <button class="btn btn-outline btn-sm" onclick="limparFocus()">Limpar seleção</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modelar vídeo de concorrente -->
+        <div class="focus-panel" id="modelar-panel">
+          <div class="focus-header" id="modelar-toggle" onclick="toggleModelarPanel()">
+            <span class="row items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 10-4 4 4 4"/><path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2"/><path d="M22 12h-4"/></svg>
+              <strong>Modelar vídeo de concorrente</strong>
+            </span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="focus-body" id="modelar-body" style="display:none; padding-top: 14px;">
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div>
+                <label class="input-label" id="label-modelar-url">
+                  URL ou título do vídeo do concorrente
+                </label>
+                <input type="text" id="modelar-url" class="input" placeholder="https://youtube.com/watch?v=... ou cole o título do vídeo">
+              </div>
+              <div>
+                <label class="input-label" id="label-modelar-desc">
+                  Descrição / o que o vídeo aborda (opcional)
+                </label>
+                <textarea id="modelar-desc" class="textarea" style="min-height:70px;" placeholder="Cole a descrição do vídeo, principais pontos, ou descreva com suas palavras o que o concorrente fez…"></textarea>
+              </div>
+              <div>
+                <button class="btn btn-default btn-sm" id="btn-modelar" onclick="modelarConcorrente()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+                  Modelar para meu canal
+                </button>
+              </div>
+              <div id="modelar-resultado" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="toolbar">
+          <div class="filter-tabs" id="filter-bar">
+            <button data-filter="todos" class="active">Todos</button>
+            <button data-filter="ideia">Ideia</button>
+            <button data-filter="planejado">Aprovados</button>
+            <button data-filter="gravando">Gravando</button>
+            <button data-filter="edicao">Edição</button>
+            <button data-filter="publicado">Publicado</button>
+            <button data-filter="rejeitada">Rejeitados</button>
+          </div>
+        </div>
+
+        <!-- Lista -->
+        <div id="lista">
+          <div class="loading">Carregando sugestões…</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============================ MODAL EDITAR ============================ -->
+<div class="modal-bg" id="modal-edit">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 class="modal-title">Editar sugestão</h3>
+      <p class="modal-description">Alterações são auditadas em sugestoes_edicoes</p>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      <div>
+        <label class="input-label">Título sugerido</label>
+        <input type="text" id="edit-titulo" class="input">
+      </div>
+      <div>
+        <label class="input-label">Tema / Conceito</label>
+        <input type="text" id="edit-tema" class="input">
+      </div>
+      <div class="row gap-3">
+        <div class="flex-1">
+          <label class="input-label">Status</label>
+          <select id="edit-status" class="select-input">
+            <option value="ideia">Ideia</option>
+            <option value="planejado">Planejado</option>
+            <option value="gravando">Gravando</option>
+            <option value="edicao">Edição</option>
+            <option value="publicado">Publicado</option>
+            <option value="rejeitada">Rejeitada</option>
+          </select>
+        </div>
+        <div class="flex-1">
+          <label class="input-label">Data de publicação prevista</label>
+          <input type="date" id="edit-data" class="input">
+        </div>
+      </div>
+      <div>
+        <label class="input-label">Motivo / Raciocínio</label>
+        <textarea id="edit-motivo" class="textarea"></textarea>
+      </div>
+      <div>
+        <label class="input-label">Script</label>
+        <textarea id="edit-script" class="textarea" style="min-height: 240px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-edit')">Cancelar</button>
+      <button class="btn btn-default" onclick="salvarEdicao()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ MODAL NOVA ============================ -->
+<div class="modal-bg" id="modal-nova">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 class="modal-title">Nova sugestão manual</h3>
+      <p class="modal-description">Use pra cadastrar vídeo já gravado ou planejado fora da IA</p>
+    </div>
+    <div class="modal-body">
+      <div>
+        <label class="input-label">Título da ideia</label>
+        <input type="text" id="nova-titulo" class="input" placeholder="Ex: Comprei o PS3 destravado na Shopee">
+      </div>
+      <div>
+        <label class="input-label">Tema / Contexto</label>
+        <input type="text" id="nova-tema" class="input" placeholder="Ex: PS3 destravado, nostalgia lan house">
+      </div>
+      <div>
+        <label class="input-label">Motivo / Raciocínio (por que decidiu gravar)</label>
+        <textarea id="nova-motivo" class="textarea" placeholder="Qual a ideia por trás? Que dor do público você quer resolver? Que ângulo você achou?"></textarea>
+      </div>
+      <div>
+        <label class="input-label">Script completo (opcional — cole aqui se já tem roteiro)</label>
+        <textarea id="nova-script" class="textarea" placeholder="Markdown. Pode deixar vazio — dá pra adicionar depois pelo botão Editar." style="min-height: 240px;"></textarea>
+      </div>
+      <div>
+        <label class="input-label">Status inicial</label>
+        <select id="nova-status" class="select-input">
+          <option value="ideia">💡 Ideia (ainda não decidi)</option>
+          <option value="planejado">📋 Planejado (vou gravar)</option>
+          <option value="gravando" selected>🎬 Gravando (já gravei, vou publicar)</option>
+          <option value="edicao">✂️ Em edição</option>
+          <option value="publicado">📺 Publicado (retroativo)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-nova')">Cancelar</button>
+      <button class="btn btn-default" onclick="salvarNovaSugestao()">Criar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ MODAL VER SCRIPT ============================ -->
+<div class="modal-bg" id="modal-script">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <h3 class="modal-title" id="script-titulo">Script</h3>
+    </div>
+    <div class="modal-body">
+      <pre id="script-conteudo" class="script-pre"></pre>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-script')">Fechar</button>
+      <button class="btn btn-default" onclick="copiarScript()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+        Copiar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ MODAL REJEITAR ============================ -->
+<div class="modal-bg" id="modal-rejeitar">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Rejeitar sugestão</h3>
+      <p class="modal-description">A IA aprende com o motivo. Quanto mais específico, melhor.</p>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="rejeitar-id">
+      <div class="preview-block" id="rejeitar-titulo-preview"></div>
+      <div>
+        <label class="input-label">Por quê?</label>
+        <div class="radio-card-group" id="rejeitar-motivos">
+          <label class="radio-card"><input type="radio" name="motivo" value="tema"> <span>Tema não me interessa</span></label>
+          <label class="radio-card"><input type="radio" name="motivo" value="titulo"> <span>Título fraco / distante do que quero</span></label>
+          <label class="radio-card"><input type="radio" name="motivo" value="ja_fiz"> <span>Já fiz algo parecido</span></label>
+          <label class="radio-card"><input type="radio" name="motivo" value="receita"> <span>Potencial de receita baixo</span></label>
+          <label class="radio-card"><input type="radio" name="motivo" value="outro"> <span>Outro (descreva abaixo)</span></label>
+        </div>
+      </div>
+      <div>
+        <label class="input-label">Comentário adicional (opcional)</label>
+        <textarea id="rejeitar-comentario" class="textarea" placeholder="Detalhe o que te incomodou — isso ensina a IA a sugerir melhor." style="min-height: 80px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-rejeitar')">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmarRejeicao()">Rejeitar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============================ JS ============================ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ==========================================================
+  // CONFIG
+  // ==========================================================
+  const SUPABASE_URL = 'https://ryspohcflrxjwwghvvqc.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_OzoD3gbIn4GoJ6szjwdkhw_KFGAGNsh';
+  const API_URL = 'https://capovilla-api.vercel.app/api/claude';
+  const DASHBOARD_SECRET = 'capovilla-dashboard-2026-secreto-aleatorio-x7k9m2p4';
+
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let cachesugestoes = [];
+  let cacheConsoles = [];
+  let filtroAtivo = 'todos';
+
+  const MOTIVOS_LABELS = {
+    tema: 'Tema não interessa',
+    titulo: 'Título fraco',
+    ja_fiz: 'Já fiz algo parecido',
+    receita: 'Potencial de receita baixo',
+    outro: 'Outro',
+  };
+
+  const CAMPOS_AUDITADOS = ['titulo_sugerido', 'tema', 'motivo', 'script', 'status', 'data_publicacao_prevista'];
+
+  const fmtData = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
+  const escapeHtml = s => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function toast(msg, tipo = 'info') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast show ' + tipo;
+    setTimeout(() => el.classList.remove('show'), 4000);
+  }
+
+  // ==========================================================
+  // Sidebar / Theme
+  // ==========================================================
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('collapsed');
+  }
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    updateThemeIcon(next);
+  }
+
+  function updateThemeIcon(theme) {
+    const icon = document.getElementById('theme-icon');
+    if (theme === 'dark') {
+      icon.innerHTML = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>';
+    } else {
+      icon.innerHTML = '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>';
+    }
+  }
+
+  (function initTheme() {
+    const saved = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    updateThemeIcon(saved);
+  })();
+
+  document.getElementById('config-toggle').addEventListener('click', () => {
+    const btn = document.getElementById('config-toggle');
+    const sub = document.getElementById('config-sub');
+    btn.classList.toggle('open');
+    sub.style.display = sub.style.display === 'none' ? 'flex' : 'none';
+  });
+
+  // ==========================================================
+  // CALL CLAUDE (preservado integralmente)
+  // ==========================================================
+  async function callClaude(prompt, maxTokens = 2000, systemPrompt = null) {
+    const body = { prompt, max_tokens: maxTokens };
+    if (systemPrompt) body.system = systemPrompt;
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-dashboard-secret': DASHBOARD_SECRET },
+      body: JSON.stringify(body),
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+    return data.text;
+  }
+
+  // ==========================================================
+  // BRIEFING (preservado)
+  // ==========================================================
+  async function carregarBriefing() {
+    try {
+      const { data, error } = await db
+        .from('config_editorial')
+        .select('briefing')
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .single();
+      if (error || !data) return '';
+      const texto = (data.briefing || '').trim();
+      if (texto.startsWith('Ainda não preenchido')) return '';
+      return texto;
+    } catch (e) {
+      console.warn('Falha ao carregar briefing:', e.message);
+      return '';
+    }
+  }
+
+  function montarSystemPromptComBriefing(systemBase, briefing) {
+    if (!briefing) return systemBase;
+    return `# BRIEFING EDITORIAL DO CRIADOR
+A seguir está o manifesto editorial escrito pelo próprio Guilherme. Trate como REGRA SUPREMA — quando ele entrar em conflito com qualquer outra instrução, o briefing vence. Preserve fielmente o tom, voz, estrutura e fórmulas descritas.
+
+${briefing}
+
+---
+
+# INSTRUÇÕES DA TAREFA
+
+${systemBase}`;
+  }
+
+  // ==========================================================
+  // MODAL helpers
+  // ==========================================================
+  function fecharModal(id) {
+    document.getElementById(id).classList.remove('show');
+  }
+
+  // ==========================================================
+  // CONSOLES (focus panel) — preservado integralmente
+  // ==========================================================
+  async function carregarConsoles() {
+    const { data, error } = await db.from('consoles').select('*').eq('ativo', true).order('ordem').order('nome');
+    if (error) {
+      document.getElementById('focus-grid').innerHTML = `<div class="loading">Erro: ${error.message}</div>`;
+      return;
+    }
+    cacheConsoles = data || [];
+    renderizarFocusGrid();
+  }
+
+  function renderizarFocusGrid() {
+    const grid = document.getElementById('focus-grid');
+    if (!cacheConsoles.length) {
+      grid.innerHTML = '<div class="loading">Nenhum console cadastrado. Vá em Configurações.</div>';
+      return;
+    }
+    grid.innerHTML = cacheConsoles.map(c => `
+      <label class="focus-chip">
+        <input type="checkbox" value="${escapeHtml(c.nome)}" onchange="atualizarFocusCounter()">
+        <span>${escapeHtml(c.nome)}</span>
+      </label>
+    `).join('');
+  }
+
+  function toggleFocusPanel() {
+    document.getElementById('focus-toggle').classList.toggle('open');
+    document.getElementById('focus-body').classList.toggle('open');
+  }
+
+  function atualizarFocusCounter() {
+    const marcados = document.querySelectorAll('#focus-grid input[type="checkbox"]:checked');
+    const counter = document.getElementById('focus-counter');
+    document.querySelectorAll('.focus-chip').forEach(chip => {
+      const cb = chip.querySelector('input[type="checkbox"]');
+      chip.classList.toggle('checked', cb.checked);
+    });
+    counter.textContent = marcados.length === 0 ? '' : `(${marcados.length} selecionado${marcados.length === 1 ? '' : 's'})`;
+  }
+
+  function limparFocus() {
+    document.querySelectorAll('#focus-grid input[type="checkbox"]').forEach(cb => cb.checked = false);
+    atualizarFocusCounter();
+  }
+
+  function getConsolesSelecionados() {
+    return Array.from(document.querySelectorAll('#focus-grid input[type="checkbox"]:checked')).map(cb => cb.value);
+  }
+
+  // ==========================================================
+  // CARREGAR sugestões
+  // ==========================================================
+  async function carregar() {
+    const { data, error } = await db.from('sugestoes').select('*').order('created_at', { ascending: false });
+    if (error) {
+      document.getElementById('lista').innerHTML = `<div class="error-msg">${error.message}</div>`;
+      return;
+    }
+    cachesugestoes = data || [];
+    renderizar();
+  }
+
+  function parseFeedback(feedback) {
+    if (!feedback) return null;
+    try {
+      const obj = JSON.parse(feedback);
+      return { motivo: obj.motivo, label: MOTIVOS_LABELS[obj.motivo] || obj.motivo, comentario: obj.comentario, data: obj.data };
+    } catch {
+      return { motivo: 'texto', label: null, comentario: feedback };
+    }
+  }
+
+  // ==========================================================
+  // RENDERIZAR (card SG-2847)
+  // ==========================================================
+  function renderizar() {
+    const lista = document.getElementById('lista');
+    const filtradas = filtroAtivo === 'todos' ? cachesugestoes : cachesugestoes.filter(s => s.status === filtroAtivo);
+
+    if (filtradas.length === 0) {
+      lista.innerHTML = '<div class="empty">Nenhuma sugestão nesse filtro.</div>';
+      return;
+    }
+
+    lista.innerHTML = filtradas.map(s => {
+      const feedback = parseFeedback(s.feedback_edicao);
+      const isRejeitada = s.status === 'rejeitada';
+      const jaAprovada = s.status !== 'ideia' && s.status !== 'rejeitada';
+      const consolesFoco = Array.isArray(s.consoles_foco) ? s.consoles_foco : [];
+      const motivo = s.motivo || 'Sem raciocínio registrado.';
+      const motivoLong = motivo.length > 280;
+      const idCurto = (s.legacy_id || s.id.substring(0,8)).toUpperCase();
+
+      return `
+        <div class="sug-card" data-id="${s.id}">
+          <div class="sug-card-actions-corner">
+            <button onclick="abrirEditor('${s.id}')" title="Editar">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
+            </button>
+            <button class="danger" onclick="apagarSugestao('${s.id}')" title="Apagar">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+          </div>
+
+          <div class="sug-card-meta">
+            <span class="mono sug-card-id">${escapeHtml(idCurto)}</span>
+            <span class="badge status-${s.status}">${s.status}</span>
+            ${s.data_publicacao_prevista ? `<span class="badge badge-outline">${fmtData(s.data_publicacao_prevista)}</span>` : ''}
+            ${s.tema ? `<span class="badge badge-secondary">${escapeHtml(s.tema)}</span>` : ''}
+          </div>
+
+          <h3 class="sug-card-title">${escapeHtml(s.titulo_sugerido || s.tema || 'Sem título')}</h3>
+
+          ${consolesFoco.length ? `
+            <div class="console-tag-row">
+              ${consolesFoco.map(c => `<span class="badge badge-amber">🎮 ${escapeHtml(c)}</span>`).join('')}
+            </div>
+          ` : ''}
+
+          <div class="sug-rationale-block">
+            <div class="sug-rationale-label">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+              Por que esta sugestão
+            </div>
+            <div class="sug-rationale-text">${escapeHtml(motivo)}</div>
+            ${motivoLong ? `
+              <button class="sug-expand-btn" data-toggle-rationale>
+                <span data-text-show>Ver completo</span>
+                <span data-text-hide style="display:none;">Ocultar</span>
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+            ` : ''}
+          </div>
+
+          ${feedback && isRejeitada ? `
+            <div class="sug-feedback">
+              <strong>Motivo:</strong> ${escapeHtml(feedback.label || feedback.motivo || '?')}
+              ${feedback.comentario ? `<br><em>"${escapeHtml(feedback.comentario)}"</em>` : ''}
+            </div>
+          ` : ''}
+
+          ${s.script ? `
+            <div class="sug-script-preview">
+              <button class="btn btn-outline btn-sm" onclick="verScript('${s.id}')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Ver script (${s.script.length} chars)
+              </button>
+            </div>
+          ` : ''}
+
+          ${!jaAprovada && !isRejeitada ? `
+            <div class="sug-actions">
+              <button class="btn btn-amber" id="btn-aprovar-${s.id}" onclick="aprovar('${s.id}')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Aprovar e gerar script
+              </button>
+              <button class="btn btn-danger-outline" onclick="abrirRejeitar('${s.id}')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                Rejeitar
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ==========================================================
+  // FIX VER COMPLETO — event delegation (mais robusto)
+  // Não depende de getElementById com UUID
+  // ==========================================================
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-toggle-rationale]');
+    if (!btn) return;
+    e.preventDefault();
+    const block = btn.closest('.sug-rationale-block');
+    if (!block) return;
+    const text = block.querySelector('.sug-rationale-text');
+    text.classList.toggle('expanded');
+    btn.classList.toggle('open');
+    const showLabel = btn.querySelector('[data-text-show]');
+    const hideLabel = btn.querySelector('[data-text-hide]');
+    if (text.classList.contains('expanded')) {
+      showLabel.style.display = 'none';
+      hideLabel.style.display = 'inline';
+    } else {
+      showLabel.style.display = 'inline';
+      hideLabel.style.display = 'none';
+    }
+  });
+
+  // Mantém função antiga pra compat (não usada no card novo, mas evita erro se algo chamar)
+  function toggleMotivo(id) {
+    const el = document.getElementById('motivo-' + id);
+    if (el) el.classList.toggle('expanded');
+  }
+
+  // ==========================================================
+  // Apagar sugestão (preservado)
+  // ==========================================================
+  async function apagarSugestao(id) {
+    const s = cachesugestoes.find(x => x.id === id);
+    if (!s) return;
+    if (!confirm(`Apagar permanentemente?\n\n"${s.titulo_sugerido || s.tema}"`)) return;
+    const { error } = await db.from('sugestoes').delete().eq('id', id);
+    if (error) return toast('Erro: ' + error.message, 'error');
+    toast('Apagada', 'success');
+    await carregar();
+  }
+
+  // ==========================================================
+  // Filter bar
+  // ==========================================================
+  document.getElementById('filter-bar').addEventListener('click', e => {
+    if (e.target.tagName !== 'BUTTON') return;
+    document.querySelectorAll('#filter-bar button').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    filtroAtivo = e.target.dataset.filter;
+    renderizar();
+  });
+
+  // ==========================================================
+  // APROVAR + gerar script (preservado, com briefing)
+  // ==========================================================
+  async function aprovar(id) {
+    const s = cachesugestoes.find(x => x.id === id);
+    if (!s) return;
+    if (!confirm(`Aprovar "${s.titulo_sugerido}"?\n\n• Gera script via IA (~15s)\n• Move pra Planejado`)) return;
+
+    const btn = document.getElementById('btn-aprovar-' + id);
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Gerando script...';
+    toast('🧠 Gerando...', 'info');
+
+    const briefing = await carregarBriefing();
+    const systemPromptBase = `Você é um roteirista de YouTube para o canal @guilhermecapovilla. Sua tarefa é escrever um script COMPLETO e USÁVEL, fiel à voz e ao DNA do criador.`;
+    const systemPrompt = montarSystemPromptComBriefing(systemPromptBase, briefing);
+
+    const consolesFoco = Array.isArray(s.consoles_foco) ? s.consoles_foco : [];
+    const consolesBloco = consolesFoco.length ? `\nCONSOLE(S) FOCO: ${consolesFoco.join(', ')}\n` : '';
+
+    const prompt = `Escreva um roteiro completo para este vídeo do canal do Guilherme Capovilla.
+
+TÍTULO: ${s.titulo_sugerido}
+TEMA: ${s.tema || '(não definido)'}
+${consolesBloco}
+CONTEXTO:
+${s.motivo || '(sem contexto adicional)'}
+
+Estrutura:
+- ABERTURA (30-45s): gancho emocional em primeira pessoa, sem "fala galera"
+- DESENVOLVIMENTO (3-5 blocos com títulos internos)
+- CTA INTERMEDIÁRIO integrado
+- CONVERSÃO (se houver produto Shopee)
+- FECHAMENTO: reforça pontos + gancho final
+
+Formato: markdown com **negrito** pros blocos. Duração: 8-12 minutos.`;
+
+    try {
+      const script = await callClaude(prompt, 4000, systemPrompt);
+      await registrarEdicao(id, 'status', s.status, 'planejado');
+      const { error } = await db.from('sugestoes').update({ script, status: 'planejado' }).eq('id', id);
+      if (error) throw error;
+      toast('✅ Aprovada!', 'success');
+      await carregar();
+    } catch (err) {
+      toast('Erro: ' + err.message, 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Aprovar e gerar script';
+    }
+  }
+
+  // ==========================================================
+  // REJEITAR (preservado)
+  // ==========================================================
+  function abrirRejeitar(id) {
+    const s = cachesugestoes.find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('rejeitar-id').value = id;
+    document.getElementById('rejeitar-titulo-preview').textContent = s.titulo_sugerido || s.tema || 'Sem título';
+    document.getElementById('rejeitar-comentario').value = '';
+    document.querySelectorAll('input[name="motivo"]').forEach(r => r.checked = false);
+    document.querySelectorAll('.radio-card').forEach(o => o.classList.remove('checked'));
+    document.getElementById('modal-rejeitar').classList.add('show');
+  }
+
+  document.getElementById('rejeitar-motivos').addEventListener('change', e => {
+    document.querySelectorAll('.radio-card').forEach(o => o.classList.remove('checked'));
+    e.target.closest('.radio-card').classList.add('checked');
+  });
+
+  async function confirmarRejeicao() {
+    const id = document.getElementById('rejeitar-id').value;
+    const motivoSelecionado = document.querySelector('input[name="motivo"]:checked');
+    const comentario = document.getElementById('rejeitar-comentario').value.trim();
+
+    if (!motivoSelecionado) return toast('Escolha um motivo', 'error');
+    const motivo = motivoSelecionado.value;
+    if (motivo === 'outro' && !comentario) return toast('Descreva no campo "Outro"', 'error');
+
+    const feedback = JSON.stringify({ motivo, comentario: comentario || null, data: new Date().toISOString() });
+    const s = cachesugestoes.find(x => x.id === id);
+    await registrarEdicao(id, 'status', s?.status || null, 'rejeitada');
+
+    const { error } = await db.from('sugestoes').update({ status: 'rejeitada', feedback_edicao: feedback }).eq('id', id);
+    if (error) return toast('Erro: ' + error.message, 'error');
+    fecharModal('modal-rejeitar');
+    toast('Rejeitada', 'success');
+    await carregar();
+  }
+
+  // ==========================================================
+  // VER SCRIPT (preservado)
+  // ==========================================================
+  function verScript(id) {
+    const s = cachesugestoes.find(x => x.id === id);
+    if (!s || !s.script) return toast('Script não encontrado', 'error');
+    document.getElementById('script-titulo').textContent = '📜 ' + (s.titulo_sugerido || 'Script');
+    document.getElementById('script-conteudo').textContent = s.script;
+    document.getElementById('modal-script').classList.add('show');
+  }
+
+  async function copiarScript() {
+    const texto = document.getElementById('script-conteudo').textContent;
+    try {
+      await navigator.clipboard.writeText(texto);
+      toast('Copiado', 'success');
+    } catch (e) {
+      toast('Erro ao copiar', 'error');
+    }
+  }
+
+  // ==========================================================
+  // EDIÇÃO + auditoria (preservado)
+  // ==========================================================
+  async function registrarEdicao(sugestaoId, campo, valorAntigo, valorNovo) {
+    const antigoStr = valorAntigo == null ? '' : String(valorAntigo);
+    const novoStr = valorNovo == null ? '' : String(valorNovo);
+    if (antigoStr === novoStr) return;
+    try {
+      await db.from('sugestoes_edicoes').insert([{
+        sugestao_id: sugestaoId, campo,
+        valor_antigo: antigoStr || null, valor_novo: novoStr || null,
+      }]);
+    } catch (e) {
+      console.warn('Falha ao registrar edição:', e.message);
+    }
+  }
+
+  function abrirEditor(id) {
+    const s = cachesugestoes.find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('edit-id').value = s.id;
+    document.getElementById('edit-titulo').value = s.titulo_sugerido || '';
+    document.getElementById('edit-tema').value = s.tema || '';
+    document.getElementById('edit-status').value = s.status || 'ideia';
+    document.getElementById('edit-data').value = s.data_publicacao_prevista || '';
+    document.getElementById('edit-motivo').value = s.motivo || '';
+    document.getElementById('edit-script').value = s.script || '';
+    document.getElementById('modal-edit').classList.add('show');
+  }
+
+  async function salvarEdicao() {
+    const id = document.getElementById('edit-id').value;
+    const original = cachesugestoes.find(x => x.id === id) || {};
+    const novo = {
+      titulo_sugerido: document.getElementById('edit-titulo').value || null,
+      tema: document.getElementById('edit-tema').value || null,
+      status: document.getElementById('edit-status').value,
+      data_publicacao_prevista: document.getElementById('edit-data').value || null,
+      motivo: document.getElementById('edit-motivo').value || null,
+      script: document.getElementById('edit-script').value || null,
+    };
+    for (const campo of CAMPOS_AUDITADOS) {
+      await registrarEdicao(id, campo, original[campo], novo[campo]);
+    }
+    const { error } = await db.from('sugestoes').update(novo).eq('id', id);
+    if (error) return toast('Erro: ' + error.message, 'error');
+    fecharModal('modal-edit');
+    toast('Atualizada', 'success');
+    await carregar();
+  }
+
+  // ==========================================================
+  // NOVA sugestão manual (preservado)
+  // ==========================================================
+  function abrirNovaSugestao() {
+    document.getElementById('nova-titulo').value = '';
+    document.getElementById('nova-tema').value = '';
+    document.getElementById('nova-motivo').value = '';
+    document.getElementById('nova-script').value = '';
+    document.getElementById('nova-status').value = 'gravando';
+    document.getElementById('modal-nova').classList.add('show');
+  }
+
+  async function salvarNovaSugestao() {
+    const titulo = document.getElementById('nova-titulo').value.trim();
+    const tema = document.getElementById('nova-tema').value.trim();
+    const motivo = document.getElementById('nova-motivo').value.trim();
+    const script = document.getElementById('nova-script').value.trim();
+    const status = document.getElementById('nova-status').value;
+
+    if (!titulo) return toast('Título é obrigatório', 'error');
+
+    const payload = {
+      legacy_id: `MANUAL-${Date.now()}`,
+      titulo_sugerido: titulo,
+      tema: tema || titulo,
+      motivo: motivo || null,
+      script: script || null,
+      status,
+    };
+    const { error } = await db.from('sugestoes').insert([payload]);
+    if (error) return toast('Erro: ' + error.message, 'error');
+    fecharModal('modal-nova');
+    toast(`Criada como "${status}"${script ? ' com script' : ''}`, 'success');
+    await carregar();
+  }
+
+  // ==========================================================
+  // GERAR SUGESTÕES IA (preservado integralmente, com briefing)
+  // ==========================================================
+  async function gerarSugestoesIA() {
+    const btn = document.getElementById('btn-gerar-ia');
+    btn.disabled = true;
+    btn.innerHTML = '🔄 Gerando...';
+
+    const consolesFoco = getConsolesSelecionados();
+    const focoMsg = consolesFoco.length ? ` focando em: ${consolesFoco.join(', ')}` : '';
+    toast('🧠 Coletando contexto' + focoMsg + '...', 'info');
+
+    try {
+      const { data: metricas } = await db.from('videos_metricas').select('video_id, views, rpm, receita_estimada').order('receita_estimada', { ascending: false }).limit(10);
+      const ids = metricas.map(m => m.video_id);
+      const { data: videos } = await db.from('videos').select('video_id, titulo, console, transcricao').in('video_id', ids);
+      const vMap = Object.fromEntries(videos.map(v => [v.video_id, v]));
+
+      const topVideos = metricas.map(m => {
+        const v = vMap[m.video_id] || {};
+        return `- "${v.titulo}" (${v.console}) — ${m.views} views, R$${m.rpm?.toFixed(2)} RPM, R$${m.receita_estimada?.toFixed(2)} receita`;
+      }).join('\n');
+
+      const vozAmostras = videos.filter(v => v.transcricao && v.transcricao.length > 500).slice(0, 3)
+        .map(v => `--- "${v.titulo}":\n${v.transcricao.substring(0, 800).trim()}...`).join('\n\n');
+
+      const { data: concVidsRaw } = await db.from('concorrentes_videos').select('titulo, views, resumo_ia, concorrentes(nome)').order('views', { ascending: false }).limit(20);
+      const concComResumo = concVidsRaw.filter(v => v.resumo_ia && v.resumo_ia.length > 100).slice(0, 8);
+      const concSoTitulo = concVidsRaw.filter(v => !v.resumo_ia || v.resumo_ia.length <= 100).slice(0, 10);
+      const concRicos = concComResumo.map(v => `### "${v.titulo}" (${v.concorrentes?.nome || '?'}) — ${v.views} views\n${v.resumo_ia.substring(0, 800)}`).join('\n\n');
+      const concTitulos = concSoTitulo.map(v => `- "${v.titulo}" (${v.concorrentes?.nome || '?'}) — ${v.views} views`).join('\n');
+
+      const { data: ultimas } = await db.from('sugestoes').select('titulo_sugerido').order('created_at', { ascending: false }).limit(10);
+      const ultimasStr = ultimas.map(s => `- ${s.titulo_sugerido}`).join('\n');
+
+      const { data: rejeitadas } = await db.from('sugestoes').select('titulo_sugerido, feedback_edicao').eq('status', 'rejeitada').order('created_at', { ascending: false }).limit(10);
+      const rejeicoesStr = rejeitadas.filter(r => r.feedback_edicao).map(r => {
+        const fb = parseFeedback(r.feedback_edicao);
+        return `- "${r.titulo_sugerido}" — REJEITADA: ${fb?.label || '?'}${fb?.comentario ? ' ("' + fb.comentario + '")' : ''}`;
+      }).join('\n') || '(nenhuma rejeição)';
+
+      const { data: aprendizados } = await db.from('aprendizados')
+        .select('titulo_sugerido, titulo_publicado, rpm_previsto, rpm_real, resultado, analise_ia')
+        .order('created_at', { ascending: false })
+        .limit(6);
+      const aprendizadosStr = aprendizados?.length
+        ? aprendizados.map(a =>
+            `- "${a.titulo_sugerido}" → "${a.titulo_publicado || 'mesmo'}" | RPM prev: R$${a.rpm_previsto||0} → real: R$${a.rpm_real||0} | ${a.resultado}\n  ${(a.analise_ia||'').substring(0, 200)}`
+          ).join('\n\n')
+        : '(sem histórico ainda — sistema aprenderá conforme vídeos forem publicados e vinculados)';
+
+      const focusBloco = consolesFoco.length
+        ? `\n### 🎯 FOCO OBRIGATÓRIO\nOs 2 vídeos desta rodada devem ser OBRIGATORIAMENTE sobre:\n${consolesFoco.map(c => `- ${c}`).join('\n')}\n\nSe não houver 2 ângulos distintos, crie 2 ângulos diferentes.\n`
+        : '';
+
+      const briefing = await carregarBriefing();
+      const systemPromptBase = `Você é um curador editorial para @guilhermecapovilla. Sua tarefa é gerar sugestões de vídeo que respeitem ESTRITAMENTE o briefing editorial acima.
+
+Critérios:
+1. HONRAR A VOZ DO CRIADOR (briefing acima é a fonte primária; amostras de transcrição reforçam)
+2. EXPLORAR LACUNAS de concorrentes
+3. TER POTENCIAL DE RECEITA
+4. EVITAR PADRÕES REJEITADOS
+5. RESPEITAR FOCO DE CONSOLES (se especificado)
+
+Quando o briefing der uma instrução específica (ex: "nunca crítico games", "sempre uso fórmula X"), você OBEDECE acima de qualquer outra preferência.`;
+      const systemPrompt = montarSystemPromptComBriefing(systemPromptBase, briefing);
+
+      const prompt = `## CONTEXTO
+
+### TOP VÍDEOS DO CANAL
+${topVideos}
+
+### VOZ DO CRIADOR
+${vozAmostras || '(sem transcrições)'}
+
+### CONCORRENTES (análises estruturadas)
+${concRicos || '(sem análises)'}
+
+### CONCORRENTES (outros títulos)
+${concTitulos}
+
+### SUGESTÕES JÁ GERADAS (NÃO REPETIR)
+${ultimasStr}
+
+### REJEIÇÕES RECENTES
+${rejeicoesStr}
+
+### APRENDIZADOS DO SISTEMA (calibre as sugestões com base nisso)
+${aprendizadosStr}
+${focusBloco}
+---
+
+## TAREFA
+
+Gere **1 Pick da semana** (maior confiança, contexto completo) e **3 Oportunidades** (ideias sólidas, mais compactas).
+
+**APENAS JSON:**
+
+\`\`\`json
+{
+  "pick": {
+    "titulo_sugerido": "título até 70 chars, primeira pessoa",
+    "tema": "tema em 3-5 palavras",
+    "angulo": "1 frase: o ângulo emocional único deste vídeo",
+    "referencia_concorrente": "Concorrente X fez Y — você faria Z (ou null se não aplicável)",
+    "motivo": "3 parágrafos (lacuna/voz do criador/potencial de receita), 200-300 palavras",
+    "rpm_previsto": 65
+  },
+  "oportunidades": [
+    {
+      "titulo_sugerido": "título até 70 chars",
+      "tema": "tema em 3-5 palavras",
+      "angulo": "1 frase do ângulo",
+      "motivo": "2 parágrafos diretos, 100-150 palavras",
+      "rpm_previsto": 50
+    }
+  ]
+}
+\`\`\`
+
+Retorne exatamente 3 itens em "oportunidades". ${consolesFoco.length ? 'RESPEITE CONSOLES FOCO em todos os itens.' : ''}`;
+
+      const resposta = await callClaude(prompt, 4000, systemPrompt);
+      let parsed;
+      try {
+        const jsonMatch = resposta.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('JSON não encontrado');
+        parsed = JSON.parse(jsonMatch[0]);
+        if (!parsed.pick || !Array.isArray(parsed.oportunidades)) throw new Error('Estrutura inválida');
+      } catch (e) {
+        console.error('Resposta:', resposta);
+        throw new Error('Claude não retornou JSON válido (F12 console)');
+      }
+
+      const toRow = (s, tag) => ({
+        legacy_id:       `${tag}-${Date.now()}`,
+        titulo_sugerido: (s.titulo_sugerido || '').substring(0, 200),
+        tema:            (s.tema || '').substring(0, 200),
+        motivo:          [s.angulo ? `**Ângulo:** ${s.angulo}` : '', s.referencia_concorrente ? `**Concorrente:** ${s.referencia_concorrente}` : '', s.motivo || ''].filter(Boolean).join('\n\n'),
+        status:          'ideia',
+        rpm_previsto:    s.rpm_previsto || null,
+        consoles_foco:   consolesFoco.length ? consolesFoco : null,
+      });
+
+      const payload = [
+        toRow(parsed.pick, 'PICK'),
+        ...parsed.oportunidades.slice(0, 3).map(s => toRow(s, 'OPT')),
+      ];
+
+      const { error } = await db.from('sugestoes').insert(payload);
+      if (error) throw error;
+
+      toast(`✅ 1 Pick + ${payload.length - 1} oportunidades criadas!`, 'success');
+      await carregar();
+    } catch (err) {
+      console.error(err);
+      toast('Erro: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg> Gerar Pick + Oportunidades';
+    }
+  }
+
+  // Click no fundo do modal fecha
+  document.querySelectorAll('.modal-bg').forEach(bg => {
+    bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('show'); });
+  });
+
+  // ==========================================================
+  // MODELAR VÍDEO DE CONCORRENTE
+  // ==========================================================
+  function toggleModelarPanel() {
+    const body  = document.getElementById('modelar-body');
+    const hdr   = document.getElementById('modelar-toggle');
+    const open  = body.style.display === 'none';
+    body.style.display = open ? 'block' : 'none';
+    hdr.classList.toggle('open', open);
+  }
+
+  async function modelarConcorrente() {
+    const url  = document.getElementById('modelar-url').value.trim();
+    const desc = document.getElementById('modelar-desc').value.trim();
+    if (!url && !desc) return toast('Cole a URL ou descreva o vídeo do concorrente', 'error');
+
+    const btn = document.getElementById('btn-modelar');
+    btn.disabled = true;
+    btn.textContent = 'Analisando…';
+
+    try {
+      const { data: metricas } = await db.from('videos_metricas')
+        .select('video_id, views, rpm').order('rpm', { ascending: false }).limit(8);
+      const ids = (metricas || []).map(m => m.video_id);
+      const { data: videos } = await db.from('videos')
+        .select('video_id, titulo, console, transcricao').in('video_id', ids);
+      const vMap = Object.fromEntries((videos || []).map(v => [v.video_id, v]));
+
+      const topVideos = (metricas || []).map(m => {
+        const v = vMap[m.video_id] || {};
+        return `- "${v.titulo}" (${v.console}) — RPM R$${(m.rpm||0).toFixed(0)} | ${m.views} views`;
+      }).join('\n');
+
+      const vozAmostras = (videos || [])
+        .filter(v => v.transcricao?.length > 300).slice(0, 2)
+        .map(v => `--- "${v.titulo}":\n${v.transcricao.substring(0, 500).trim()}…`)
+        .join('\n\n');
+
+      const briefing   = await carregarBriefing();
+      const systemBase = 'Você é curador editorial do canal @guilhermecapovilla. Vai adaptar um vídeo de concorrente para o estilo e voz deste canal.';
+      const system     = montarSystemPromptComBriefing(systemBase, briefing);
+
+      const prompt = `## VÍDEO DE REFERÊNCIA (CONCORRENTE)
+${url ? `URL: ${url}` : ''}
+${desc ? `Descrição: ${desc}` : ''}
+
+## MEU CANAL — TOP VÍDEOS POR RPM
+${topVideos || '(sem dados)'}
+
+## MINHA VOZ
+${vozAmostras || '(sem transcrições)'}
+
+---
+## TAREFA
+Adapte o vídeo de referência para o canal Guilherme Capovilla. Preserve o que funciona; mude o que não combina com a voz e público do canal.
+
+Responda APENAS em JSON:
+\`\`\`json
+{
+  "titulo_sugerido": "como você intitularia (até 70 chars, primeira pessoa)",
+  "angulo": "o que você preservou e o que você mudou — 2 frases",
+  "gancho": "abertura emocional de 2 frases no seu estilo",
+  "estrutura": ["ponto 1", "ponto 2", "ponto 3", "ponto 4"],
+  "rpm_previsto": 60
+}
+\`\`\``;
+
+      const resposta = await callClaude(prompt, 1500, system);
+      let parsed;
+      try {
+        const match = resposta.match(/\{[\s\S]*\}/);
+        if (!match) throw new Error();
+        parsed = JSON.parse(match[0]);
+      } catch { throw new Error('Claude não retornou JSON válido (F12 console)'); }
+
+      const el = document.getElementById('modelar-resultado');
+      el.innerHTML = `
+        <div class="modelar-result">
+          <div>
+            <div class="modelar-result-label">Título sugerido</div>
+            <div class="modelar-result-titulo">${escapeHtml(parsed.titulo_sugerido)}</div>
+          </div>
+          <div>
+            <div class="modelar-result-label">Adaptação</div>
+            <div class="modelar-result-block">${escapeHtml(parsed.angulo)}</div>
+          </div>
+          <div>
+            <div class="modelar-result-label">Gancho de abertura</div>
+            <div class="modelar-result-block">${escapeHtml(parsed.gancho)}</div>
+          </div>
+          <div>
+            <div class="modelar-result-label">Estrutura</div>
+            <div class="modelar-result-block"><ol>${(parsed.estrutura||[]).map(p=>`<li>${escapeHtml(p)}</li>`).join('')}</ol></div>
+          </div>
+          <div class="modelar-result-rpm">RPM previsto: R$${parsed.rpm_previsto||'?'}</div>
+          <div class="modelar-result-actions">
+            <button class="btn btn-default btn-sm" onclick='aprovarModelagem(${JSON.stringify(parsed).replace(/'/g,"&#39;")})'>Aprovar e criar sugestão</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('modelar-resultado').style.display='none'">Descartar</button>
+          </div>
+        </div>`;
+      el.style.display = 'block';
+
+    } catch (err) {
+      toast('Erro: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg> Modelar para meu canal';
+    }
+  }
+
+  function aprovarModelagem(parsed) {
+    document.getElementById('nova-titulo').value  = parsed.titulo_sugerido || '';
+    document.getElementById('nova-tema').value    = 'modelagem de concorrente';
+    document.getElementById('nova-motivo').value  =
+      `${parsed.angulo}\n\nGancho: ${parsed.gancho}\n\nEstrutura:\n${(parsed.estrutura||[]).map((p,i)=>`${i+1}. ${p}`).join('\n')}`;
+    abrirNovaSugestao();
+  }
+
+  // ==========================================================
+  // VOZ — microfone em todos os campos de texto
+  // ==========================================================
+  const MIC_SVG = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>`;
+
+  let _rec = null;
+
+  function toggleVoice(btn, field) {
+    if (_rec) { _rec.stop(); return; }
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return toast('Microfone não suportado neste navegador', 'error');
+    _rec = new SR();
+    _rec.lang = 'pt-BR';
+    _rec.continuous = true;
+    _rec.interimResults = false;
+    _rec.onstart  = () => { btn.classList.add('recording'); btn.innerHTML = MIC_SVG + ' parar'; };
+    _rec.onresult = e => {
+      const t = Array.from(e.results).map(r => r[0].transcript).join(' ');
+      field.value = (field.value ? field.value.trimEnd() + ' ' : '') + t;
+      field.dispatchEvent(new Event('input'));
+    };
+    _rec.onend = _rec.onerror = () => {
+      _rec = null;
+      btn.classList.remove('recording');
+      btn.innerHTML = MIC_SVG + ' falar';
+    };
+    _rec.start();
+  }
+
+  function setupVoiceAll() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return; // navegador sem suporte — silencioso
+    document.querySelectorAll('.input-label').forEach(label => {
+      const wrap = label.closest('div');
+      if (!wrap) return;
+      const field = wrap.querySelector('input[type="text"], textarea');
+      if (!field) return;
+      const btn = document.createElement('button');
+      btn.type      = 'button';
+      btn.className = 'mic-btn';
+      btn.innerHTML = MIC_SVG + ' falar';
+      btn.onclick   = () => toggleVoice(btn, field);
+      label.appendChild(btn);
+    });
+  }
+
+  // ==========================================================
+  // BOOT
+  // ==========================================================
+  carregar();
+  carregarConsoles();
+  setupVoiceAll();
+</script>
+</body>
+</html>
