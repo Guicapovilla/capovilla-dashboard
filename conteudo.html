@@ -509,9 +509,9 @@
         </h2>
         <div class="card">
           <div style="padding:10px 12px; border-bottom:1px solid hsl(var(--border));">
-            <div class="row gap-2">
+            <div style="display:flex; align-items:center; gap:6px;">
               <input type="text" class="input" id="ideia-quick-titulo" placeholder="Nova ideia…"
-                style="height:30px; font-size:12.5px;"
+                style="height:30px; font-size:12.5px; flex:1; min-width:0;"
                 onkeydown="if(event.key==='Enter'){event.preventDefault(); adicionarIdeiaRapida();}">
               <button class="btn btn-amber btn-icon-sm" onclick="adicionarIdeiaRapida()" title="Adicionar ideia">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
