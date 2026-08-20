@@ -18,6 +18,18 @@ O app tenta usar a tabela `conteudos` no Supabase (mesmo projeto já configurado
 
 **Para sincronizar entre dispositivos:** cole o conteúdo de [`setup-conteudos.sql`](setup-conteudos.sql) no SQL Editor do Supabase, rode, e recarregue a página. Se você já tinha dados locais, use **Backup** no navegador antigo e **Importar** depois que a tabela existir.
 
+## Ideias (novo)
+
+Banco de ideias soltas, sem data nem compromisso, organizado por pasta (console, tema, o que fizer sentido): [`ideias.html`](ideias.html). Acesso propositalmente discreto — um linkzinho "💡 Ideias" no canto superior direito do `conteudo.html`, fora do fluxo principal do calendário.
+
+- Cria e configura pastas (nome + cor) direto na barra lateral.
+- Adiciona ideia rápido (só o título) ou com nota e pasta, num campo sempre visível no topo.
+- Editar uma ideia abre um modal simples: título, nota, pasta, excluir.
+- Excluir uma pasta move as ideias dela pra "Sem pasta" — nunca apaga ideia junto.
+- Botão de copiar em cada card, pra colar rápido num card de conteúdo quando a ideia amadurecer.
+
+Mesmo esquema de dados: tabelas `ideia_pastas` e `ideias` no Supabase, com fallback pro localStorage. Setup em [`setup-ideias.sql`](setup-ideias.sql).
+
 ## Dashboard original
 
 `index.html`, `sugestoes.html`, `cronograma.html`, `briefing.html` e `configuracoes.html` continuam exatamente como estavam — sugestões com IA, briefing, configurações, aprendizado de métricas etc. Nada foi alterado neles além do novo item "Conteúdo" na navegação lateral.
