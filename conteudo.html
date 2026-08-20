@@ -99,13 +99,6 @@
     .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
     .btn-icon { width: 32px; height: 32px; padding: 0; }
     .btn-icon-sm { width: 26px; height: 26px; padding: 0; border-radius: 6px; }
-    .link-discreet {
-      display: inline-flex; align-items: center; gap: 5px;
-      font-size: 12px; color: hsl(var(--muted-foreground));
-      padding: 0 9px; height: 28px; border-radius: 6px;
-      transition: background-color .12s, color .12s;
-    }
-    .link-discreet:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
 
     /* ============ Card ============ */
     .card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); }
@@ -124,6 +117,24 @@
     .badge-agendado { background: hsl(var(--teal) / 0.15); color: hsl(var(--teal)); }
     .badge-publicado { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); }
     .badge-atrasado { background: hsl(var(--danger) / 0.15); color: hsl(var(--danger)); }
+
+    /* ============ Ideias (pastas) ============ */
+    .dot-amber { background: hsl(var(--amber)); } .badge-cor-amber { background: hsl(var(--amber) / 0.15); color: hsl(var(--amber)); }
+    .dot-violet { background: hsl(var(--violet)); } .badge-cor-violet { background: hsl(var(--violet) / 0.15); color: hsl(var(--violet)); }
+    .dot-info { background: hsl(var(--info)); } .badge-cor-info { background: hsl(var(--info) / 0.15); color: hsl(var(--info)); }
+    .dot-success { background: hsl(var(--success)); } .badge-cor-success { background: hsl(var(--success) / 0.15); color: hsl(var(--success)); }
+    .dot-teal { background: hsl(var(--teal)); } .badge-cor-teal { background: hsl(var(--teal) / 0.15); color: hsl(var(--teal)); }
+    .dot-danger { background: hsl(var(--danger)); } .badge-cor-danger { background: hsl(var(--danger) / 0.15); color: hsl(var(--danger)); }
+    .dot-muted { background: hsl(var(--muted-foreground)); } .badge-cor-muted { background: hsl(var(--muted) ); color: hsl(var(--muted-foreground)); }
+    .idea-dot { width: 8px; height: 8px; border-radius: 999px; flex-shrink: 0; }
+    .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+    .swatch { width: 26px; height: 26px; border-radius: 999px; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; }
+    .swatch.selected { border-color: hsl(var(--foreground)); }
+    .swatch svg { color: #fff; opacity: 0; }
+    .swatch.selected svg { opacity: 1; }
+    .pasta-row { display: flex; align-items: center; gap: 8px; padding: 6px 2px; border-bottom: 1px solid hsl(var(--border)); }
+    .pasta-row:last-child { border-bottom: none; }
+    .pasta-row .name { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     /* ============ Calendar ============ */
     .cal-card { overflow: hidden; }
@@ -366,6 +377,8 @@
     .modal-title { font-size: 15px; font-weight: 600; margin: 0 0 6px; }
     .modal-text { font-size: 13px; color: hsl(var(--muted-foreground)); margin: 0; }
     .modal-footer { padding: 16px 22px 18px; display: flex; gap: 8px; justify-content: flex-end; }
+    .modal-footer.between { justify-content: space-between; }
+    .modal-footer .right { display: flex; gap: 8px; }
 
     /* ============ Responsive ============ */
     @media (max-width: 1020px) {
@@ -396,10 +409,6 @@
     </div>
   </div>
   <div class="spacer"></div>
-  <a href="ideias.html" class="link-discreet" title="Banco de ideias por pasta">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></svg>
-    Ideias
-  </a>
   <a href="index.html" class="btn btn-ghost btn-sm" title="Voltar para o dashboard principal">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
     Dashboard
@@ -419,8 +428,8 @@
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
     <div>
       <strong>Salvando localmente neste navegador.</strong>
-      A tabela <code>conteudos</code> ainda não existe no Supabase (ou está sem conexão). Para sincronizar entre dispositivos,
-      rode o arquivo <code>setup-conteudos.sql</code> no SQL Editor do Supabase e recarregue a página. Enquanto isso, use o botão <em>Backup</em> para exportar seus dados.
+      Alguma tabela (<code>conteudos</code>, <code>ideia_pastas</code> ou <code>ideias</code>) ainda não existe no Supabase (ou está sem conexão). Para sincronizar entre dispositivos,
+      rode <code>setup-conteudos.sql</code> e <code>setup-ideias.sql</code> no SQL Editor do Supabase e recarregue a página. Enquanto isso, use o botão <em>Backup</em> para exportar seus dados.
     </div>
   </div>
 
@@ -489,6 +498,29 @@
           A publicar
         </h2>
         <div class="card mini-list" id="lista-publicar"></div>
+      </div>
+      <div>
+        <h2 class="section-title" style="color:hsl(var(--violet));">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></svg>
+          Ideias
+          <button class="btn btn-ghost btn-icon-sm" style="margin-left:auto;" onclick="abrirGerenciarPastas()" title="Criar e configurar pastas">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </h2>
+        <div class="card">
+          <div style="padding:10px 12px; border-bottom:1px solid hsl(var(--border));">
+            <div class="row gap-2">
+              <input type="text" class="input" id="ideia-quick-titulo" placeholder="Nova ideia…"
+                style="height:30px; font-size:12.5px;"
+                onkeydown="if(event.key==='Enter'){event.preventDefault(); adicionarIdeiaRapida();}">
+              <button class="btn btn-amber btn-icon-sm" onclick="adicionarIdeiaRapida()" title="Adicionar ideia">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              </button>
+            </div>
+            <div class="filter-chips" id="ideia-pastas-chips" style="margin-top:8px; background:transparent; padding:0;"></div>
+          </div>
+          <div class="mini-list" id="ideias-lista"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -610,6 +642,79 @@
   </div>
 </div>
 
+<!-- ======== Modal editar ideia ======== -->
+<div class="modal-bg" id="modal-ideia">
+  <div class="modal">
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:12px;padding-bottom:16px;">
+      <h3 class="modal-title">Editar ideia</h3>
+      <input type="hidden" id="ideia-id">
+      <div class="field">
+        <label class="field-label" for="ideia-titulo">Título</label>
+        <input type="text" class="input" id="ideia-titulo">
+      </div>
+      <div class="field">
+        <label class="field-label" for="ideia-nota">Nota</label>
+        <textarea class="textarea" id="ideia-nota" style="min-height:70px;" placeholder="Detalhes, referências, ângulo do vídeo…"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="ideia-pasta">Pasta</label>
+        <select class="select-input" id="ideia-pasta"></select>
+      </div>
+    </div>
+    <div class="modal-footer between">
+      <button class="btn btn-danger-outline btn-sm" onclick="pedirExcluirIdeia()">Excluir</button>
+      <div class="right">
+        <button class="btn btn-outline" onclick="fecharModal('modal-ideia')">Cancelar</button>
+        <button class="btn btn-amber" onclick="transformarEmConteudo()" title="Cria o card de conteúdo e abre pra você agendar">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          Virar conteúdo
+        </button>
+      </div>
+    </div>
+    <div class="modal-footer" style="padding-top:0;">
+      <button class="btn btn-outline btn-sm" style="width:100%;" onclick="salvarIdeia()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== Modal gerenciar pastas ======== -->
+<div class="modal-bg" id="modal-pastas">
+  <div class="modal">
+    <div class="modal-body" style="padding-bottom:8px;">
+      <h3 class="modal-title">Pastas de ideias</h3>
+      <p class="modal-text" style="margin-bottom:10px;">Separe por console, tema, ou do jeito que fizer sentido pra você.</p>
+      <div id="pastas-manage-list"></div>
+    </div>
+    <div class="modal-body" style="padding-top:6px;border-top:1px solid hsl(var(--border));display:flex;flex-direction:column;gap:10px;">
+      <input type="hidden" id="pasta-id">
+      <div class="field">
+        <label class="field-label" id="pasta-form-label" for="pasta-nome">Nova pasta</label>
+        <input type="text" class="input" id="pasta-nome" placeholder="Ex.: PlayStation, Comparativos…">
+      </div>
+      <div class="swatches" id="pasta-swatches"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" id="pasta-cancelar-edicao" style="display:none;" onclick="resetFormPasta()">Cancelar edição</button>
+      <button class="btn btn-outline" onclick="fecharModal('modal-pastas')">Fechar</button>
+      <button class="btn btn-amber" id="pasta-salvar-btn" onclick="salvarPasta()">Criar pasta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== Modal confirmar (genérico: ideia / pasta) ======== -->
+<div class="modal-bg" id="modal-confirmar-generico">
+  <div class="modal">
+    <div class="modal-body">
+      <h3 class="modal-title" id="confirmar-generico-titulo">Excluir?</h3>
+      <p class="modal-text" id="confirmar-generico-texto">Essa ação não pode ser desfeita.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="fecharModal('modal-confirmar-generico')">Cancelar</button>
+      <button class="btn btn-danger-outline" style="background:hsl(var(--danger));color:#fff;border-color:transparent;" id="confirmar-generico-btn">Excluir</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -715,10 +820,64 @@ const store = {
   },
 };
 
+// Store genérico (mesmo padrão acima) — usado pelas tabelas de ideias/pastas.
+function makeStore(table, localKey) {
+  return {
+    mode: 'local',
+    async init() {
+      if (db) {
+        try {
+          const { error } = await db.from(table).select('id').limit(1);
+          if (!error) { this.mode = 'supabase'; return; }
+        } catch (e) {}
+      }
+      this.mode = 'local';
+    },
+    _all() { try { return JSON.parse(localStorage.getItem(localKey) || '[]'); } catch (e) { return []; } },
+    _save(list) { localStorage.setItem(localKey, JSON.stringify(list)); },
+    async list() {
+      if (this.mode === 'supabase') {
+        const { data, error } = await db.from(table).select('*').order('created_at', { ascending: true });
+        if (error) { toast('Erro ao carregar: ' + error.message, 'error'); return []; }
+        return data || [];
+      }
+      return this._all().sort((a, b) => (a.created_at || '').localeCompare(b.created_at || ''));
+    },
+    async upsert(item) {
+      item.updated_at = new Date().toISOString();
+      if (this.mode === 'supabase') {
+        const { error } = await db.from(table).upsert(item);
+        if (error) { toast('Erro ao salvar: ' + error.message, 'error'); return false; }
+        return true;
+      }
+      const list = this._all();
+      const i = list.findIndex(x => x.id === item.id);
+      if (i >= 0) list[i] = item; else list.push(item);
+      this._save(list);
+      return true;
+    },
+    async remove(id) {
+      if (this.mode === 'supabase') {
+        const { error } = await db.from(table).delete().eq('id', id);
+        if (error) { toast('Erro ao excluir: ' + error.message, 'error'); return false; }
+        return true;
+      }
+      this._save(this._all().filter(x => x.id !== id));
+      return true;
+    },
+  };
+}
+const storePastas = makeStore('ideia_pastas', 'capovilla_ideia_pastas_v1');
+const storeIdeias = makeStore('ideias', 'capovilla_ideias_v1');
+const CORES_PASTA = ['amber', 'violet', 'info', 'success', 'teal', 'danger', 'muted'];
+
 // ============================================================
 // ESTADO
 // ============================================================
 let conteudos = [];
+let pastas = [];
+let ideias = [];
+let pastaSelecionadaIdeia = 'todas'; // 'todas' | 'sem-pasta' | <id>
 let mesAtual = new Date(); mesAtual.setDate(1);
 let aberto = null;        // conteúdo aberto no drawer (referência viva)
 let abertoNovo = false;   // ainda não persistido?
@@ -901,7 +1060,228 @@ function renderLib() {
 }
 function setFiltro(f) { filtroStatus = f; renderLib(); }
 
-function renderTudo() { renderCalendario(); renderListas(); renderLib(); }
+// ============================================================
+// IDEIAS — pastas configuráveis + virar conteúdo em 1 clique
+// ============================================================
+const uuidIdeia = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8));
+
+function renderIdeias() {
+  const counts = { todas: ideias.length, 'sem-pasta': ideias.filter(i => !i.pasta_id).length };
+  pastas.forEach(p => counts[p.id] = ideias.filter(i => i.pasta_id === p.id).length);
+
+  const chips = [`<button class="chip ${pastaSelecionadaIdeia === 'todas' ? 'active' : ''}" onclick="selecionarPastaIdeia('todas')">Todas <span class="n">${counts.todas}</span></button>`]
+    .concat(pastas.map(p => `<button class="chip ${pastaSelecionadaIdeia === p.id ? 'active' : ''}" onclick="selecionarPastaIdeia('${p.id}')"><span class="idea-dot dot-${p.cor}" style="margin-right:4px;"></span>${escapeHtml(p.nome)} <span class="n">${counts[p.id]}</span></button>`))
+    .concat([`<button class="chip ${pastaSelecionadaIdeia === 'sem-pasta' ? 'active' : ''}" onclick="selecionarPastaIdeia('sem-pasta')">Sem pasta <span class="n">${counts['sem-pasta']}</span></button>`])
+    .join('');
+  $('ideia-pastas-chips').innerHTML = chips;
+
+  let lista = ideias;
+  if (pastaSelecionadaIdeia === 'sem-pasta') lista = ideias.filter(i => !i.pasta_id);
+  else if (pastaSelecionadaIdeia !== 'todas') lista = ideias.filter(i => i.pasta_id === pastaSelecionadaIdeia);
+
+  const pastaMap = Object.fromEntries(pastas.map(p => [p.id, p]));
+  if (!lista.length) {
+    $('ideias-lista').innerHTML = `<div class="mini-empty">${ideias.length === 0 ? 'Nenhuma ideia ainda. Joga um título ali em cima. 💡' : 'Nada por aqui nessa pasta.'}</div>`;
+  } else {
+    $('ideias-lista').innerHTML = [...lista].reverse().map(i => {
+      const p = i.pasta_id ? pastaMap[i.pasta_id] : null;
+      const cor = p ? p.cor : 'muted';
+      return `<div class="mini-item" onclick="abrirEditarIdeia('${i.id}')">
+        <div class="mini-date" style="background:hsl(var(--${cor === 'muted' ? 'muted-foreground' : cor}) / 0.12);border:none;">
+          <span class="idea-dot dot-${cor}"></span>
+        </div>
+        <div class="mini-meta">
+          <div class="mini-title">${escapeHtml(i.titulo)}</div>
+          <div class="mini-sub">${p ? `<span class="badge badge-cor-${p.cor}">${escapeHtml(p.nome)}</span>` : '<span class="badge badge-outline">sem pasta</span>'}</div>
+        </div>
+        <button class="btn btn-ghost btn-icon-sm" onclick="event.stopPropagation(); transformarEmConteudo('${i.id}')" title="Virar conteúdo (1 clique)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+      </div>`;
+    }).join('');
+  }
+
+  // popula os selects que dependem das pastas
+  const options = '<option value="">— sem pasta —</option>' + pastas.map(p => `<option value="${p.id}">${escapeHtml(p.nome)}</option>`).join('');
+  $('ideia-pasta').innerHTML = options;
+}
+
+function selecionarPastaIdeia(id) { pastaSelecionadaIdeia = id; renderIdeias(); }
+
+async function adicionarIdeiaRapida() {
+  const titulo = $('ideia-quick-titulo').value.trim();
+  if (!titulo) return;
+  const pastaId = (pastaSelecionadaIdeia !== 'todas' && pastaSelecionadaIdeia !== 'sem-pasta') ? pastaSelecionadaIdeia : null;
+  const idea = { id: uuidIdeia(), titulo, nota: '', pasta_id: pastaId, created_at: new Date().toISOString() };
+  const ok = await storeIdeias.upsert(idea);
+  if (!ok) return;
+  ideias.push(idea);
+  $('ideia-quick-titulo').value = '';
+  toast('Ideia salva ✓');
+  renderIdeias();
+  $('ideia-quick-titulo').focus();
+}
+
+function abrirEditarIdeia(id) {
+  const i = ideias.find(x => x.id === id);
+  if (!i) return;
+  $('ideia-id').value = i.id;
+  $('ideia-titulo').value = i.titulo || '';
+  $('ideia-nota').value = i.nota || '';
+  $('ideia-pasta').value = i.pasta_id || '';
+  $('modal-ideia').classList.add('show');
+}
+
+async function salvarIdeia() {
+  const id = $('ideia-id').value;
+  const titulo = $('ideia-titulo').value.trim();
+  if (!titulo) return toast('Título não pode ficar vazio', 'error');
+  const original = ideias.find(x => x.id === id);
+  const idea = { ...original, titulo, nota: $('ideia-nota').value.trim(), pasta_id: $('ideia-pasta').value || null };
+  const ok = await storeIdeias.upsert(idea);
+  if (!ok) return;
+  const i = ideias.findIndex(x => x.id === id);
+  if (i >= 0) ideias[i] = idea;
+  fecharModal('modal-ideia');
+  toast('Ideia atualizada ✓');
+  renderIdeias();
+}
+
+function pedirExcluirIdeia() {
+  const id = $('ideia-id').value;
+  fecharModal('modal-ideia');
+  $('confirmar-generico-titulo').textContent = 'Excluir ideia?';
+  $('confirmar-generico-texto').textContent = 'Essa ação não pode ser desfeita.';
+  $('confirmar-generico-btn').onclick = async () => {
+    fecharModal('modal-confirmar-generico');
+    const ok = await storeIdeias.remove(id);
+    if (!ok) return;
+    ideias = ideias.filter(i => i.id !== id);
+    toast('Ideia excluída');
+    renderIdeias();
+  };
+  $('modal-confirmar-generico').classList.add('show');
+}
+
+// Vira um card de conteúdo real (mesma tabela/drawer do calendário) e já abre pra agendar.
+async function transformarEmConteudo(id) {
+  id = id || $('ideia-id').value;
+  const idea = ideias.find(x => x.id === id);
+  if (!idea) return;
+  fecharModal('modal-ideia');
+
+  const c = novoModelo({ titulo: idea.titulo, notas: idea.nota || '', status: 'ideia' });
+  const ok = await store.upsert({ ...c });
+  if (!ok) return;
+  conteudos.unshift(c);
+
+  await storeIdeias.remove(idea.id);
+  ideias = ideias.filter(i => i.id !== idea.id);
+
+  toast('Virou conteúdo ✓');
+  renderTudo();
+  abrirConteudo(c.id);
+}
+
+// ---- Pastas ----
+function abrirGerenciarPastas() {
+  renderPastasManageList();
+  resetFormPasta();
+  $('modal-pastas').classList.add('show');
+}
+
+function renderPastasManageList() {
+  if (!pastas.length) {
+    $('pastas-manage-list').innerHTML = '<p style="font-size:12.5px;color:hsl(var(--muted-foreground));margin:4px 0 10px;">Nenhuma pasta ainda.</p>';
+    return;
+  }
+  $('pastas-manage-list').innerHTML = pastas.map(p => `
+    <div class="pasta-row">
+      <span class="idea-dot dot-${p.cor}"></span>
+      <span class="name">${escapeHtml(p.nome)}</span>
+      <button class="btn btn-ghost btn-icon-sm" onclick="carregarPastaNoForm('${p.id}')" title="Editar">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+      </button>
+      <button class="btn btn-ghost btn-icon-sm" onclick="pedirExcluirPasta('${p.id}')" title="Excluir">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+function montarSwatchesPasta(corSelecionada) {
+  $('pasta-swatches').innerHTML = CORES_PASTA.map(c => `
+    <button type="button" class="swatch dot-${c} ${c === corSelecionada ? 'selected' : ''}" data-cor="${c}" onclick="selecionarCorPasta('${c}')">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </button>
+  `).join('');
+}
+function selecionarCorPasta(c) {
+  document.querySelectorAll('#pasta-swatches .swatch').forEach(el => el.classList.toggle('selected', el.dataset.cor === c));
+}
+
+function resetFormPasta() {
+  $('pasta-id').value = '';
+  $('pasta-nome').value = '';
+  $('pasta-form-label').textContent = 'Nova pasta';
+  $('pasta-salvar-btn').textContent = 'Criar pasta';
+  $('pasta-cancelar-edicao').style.display = 'none';
+  montarSwatchesPasta(CORES_PASTA[0]);
+}
+
+function carregarPastaNoForm(id) {
+  const p = pastas.find(x => x.id === id);
+  if (!p) return;
+  $('pasta-id').value = p.id;
+  $('pasta-nome').value = p.nome;
+  $('pasta-form-label').textContent = 'Editando pasta';
+  $('pasta-salvar-btn').textContent = 'Salvar alterações';
+  $('pasta-cancelar-edicao').style.display = 'inline-flex';
+  montarSwatchesPasta(p.cor);
+  $('pasta-nome').focus();
+}
+
+async function salvarPasta() {
+  const nome = $('pasta-nome').value.trim();
+  if (!nome) return toast('Dá um nome pra pasta', 'error');
+  const cor = document.querySelector('#pasta-swatches .swatch.selected')?.dataset.cor || CORES_PASTA[0];
+  const id = $('pasta-id').value;
+  const pasta = id ? { ...pastas.find(p => p.id === id), nome, cor } : { id: uuidIdeia(), nome, cor, created_at: new Date().toISOString() };
+  const ok = await storePastas.upsert(pasta);
+  if (!ok) return;
+  const i = pastas.findIndex(p => p.id === pasta.id);
+  if (i >= 0) pastas[i] = pasta; else pastas.push(pasta);
+  toast(id ? 'Pasta atualizada ✓' : 'Pasta criada ✓');
+  resetFormPasta();
+  renderPastasManageList();
+  renderIdeias();
+}
+
+function pedirExcluirPasta(id) {
+  const p = pastas.find(x => x.id === id);
+  if (!p) return;
+  const n = ideias.filter(i => i.pasta_id === id).length;
+  $('confirmar-generico-titulo').textContent = `Excluir "${p.nome}"?`;
+  $('confirmar-generico-texto').textContent = n
+    ? `${n} ideia(s) dessa pasta vão pra "Sem pasta". A pasta em si não pode ser desfeita.`
+    : 'Essa ação não pode ser desfeita.';
+  $('confirmar-generico-btn').onclick = async () => {
+    fecharModal('modal-confirmar-generico');
+    const afetadas = ideias.filter(i => i.pasta_id === id);
+    for (const idea of afetadas) { idea.pasta_id = null; await storeIdeias.upsert({ ...idea }); }
+    const ok = await storePastas.remove(id);
+    if (!ok) return;
+    pastas = pastas.filter(x => x.id !== id);
+    if (pastaSelecionadaIdeia === id) pastaSelecionadaIdeia = 'todas';
+    toast('Pasta excluída');
+    resetFormPasta();
+    renderPastasManageList();
+    renderIdeias();
+  };
+  $('modal-confirmar-generico').classList.add('show');
+}
+
+function renderTudo() { renderCalendario(); renderListas(); renderLib(); renderIdeias(); }
 
 // ============================================================
 // DRAWER — abrir / editar / autosave
@@ -1142,9 +1522,13 @@ async function importarBackup(input) {
 // ============================================================
 // ATALHOS + BOOT
 // ============================================================
+function fecharModal(id) { $(id).classList.remove('show'); }
+document.querySelectorAll('.modal-bg').forEach(bg => bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('show'); }));
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    if ($('modal-excluir').classList.contains('show')) $('modal-excluir').classList.remove('show');
+    const modalAberto = [...document.querySelectorAll('.modal-bg.show')].pop();
+    if (modalAberto) modalAberto.classList.remove('show');
     else if ($('drawer').classList.contains('show')) fecharDrawer();
   }
   if ((e.metaKey || e.ctrlKey) && e.key === 's' && $('drawer').classList.contains('show')) {
@@ -1153,11 +1537,12 @@ document.addEventListener('keydown', e => {
     salvarAberto();
   }
 });
-$('modal-excluir').addEventListener('click', e => { if (e.target === $('modal-excluir')) e.target.classList.remove('show'); });
 
 (async function boot() {
-  await store.init();
+  await Promise.all([store.init(), storePastas.init(), storeIdeias.init()]);
+  if (storePastas.mode === 'local' || storeIdeias.mode === 'local') $('banner-local').classList.add('show');
   conteudos = await store.list();
+  [pastas, ideias] = await Promise.all([storePastas.list(), storeIdeias.list()]);
   renderTudo();
 })();
 </script>
