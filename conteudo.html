@@ -1013,8 +1013,8 @@ function renderListas() {
 // BIBLIOTECA
 // ============================================================
 function renderLib() {
-  // chips de filtro
-  const counts = { todos: conteudos.length };
+  // "Todos" = pipeline em produção (sem Ideia — essa fica numa aba própria, como uma pasta à parte)
+  const counts = { todos: conteudos.filter(c => c.status !== 'ideia').length };
   STATUS.forEach(s => counts[s.id] = conteudos.filter(c => c.status === s.id).length);
   $('lib-filtros').innerHTML =
     [`<button class="chip ${filtroStatus === 'todos' ? 'active' : ''}" onclick="setFiltro('todos')">Todos <span class="n">${counts.todos}</span></button>`]
@@ -1024,7 +1024,8 @@ function renderLib() {
 
   const busca = ($('lib-search').value || '').toLowerCase().trim();
   let list = conteudos;
-  if (filtroStatus !== 'todos') list = list.filter(c => c.status === filtroStatus);
+  if (filtroStatus === 'todos') list = list.filter(c => c.status !== 'ideia');
+  else list = list.filter(c => c.status === filtroStatus);
   if (busca) list = list.filter(c => (c.titulo || '').toLowerCase().includes(busca));
 
   if (!list.length) {
