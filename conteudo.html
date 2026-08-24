@@ -221,6 +221,10 @@
     }
     .chip:hover { color: hsl(var(--foreground)); }
     .chip.active { background: hsl(var(--card)); color: hsl(var(--foreground)); box-shadow: 0 1px 3px hsl(0 0% 0% / .2); }
+    .lib-filtros-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .filter-chips.sub { background: transparent; padding: 3px 0 3px 4px; gap: 2px; border-left: 2px solid hsl(var(--border)); }
+    .filter-chips.sub .chip { font-size: 10.5px; padding: 4px 8px; font-weight: 500; color: hsl(var(--muted-foreground) / 0.8); }
+    .filter-chips.sub .chip.active { background: hsl(var(--secondary)); color: hsl(var(--foreground)); box-shadow: none; }
     .chip .n { font-family: 'Geist Mono', monospace; font-size: 10px; opacity: 0.7; }
 
     .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
@@ -467,7 +471,6 @@
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             <input type="text" class="search-input" id="lib-search" placeholder="Buscar por título…" oninput="renderLib()">
           </div>
-          <div class="filter-chips" id="lib-filtros"></div>
           <div class="spacer"></div>
           <button class="btn btn-ghost btn-sm" onclick="exportarBackup()" title="Baixar backup em JSON">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
@@ -477,6 +480,10 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
             Importar
           </button>
+        </div>
+        <div class="lib-filtros-row">
+          <div class="filter-chips" id="lib-filtros-principal"></div>
+          <div class="filter-chips sub" id="lib-filtros-sub"></div>
           <input type="file" id="import-file" accept=".json" style="display:none" onchange="importarBackup(this)">
         </div>
         <div class="lib-grid" id="lib-grid"></div>
@@ -1013,14 +1020,28 @@ function renderListas() {
 // BIBLIOTECA
 // ============================================================
 function renderLib() {
-  // "Todos" = pipeline em produção (sem Ideia — essa fica numa aba própria, como uma pasta à parte)
-  const counts = { todos: conteudos.filter(c => c.status !== 'ideia').length };
-  STATUS.forEach(s => counts[s.id] = conteudos.filter(c => c.status === s.id).length);
-  $('lib-filtros').innerHTML =
-    [`<button class="chip ${filtroStatus === 'todos' ? 'active' : ''}" onclick="setFiltro('todos')">Todos <span class="n">${counts.todos}</span></button>`]
-      .concat(STATUS.map(s =>
-        `<button class="chip ${filtroStatus === s.id ? 'active' : ''}" onclick="setFiltro('${s.id}')">${s.label} <span class="n">${counts[s.id]}</span></button>`
-      )).join('');
+  // Nível principal: Geral (pipeline em produção) x Ideia (pasta à parte).
+  // Roteiro/Gravação/Edição/Agendado/Publicado viram sub-abas, só visíveis dentro de Geral.
+  const subStatus = STATUS.filter(s => s.id !== 'ideia');
+  const emGeral = filtroStatus !== 'ideia';
+  const countGeral = conteudos.filter(c => c.status !== 'ideia').length;
+  const countIdeia = conteudos.filter(c => c.status === 'ideia').length;
+
+  $('lib-filtros-principal').innerHTML = `
+    <button class="chip ${emGeral ? 'active' : ''}" onclick="setFiltro('todos')">Geral <span class="n">${countGeral}</span></button>
+    <button class="chip ${filtroStatus === 'ideia' ? 'active' : ''}" onclick="setFiltro('ideia')">💡 Ideia <span class="n">${countIdeia}</span></button>
+  `;
+
+  if (emGeral) {
+    $('lib-filtros-sub').style.display = 'flex';
+    $('lib-filtros-sub').innerHTML = subStatus.map(s => {
+      const n = conteudos.filter(c => c.status === s.id).length;
+      return `<button class="chip ${filtroStatus === s.id ? 'active' : ''}" onclick="setFiltro('${s.id}')">${s.label} <span class="n">${n}</span></button>`;
+    }).join('');
+  } else {
+    $('lib-filtros-sub').style.display = 'none';
+    $('lib-filtros-sub').innerHTML = '';
+  }
 
   const busca = ($('lib-search').value || '').toLowerCase().trim();
   let list = conteudos;
