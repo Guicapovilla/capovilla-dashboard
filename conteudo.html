@@ -152,11 +152,13 @@
     .cal-day {
       background: hsl(var(--card)); min-height: 104px; min-width: 0; padding: 6px;
       display: flex; flex-direction: column; gap: 3px;
-      cursor: pointer; transition: background-color .12s; position: relative;
+      cursor: pointer; transition: background-color .12s, outline-color .12s; position: relative;
+      outline: 2px dashed transparent; outline-offset: -2px;
     }
     .cal-day:hover { background: hsl(var(--accent) / 0.6); }
     .cal-day.other { background: hsl(var(--background)); cursor: default; }
     .cal-day.other:hover { background: hsl(var(--background)); }
+    .cal-day.drop-hover { background: hsl(var(--ring) / 0.1); outline-color: hsl(var(--ring) / 0.5); }
     .cal-day .day-num { font-size: 11px; font-weight: 500; color: hsl(var(--muted-foreground)); padding: 1px 3px; }
     .cal-day.today .day-num {
       color: hsl(var(--amber-foreground)); background: hsl(var(--amber));
@@ -165,12 +167,14 @@
     .cal-ev {
       display: flex; align-items: center; gap: 4px; min-width: 0;
       font-size: 10.5px; font-weight: 500; line-height: 1.2;
-      padding: 3px 5px; border-radius: 4px; cursor: pointer;
+      padding: 3px 5px; border-radius: 4px; cursor: grab;
       white-space: nowrap; overflow: hidden;
       border-left: 2px solid transparent;
-      transition: filter .12s;
+      transition: filter .12s, opacity .12s;
     }
     .cal-ev:hover { filter: brightness(1.15); }
+    .cal-ev:active { cursor: grabbing; }
+    .cal-ev.dragging { opacity: .3; }
     .cal-ev .ev-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
     .cal-ev.ev-grav { background: hsl(var(--amber) / 0.14); color: hsl(var(--amber)); border-left-color: hsl(var(--amber)); }
     .cal-ev.ev-pub  { background: hsl(var(--info) / 0.14); color: hsl(var(--info)); border-left-color: hsl(var(--info)); }
@@ -957,11 +961,12 @@ function renderCalendario() {
         ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.2 3.5a.5.5 0 0 0 .8-.42V7.87a.5.5 0 0 0-.75-.43L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>'
         : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>';
       const t = c.titulo || 'Sem título';
-      return `<div class="cal-ev ${cls}" title="${kind === 'grav' ? 'Gravar' : 'Publicar'}: ${escapeHtml(t)}"
+      return `<div class="cal-ev ${cls}" draggable="true" data-id="${c.id}" data-kind="${kind}"
+        title="${kind === 'grav' ? 'Gravar' : 'Publicar'}: ${escapeHtml(t)} — arraste pra outro dia pra mudar a data"
         onclick="event.stopPropagation(); abrirConteudo('${c.id}')">${icon}<span class="ev-label">${escapeHtml(t)}</span></div>`;
     }).join('');
     const mais = evs.length > 3 ? `<div class="cal-more">+${evs.length - 3}</div>` : '';
-    html += `<div class="cal-day ${iso === hoje ? 'today' : ''}" onclick="novoConteudo('${iso}')" title="Novo conteúdo em ${fmtCurto(iso)}">
+    html += `<div class="cal-day ${iso === hoje ? 'today' : ''}" data-iso="${iso}" onclick="novoConteudo('${iso}')" title="Novo conteúdo em ${fmtCurto(iso)}">
       <span class="day-num">${d}</span>${evHtml}${mais}
     </div>`;
   }
@@ -975,6 +980,69 @@ function renderCalendario() {
 
 function mudarMes(delta) { mesAtual.setMonth(mesAtual.getMonth() + delta); renderCalendario(); }
 function irHoje() { mesAtual = new Date(); mesAtual.setDate(1); renderCalendario(); }
+
+// ============================================================
+// DRAG & DROP — arrastar evento pra outro dia muda a data
+// ============================================================
+async function moverDataConteudo(id, kind, iso) {
+  const c = conteudos.find(x => x.id === id);
+  if (!c) return;
+  const campo = kind === 'grav' ? 'data_gravacao' : 'data_publicacao';
+  if (c[campo] === iso) return;
+  const anterior = c[campo];
+  c[campo] = iso;
+  const ok = await store.upsert({ ...c });
+  if (!ok) { c[campo] = anterior; return; }
+  toast(`${kind === 'grav' ? 'Gravação' : 'Publicação'} movida pra ${fmtCurto(iso)} ✓`);
+  renderTudo();
+}
+
+(function initCalendarDragDrop() {
+  const cal = $('calendar');
+  let arrastando = null; // { id, kind }
+
+  cal.addEventListener('dragstart', e => {
+    const ev = e.target.closest('.cal-ev');
+    if (!ev) return;
+    arrastando = { id: ev.dataset.id, kind: ev.dataset.kind };
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', arrastando.id); } catch (err) {}
+    ev.classList.add('dragging');
+  });
+
+  cal.addEventListener('dragend', e => {
+    const ev = e.target.closest('.cal-ev');
+    if (ev) ev.classList.remove('dragging');
+    arrastando = null;
+    document.querySelectorAll('.cal-day.drop-hover').forEach(d => d.classList.remove('drop-hover'));
+  });
+
+  cal.addEventListener('dragover', e => {
+    if (!arrastando) return;
+    const day = e.target.closest('.cal-day');
+    if (!day || day.classList.contains('other')) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    day.classList.add('drop-hover');
+  });
+
+  cal.addEventListener('dragleave', e => {
+    const day = e.target.closest('.cal-day');
+    if (day && !day.contains(e.relatedTarget)) day.classList.remove('drop-hover');
+  });
+
+  cal.addEventListener('drop', e => {
+    document.querySelectorAll('.cal-day.drop-hover').forEach(d => d.classList.remove('drop-hover'));
+    if (!arrastando) return;
+    const day = e.target.closest('.cal-day');
+    if (!day || day.classList.contains('other')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const { id, kind } = arrastando;
+    arrastando = null;
+    moverDataConteudo(id, kind, day.dataset.iso);
+  });
+})();
 
 // ============================================================
 // LISTAS LATERAIS
