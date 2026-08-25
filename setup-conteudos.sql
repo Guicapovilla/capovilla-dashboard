@@ -14,13 +14,18 @@ create table if not exists public.conteudos (
   script text default '',
   notas text default '',
   thumb text default '',                -- URL ou data-URI (jpeg redimensionado pelo app)
-  status text not null default 'ideia', -- ideia | roteiro | gravacao | edicao | publicado
+  status text not null default 'ideia', -- ideia | roteiro | gravacao | edicao | agendado | publicado
   tipo text not null default 'longo',   -- longo | short
+  categoria text,                       -- viral | monetizacao | null (só usado quando status = ideia)
   data_gravacao date,
   data_publicacao date,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Migração pra quem já tinha a tabela antes do campo `categoria` existir
+-- (rodar este arquivo de novo é seguro, não duplica nada).
+alter table public.conteudos add column if not exists categoria text;
 
 -- Mesmo modelo de acesso das tabelas existentes do dashboard:
 -- chave publishable (anon) pode ler e escrever.

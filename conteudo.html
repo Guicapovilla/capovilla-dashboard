@@ -284,6 +284,7 @@
     .save-state { font-size: 11px; color: hsl(var(--muted-foreground)); }
     .save-state.saving { color: hsl(var(--amber)); }
     .save-state.saved { color: hsl(var(--success)); }
+    .save-state.error { color: hsl(var(--danger)); }
     .drawer-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 18px; }
     .drawer-footer {
       padding: 12px 20px; border-top: 1px solid hsl(var(--border));
@@ -1496,12 +1497,15 @@ async function salvarAberto() {
   if (abertoNovo && vazio) { $('save-state').textContent = ''; return; }
 
   const ok = await store.upsert({ ...aberto });
+  const el = $('save-state');
   if (ok) {
     if (abertoNovo) { conteudos.unshift(aberto); abertoNovo = false; $('drawer-id').textContent = aberto.id.slice(0, 8).toUpperCase(); }
-    const el = $('save-state');
     el.textContent = 'Salvo ✓';
     el.className = 'save-state saved';
     renderTudo();
+  } else {
+    el.textContent = 'Erro ao salvar — veja o aviso';
+    el.className = 'save-state error';
   }
 }
 
