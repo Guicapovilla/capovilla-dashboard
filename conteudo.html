@@ -590,6 +590,15 @@
       <div></div>
     </div>
 
+    <div class="field">
+      <span class="field-label">Categoria da ideia</span>
+      <div class="seg" id="f-categoria" style="display:flex;">
+        <button data-categoria="" onclick="setCategoria('')" style="flex:1;">—</button>
+        <button data-categoria="viral" onclick="setCategoria('viral')" style="flex:1;">🔥 Vídeos Virais</button>
+        <button data-categoria="monetizacao" onclick="setCategoria('monetizacao')" style="flex:1;">💰 Monetização</button>
+      </div>
+    </div>
+
     <div class="field-row">
       <div class="field">
         <label class="field-label" for="f-gravacao" style="color:hsl(var(--amber));">🎬 Gravar em</label>
@@ -893,13 +902,16 @@ let mesAtual = new Date(); mesAtual.setDate(1);
 let aberto = null;        // conteúdo aberto no drawer (referência viva)
 let abertoNovo = false;   // ainda não persistido?
 let filtroStatus = 'todos';
+let filtroCategoriaIdeia = 'todas'; // 'todas' | 'viral' | 'monetizacao' — sub-aba só dentro de Ideia
 let saveTimer = null;
+
+const CATEGORIAS_IDEIA = { viral: '🔥 Vídeos Virais', monetizacao: '💰 Monetização' };
 
 function novoModelo(overrides = {}) {
   return {
     id: (crypto.randomUUID ? crypto.randomUUID() : 'c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)),
     titulo: '', descricao: '', script: '', notas: '', thumb: '',
-    status: 'ideia', tipo: 'longo',
+    status: 'ideia', tipo: 'longo', categoria: null,
     data_gravacao: null, data_publicacao: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -1107,14 +1119,24 @@ function renderLib() {
       return `<button class="chip ${filtroStatus === s.id ? 'active' : ''}" onclick="setFiltro('${s.id}')">${s.label} <span class="n">${n}</span></button>`;
     }).join('');
   } else {
-    $('lib-filtros-sub').style.display = 'none';
-    $('lib-filtros-sub').innerHTML = '';
+    // dentro de Ideia: sub-abas por categoria (Vídeos Virais / Monetização)
+    const ideiasTodas = conteudos.filter(c => c.status === 'ideia');
+    $('lib-filtros-sub').style.display = 'flex';
+    $('lib-filtros-sub').innerHTML = [`<button class="chip ${filtroCategoriaIdeia === 'todas' ? 'active' : ''}" onclick="setFiltroCategoriaIdeia('todas')">Todas <span class="n">${ideiasTodas.length}</span></button>`]
+      .concat(Object.entries(CATEGORIAS_IDEIA).map(([id, label]) => {
+        const n = ideiasTodas.filter(c => c.categoria === id).length;
+        return `<button class="chip ${filtroCategoriaIdeia === id ? 'active' : ''}" onclick="setFiltroCategoriaIdeia('${id}')">${label} <span class="n">${n}</span></button>`;
+      })).join('');
   }
 
   const busca = ($('lib-search').value || '').toLowerCase().trim();
   let list = conteudos;
-  if (filtroStatus === 'todos') list = list.filter(c => c.status !== 'ideia');
-  else list = list.filter(c => c.status === filtroStatus);
+  if (filtroStatus === 'todos') {
+    list = list.filter(c => c.status !== 'ideia');
+  } else {
+    list = list.filter(c => c.status === filtroStatus);
+    if (filtroStatus === 'ideia' && filtroCategoriaIdeia !== 'todas') list = list.filter(c => c.categoria === filtroCategoriaIdeia);
+  }
   if (busca) list = list.filter(c => (c.titulo || '').toLowerCase().includes(busca));
 
   if (!list.length) {
@@ -1138,6 +1160,7 @@ function renderLib() {
         <div class="lib-title">${escapeHtml(c.titulo || 'Sem título')}</div>
         <div class="lib-meta">
           <span class="badge badge-${c.status}">${STATUS_LABEL[c.status]}</span>
+          ${c.categoria && CATEGORIAS_IDEIA[c.categoria] ? `<span class="badge badge-outline">${CATEGORIAS_IDEIA[c.categoria]}</span>` : ''}
           ${c.script ? '<span class="badge badge-outline">📜 script</span>' : ''}
         </div>
         <div class="lib-dates">
@@ -1148,7 +1171,8 @@ function renderLib() {
     </div>
   `).join('');
 }
-function setFiltro(f) { filtroStatus = f; renderLib(); }
+function setFiltro(f) { filtroStatus = f; filtroCategoriaIdeia = 'todas'; renderLib(); }
+function setFiltroCategoriaIdeia(cat) { filtroCategoriaIdeia = cat; renderLib(); }
 
 // ============================================================
 // IDEIAS — pastas configuráveis + virar conteúdo em 1 clique
@@ -1434,10 +1458,15 @@ function preencherDrawer() {
   // tipo
   document.querySelectorAll('#f-tipo button').forEach(b =>
     b.classList.toggle('active', b.dataset.tipo === (c.tipo || 'longo')));
+
+  // categoria da ideia
+  document.querySelectorAll('#f-categoria button').forEach(b =>
+    b.classList.toggle('active', b.dataset.categoria === (c.categoria || '')));
 }
 
 function setStatus(s) { if (!aberto) return; coletarCampos(); aberto.status = s; preencherDrawer(); campoAlterado(); }
 function setTipo(t) { if (!aberto) return; coletarCampos(); aberto.tipo = t; preencherDrawer(); campoAlterado(); }
+function setCategoria(cat) { if (!aberto) return; coletarCampos(); aberto.categoria = cat || null; preencherDrawer(); campoAlterado(); }
 
 function coletarCampos() {
   if (!aberto) return;
