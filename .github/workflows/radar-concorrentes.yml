@@ -1,0 +1,24 @@
+name: Radar de concorrentes
+
+on:
+  schedule:
+    # 3x por dia (08h, 14h e 20h no horário de Brasília / UTC-3)
+    - cron: '0 11,17,23 * * *'
+  workflow_dispatch: {} # permite rodar na mão pelo botão "Run workflow"
+
+jobs:
+  coletar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Coletar vídeos novos dos canais cadastrados
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: node scripts/radar.mjs
