@@ -17,15 +17,17 @@ create table if not exists public.conteudos (
   status text not null default 'ideia', -- ideia | roteiro | gravacao | edicao | agendado | publicado
   tipo text not null default 'longo',   -- longo | short
   categoria text,                       -- viral | monetizacao | null (só usado quando status = ideia)
+  brolls jsonb not null default '[]'::jsonb, -- [{id, texto, feito}] — checklist de b-rolls
   data_gravacao date,
   data_publicacao date,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
--- Migração pra quem já tinha a tabela antes do campo `categoria` existir
+-- Migrações pra quem já tinha a tabela antes desses campos existirem
 -- (rodar este arquivo de novo é seguro, não duplica nada).
 alter table public.conteudos add column if not exists categoria text;
+alter table public.conteudos add column if not exists brolls jsonb not null default '[]'::jsonb;
 
 -- Mesmo modelo de acesso das tabelas existentes do dashboard:
 -- chave publishable (anon) pode ler e escrever.

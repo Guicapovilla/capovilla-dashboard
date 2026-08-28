@@ -358,6 +358,29 @@
     .copy-btn { font-size: 10.5px; font-weight: 500; color: hsl(var(--muted-foreground)); display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; text-transform: none; letter-spacing: 0; }
     .copy-btn:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
 
+    /* ============ B-rolls (checklist) ============ */
+    .broll-lista { display: flex; flex-direction: column; margin-top: 4px; }
+    .broll-item { display: flex; align-items: center; gap: 8px; padding: 6px 2px; border-bottom: 1px solid hsl(var(--border)); }
+    .broll-item:last-child { border-bottom: none; }
+    .broll-check {
+      width: 18px; height: 18px; border-radius: 5px; flex-shrink: 0;
+      border: 1.5px solid hsl(var(--border)); color: transparent;
+      display: flex; align-items: center; justify-content: center;
+      transition: background-color .12s, border-color .12s;
+    }
+    .broll-check:hover { border-color: hsl(var(--ring) / 0.6); }
+    .broll-check.done { background: hsl(var(--success)); border-color: hsl(var(--success)); color: #fff; }
+    .broll-texto { flex: 1; font-size: 13px; overflow-wrap: anywhere; }
+    .broll-texto.done { text-decoration: line-through; color: hsl(var(--muted-foreground)); }
+    .broll-rm {
+      opacity: 0; width: 20px; height: 20px; border-radius: 5px; flex-shrink: 0;
+      color: hsl(var(--muted-foreground)); display: flex; align-items: center; justify-content: center;
+      transition: opacity .12s, background-color .12s, color .12s;
+    }
+    .broll-item:hover .broll-rm { opacity: 1; }
+    .broll-rm:hover { background: hsl(var(--danger) / 0.1); color: hsl(var(--danger)); }
+    .broll-empty { font-size: 12px; color: hsl(var(--muted-foreground)); padding: 6px 2px; }
+
     /* ============ Banner / toast ============ */
     .banner {
       display: none; align-items: flex-start; gap: 10px;
@@ -655,6 +678,20 @@
         </button>
       </label>
       <textarea class="textarea script" id="f-script" placeholder="Roteiro completo do vídeo — gancho, desenvolvimento, CTA…" oninput="campoAlterado()"></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label">
+        B-rolls <span id="broll-contador" class="mono" style="text-transform:none;letter-spacing:0;color:hsl(var(--muted-foreground));"></span>
+      </label>
+      <div style="display:flex;gap:6px;">
+        <input type="text" class="input" id="broll-input" placeholder="Ex.: Close no controle, unboxing da caixa…"
+          onkeydown="if(event.key==='Enter'){event.preventDefault(); adicionarBroll();}">
+        <button class="btn btn-outline btn-icon-sm" onclick="adicionarBroll()" title="Adicionar b-roll">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        </button>
+      </div>
+      <div id="broll-lista" class="broll-lista"></div>
     </div>
 
     <div class="field">
@@ -985,7 +1022,7 @@ function novoModelo(overrides = {}) {
   return {
     id: (crypto.randomUUID ? crypto.randomUUID() : 'c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)),
     titulo: '', descricao: '', script: '', notas: '', thumb: '',
-    status: 'ideia', tipo: 'longo', categoria: null,
+    status: 'ideia', tipo: 'longo', categoria: null, brolls: [],
     data_gravacao: null, data_publicacao: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -1254,6 +1291,7 @@ function renderLib() {
           <span class="badge badge-${c.status}">${STATUS_LABEL[c.status]}</span>
           ${c.categoria && CATEGORIAS_IDEIA[c.categoria] ? `<span class="badge badge-outline">${CATEGORIAS_IDEIA[c.categoria]}</span>` : ''}
           ${c.script ? '<span class="badge badge-outline">📜 script</span>' : ''}
+          ${c.brolls?.length ? `<span class="badge badge-outline">🎞 ${c.brolls.filter(b => b.feito).length}/${c.brolls.length}</span>` : ''}
         </div>
         <div class="lib-dates">
           <span title="Gravação">🎬 ${fmtCurto(c.data_gravacao)}</span>
@@ -1779,11 +1817,67 @@ function preencherDrawer() {
   // categoria da ideia
   document.querySelectorAll('#f-categoria button').forEach(b =>
     b.classList.toggle('active', b.dataset.categoria === (c.categoria || '')));
+
+  // b-rolls
+  $('broll-input').value = '';
+  renderBrollList();
 }
 
 function setStatus(s) { if (!aberto) return; coletarCampos(); aberto.status = s; preencherDrawer(); campoAlterado(); }
 function setTipo(t) { if (!aberto) return; coletarCampos(); aberto.tipo = t; preencherDrawer(); campoAlterado(); }
 function setCategoria(cat) { if (!aberto) return; coletarCampos(); aberto.categoria = cat || null; preencherDrawer(); campoAlterado(); }
+
+// ---- B-rolls ----
+function renderBrollList() {
+  if (!aberto) return;
+  const lista = aberto.brolls || [];
+  const feitos = lista.filter(b => b.feito).length;
+  $('broll-contador').textContent = lista.length ? `${feitos}/${lista.length}` : '';
+  if (!lista.length) {
+    $('broll-lista').innerHTML = '<div class="broll-empty">Nada adicionado ainda — o que falta gravar?</div>';
+    return;
+  }
+  $('broll-lista').innerHTML = lista.map(b => `
+    <div class="broll-item">
+      <button class="broll-check ${b.feito ? 'done' : ''}" onclick="toggleBroll('${b.id}')" title="${b.feito ? 'Marcar como pendente' : 'Marcar como gravado'}">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+      <span class="broll-texto ${b.feito ? 'done' : ''}">${escapeHtml(b.texto)}</span>
+      <button class="broll-rm" onclick="removerBroll('${b.id}')" title="Remover">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+function adicionarBroll() {
+  if (!aberto) return;
+  const input = $('broll-input');
+  const texto = input.value.trim();
+  if (!texto) return;
+  aberto.brolls = aberto.brolls || [];
+  aberto.brolls.push({ id: uuidIdeia(), texto, feito: false });
+  input.value = '';
+  renderBrollList();
+  campoAlterado();
+  input.focus();
+}
+
+function toggleBroll(id) {
+  if (!aberto) return;
+  const b = (aberto.brolls || []).find(x => x.id === id);
+  if (!b) return;
+  b.feito = !b.feito;
+  renderBrollList();
+  campoAlterado();
+}
+
+function removerBroll(id) {
+  if (!aberto) return;
+  aberto.brolls = (aberto.brolls || []).filter(x => x.id !== id);
+  renderBrollList();
+  campoAlterado();
+}
 
 function coletarCampos() {
   if (!aberto) return;
