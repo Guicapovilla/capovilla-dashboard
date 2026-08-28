@@ -360,8 +360,17 @@
 
     /* ============ B-rolls (checklist) ============ */
     .broll-lista { display: flex; flex-direction: column; margin-top: 4px; }
-    .broll-item { display: flex; align-items: center; gap: 8px; padding: 6px 2px; border-bottom: 1px solid hsl(var(--border)); }
+    .broll-item {
+      display: flex; align-items: center; gap: 6px; padding: 6px 2px;
+      border-bottom: 1px solid hsl(var(--border)); border-top: 2px solid transparent;
+      cursor: grab; user-select: none; transition: opacity .12s, border-color .12s;
+    }
+    .broll-item:active { cursor: grabbing; }
     .broll-item:last-child { border-bottom: none; }
+    .broll-item.dragging { opacity: .35; }
+    .broll-item.drag-over-top { border-top-color: hsl(var(--ring)); }
+    .broll-item.drag-over-bottom { border-bottom: 2px solid hsl(var(--ring)); }
+    .broll-handle { flex-shrink: 0; color: hsl(var(--muted-foreground) / 0.5); display: flex; }
     .broll-check {
       width: 18px; height: 18px; border-radius: 5px; flex-shrink: 0;
       border: 1.5px solid hsl(var(--border)); color: transparent;
@@ -1845,7 +1854,10 @@ function renderBrollList() {
     return;
   }
   $('broll-lista').innerHTML = lista.map(b => `
-    <div class="broll-item">
+    <div class="broll-item" draggable="true" data-id="${b.id}" title="Arraste pra reordenar">
+      <span class="broll-handle">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="5" r="1.3"/><circle cx="7" cy="10" r="1.3"/><circle cx="7" cy="15" r="1.3"/><circle cx="13" cy="5" r="1.3"/><circle cx="13" cy="10" r="1.3"/><circle cx="13" cy="15" r="1.3"/></svg>
+      </span>
       <button class="broll-check ${b.feito ? 'done' : ''}" onclick="toggleBroll('${b.id}')" title="${b.feito ? 'Marcar como pendente' : 'Marcar como gravado'}">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </button>
@@ -1856,6 +1868,58 @@ function renderBrollList() {
     </div>
   `).join('');
 }
+
+function reordenarBroll(idArrastado, idAlvo, antes) {
+  if (!aberto || idArrastado === idAlvo) return;
+  const lista = aberto.brolls || [];
+  const from = lista.findIndex(b => b.id === idArrastado);
+  if (from === -1) return;
+  const [item] = lista.splice(from, 1);
+  let to = lista.findIndex(b => b.id === idAlvo);
+  if (to === -1) { lista.push(item); }
+  else { lista.splice(antes ? to : to + 1, 0, item); }
+  renderBrollList();
+  campoAlterado();
+}
+
+(function initBrollDragDrop() {
+  const container = $('broll-lista');
+  let arrastandoId = null;
+
+  container.addEventListener('dragstart', e => {
+    const item = e.target.closest('.broll-item');
+    if (!item) return;
+    arrastandoId = item.dataset.id;
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', arrastandoId); } catch (err) {}
+    item.classList.add('dragging');
+  });
+
+  container.addEventListener('dragend', () => {
+    arrastandoId = null;
+    container.querySelectorAll('.broll-item').forEach(el => el.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom'));
+  });
+
+  container.addEventListener('dragover', e => {
+    const item = e.target.closest('.broll-item');
+    if (!item || !arrastandoId || item.dataset.id === arrastandoId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const antes = (e.clientY - item.getBoundingClientRect().top) < item.offsetHeight / 2;
+    container.querySelectorAll('.broll-item').forEach(el => el.classList.remove('drag-over-top', 'drag-over-bottom'));
+    item.classList.add(antes ? 'drag-over-top' : 'drag-over-bottom');
+  });
+
+  container.addEventListener('drop', e => {
+    const item = e.target.closest('.broll-item');
+    container.querySelectorAll('.broll-item').forEach(el => el.classList.remove('drag-over-top', 'drag-over-bottom'));
+    if (!item || !arrastandoId || item.dataset.id === arrastandoId) return;
+    e.preventDefault();
+    const antes = (e.clientY - item.getBoundingClientRect().top) < item.offsetHeight / 2;
+    reordenarBroll(arrastandoId, item.dataset.id, antes);
+    arrastandoId = null;
+  });
+})();
 
 function adicionarBroll() {
   if (!aberto) return;
