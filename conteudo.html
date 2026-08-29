@@ -262,6 +262,31 @@
       border: 1px dashed hsl(var(--border)); border-radius: var(--radius);
     }
 
+    /* ============ Radar — faixa de canais (seleção corrida) ============ */
+    .radar-canais-strip { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 14px; }
+    .radar-canal-chip {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      flex-shrink: 0; width: 62px; cursor: pointer; opacity: .55;
+      transition: opacity .12s;
+    }
+    .radar-canal-chip:hover, .radar-canal-chip.active { opacity: 1; }
+    .radar-canal-avatar-wrap {
+      width: 44px; height: 44px; border-radius: 999px; padding: 2px;
+      border: 2px solid transparent; transition: border-color .12s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .radar-canal-chip.active .radar-canal-avatar-wrap { border-color: hsl(var(--amber)); }
+    .radar-canal-avatar {
+      width: 100%; height: 100%; border-radius: 999px; object-fit: cover;
+      background: hsl(var(--secondary)); display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 600; color: hsl(var(--muted-foreground));
+    }
+    .radar-canal-nome {
+      font-size: 10px; text-align: center; color: hsl(var(--muted-foreground));
+      max-width: 62px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .radar-canal-chip.active .radar-canal-nome { color: hsl(var(--foreground)); font-weight: 600; }
+
     /* ============ Drawer ============ */
     .drawer-bg {
       position: fixed; inset: 0; background: hsl(0 0% 0% / 0.5); backdrop-filter: blur(3px);
@@ -545,9 +570,15 @@
 
         <div class="lib-toolbar">
           <div class="filter-chips" id="radar-filtros"></div>
+          <div class="seg" id="radar-tipo-seg">
+            <button data-tipo="todos" onclick="setFiltroTipoRadar('todos')">Todos</button>
+            <button data-tipo="longo" onclick="setFiltroTipoRadar('longo')">Longos</button>
+            <button data-tipo="short" onclick="setFiltroTipoRadar('short')">Shorts</button>
+          </div>
           <div class="spacer"></div>
           <span id="radar-status" style="font-size:11.5px;color:hsl(var(--muted-foreground));"></span>
         </div>
+        <div class="radar-canais-strip" id="radar-canais-strip"></div>
         <div class="lib-grid" id="radar-grid"></div>
       </div>
     </div>
@@ -1023,7 +1054,9 @@ let pastas = [];
 let ideias = [];
 let radarCanais = [];
 let radarVideos = [];
-let filtroRadar = 'novos'; // 'novos' | 'todos' | <canal_id>
+let filtroRadar = 'novos'; // 'novos' | 'todos'
+let filtroTipoRadar = 'todos'; // 'todos' | 'longo' | 'short'
+let canalSelecionadoRadar = 'todos'; // 'todos' | <canal_id> — seleção isolada de um concorrente
 let pastaSelecionadaIdeia = 'todas'; // 'todas' | 'sem-pasta' | <id>
 let mesAtual = new Date(); mesAtual.setDate(1);
 let aberto = null;        // conteúdo aberto no drawer (referência viva)
@@ -1588,19 +1621,40 @@ function renderRadar() {
     banner.classList.remove('show');
   }
 
-  // filtros: Novos / Todos / por canal
+  // linha 1: Novos / Todos
   const novos = radarVideos.filter(v => !v.visto && !v.descartado);
   $('radar-filtros').innerHTML = [
     `<button class="chip ${filtroRadar === 'novos' ? 'active' : ''}" onclick="setFiltroRadar('novos')">Novos <span class="n">${novos.length}</span></button>`,
     `<button class="chip ${filtroRadar === 'todos' ? 'active' : ''}" onclick="setFiltroRadar('todos')">Todos <span class="n">${radarVideos.length}</span></button>`,
-  ].concat(radarCanais.filter(c => c.nome).map(c => {
-    const n = radarVideos.filter(v => v.canal_id === c.id && !v.descartado).length;
-    return `<button class="chip ${filtroRadar === c.id ? 'active' : ''}" onclick="setFiltroRadar('${c.id}')">${escapeHtml(c.nome)} <span class="n">${n}</span></button>`;
-  })).join('');
+  ].join('');
+  document.querySelectorAll('#radar-tipo-seg button').forEach(b => b.classList.toggle('active', b.dataset.tipo === filtroTipoRadar));
+
+  // linha 2: faixa corrida com um avatar por concorrente, pra isolar um só
+  const canaisComNome = radarCanais.filter(c => c.nome);
+  if (!canaisComNome.length) {
+    $('radar-canais-strip').innerHTML = '';
+  } else {
+    const inicial = n => (n || '?').trim().charAt(0).toUpperCase();
+    $('radar-canais-strip').innerHTML = [`
+      <div class="radar-canal-chip ${canalSelecionadoRadar === 'todos' ? 'active' : ''}" onclick="setCanalRadar('todos')" title="Todos os concorrentes">
+        <div class="radar-canal-avatar-wrap"><div class="radar-canal-avatar">📡</div></div>
+        <span class="radar-canal-nome">Todos</span>
+      </div>`
+    ].concat(canaisComNome.map(c => `
+      <div class="radar-canal-chip ${canalSelecionadoRadar === c.id ? 'active' : ''}" onclick="setCanalRadar('${c.id}')" title="${escapeHtml(c.nome)}">
+        <div class="radar-canal-avatar-wrap">
+          ${c.avatar ? `<img class="radar-canal-avatar" src="${escapeHtml(c.avatar)}" alt="">` : `<div class="radar-canal-avatar">${escapeHtml(inicial(c.nome))}</div>`}
+        </div>
+        <span class="radar-canal-nome">${escapeHtml(c.nome)}</span>
+      </div>`
+    )).join('');
+  }
 
   let lista = radarVideos.filter(v => !v.descartado);
   if (filtroRadar === 'novos') lista = lista.filter(v => !v.visto);
-  else if (filtroRadar !== 'todos') lista = lista.filter(v => v.canal_id === filtroRadar);
+  if (canalSelecionadoRadar !== 'todos') lista = lista.filter(v => v.canal_id === canalSelecionadoRadar);
+  if (filtroTipoRadar === 'longo') lista = lista.filter(v => !v.is_short);
+  else if (filtroTipoRadar === 'short') lista = lista.filter(v => v.is_short);
   lista = [...lista].sort((a, b) => (b.publicado_em || '').localeCompare(a.publicado_em || ''));
 
   const ultima = radarCanais.map(c => c.ultima_checagem).filter(Boolean).sort().pop();
@@ -1649,6 +1703,8 @@ function renderRadar() {
 }
 
 function setFiltroRadar(f) { filtroRadar = f; renderRadar(); }
+function setFiltroTipoRadar(t) { filtroTipoRadar = t; renderRadar(); }
+function setCanalRadar(id) { canalSelecionadoRadar = id; renderRadar(); }
 
 async function radarPatch(videoId, campos) {
   if (!db) return false;
@@ -1744,7 +1800,7 @@ async function removerCanal(id) {
     if (error) return toast('Erro: ' + error.message, 'error');
     radarCanais = radarCanais.filter(x => x.id !== id);
     radarVideos = radarVideos.filter(v => v.canal_id !== id);
-    if (filtroRadar === id) filtroRadar = 'novos';
+    if (canalSelecionadoRadar === id) canalSelecionadoRadar = 'todos';
     toast('Canal removido');
     renderCanaisManageList();
     renderRadar();
