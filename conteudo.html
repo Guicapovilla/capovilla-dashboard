@@ -576,6 +576,7 @@
             <button data-tipo="short" onclick="setFiltroTipoRadar('short')">Shorts</button>
           </div>
           <div class="spacer"></div>
+          <div class="seg" id="radar-sort"></div>
           <span id="radar-status" style="font-size:11.5px;color:hsl(var(--muted-foreground));"></span>
         </div>
         <div class="radar-canais-strip" id="radar-canais-strip"></div>
@@ -1057,6 +1058,8 @@ let radarVideos = [];
 let filtroRadar = 'novos'; // 'novos' | 'todos'
 let filtroTipoRadar = 'todos'; // 'todos' | 'longo' | 'short'
 let canalSelecionadoRadar = 'todos'; // 'todos' | <canal_id> — seleção isolada de um concorrente
+let ordenacaoRadar = 'data'; // 'data' | 'views'
+let ordenacaoRadarDir = 'desc'; // 'desc' | 'asc'
 let pastaSelecionadaIdeia = 'todas'; // 'todas' | 'sem-pasta' | <id>
 let mesAtual = new Date(); mesAtual.setDate(1);
 let aberto = null;        // conteúdo aberto no drawer (referência viva)
@@ -1650,12 +1653,24 @@ function renderRadar() {
     )).join('');
   }
 
+  // ordenação: Recentes (data) ou Mais vistos (views), com clique alternando crescente/decrescente
+  const seta = ordenacaoRadarDir === 'desc' ? '↓' : '↑';
+  $('radar-sort').innerHTML = `
+    <button class="${ordenacaoRadar === 'data' ? 'active' : ''}" onclick="setOrdenacaoRadar('data')">Recentes${ordenacaoRadar === 'data' ? ' ' + seta : ''}</button>
+    <button class="${ordenacaoRadar === 'views' ? 'active' : ''}" onclick="setOrdenacaoRadar('views')">Mais vistos${ordenacaoRadar === 'views' ? ' ' + seta : ''}</button>
+  `;
+
   let lista = radarVideos.filter(v => !v.descartado);
   if (filtroRadar === 'novos') lista = lista.filter(v => !v.visto);
   if (canalSelecionadoRadar !== 'todos') lista = lista.filter(v => v.canal_id === canalSelecionadoRadar);
   if (filtroTipoRadar === 'longo') lista = lista.filter(v => !v.is_short);
   else if (filtroTipoRadar === 'short') lista = lista.filter(v => v.is_short);
-  lista = [...lista].sort((a, b) => (b.publicado_em || '').localeCompare(a.publicado_em || ''));
+  lista = [...lista].sort((a, b) => {
+    const av = ordenacaoRadar === 'views' ? (a.views || 0) : (a.publicado_em || '');
+    const bv = ordenacaoRadar === 'views' ? (b.views || 0) : (b.publicado_em || '');
+    const cmp = av < bv ? -1 : av > bv ? 1 : 0;
+    return ordenacaoRadarDir === 'asc' ? cmp : -cmp;
+  });
 
   const ultima = radarCanais.map(c => c.ultima_checagem).filter(Boolean).sort().pop();
   $('radar-status').textContent = ultima ? `última coleta ${fmtQuandoSaiu(ultima)}` : '';
@@ -1705,6 +1720,12 @@ function renderRadar() {
 function setFiltroRadar(f) { filtroRadar = f; renderRadar(); }
 function setFiltroTipoRadar(t) { filtroTipoRadar = t; renderRadar(); }
 function setCanalRadar(id) { canalSelecionadoRadar = id; renderRadar(); }
+
+function setOrdenacaoRadar(campo) {
+  if (ordenacaoRadar === campo) ordenacaoRadarDir = ordenacaoRadarDir === 'desc' ? 'asc' : 'desc';
+  else { ordenacaoRadar = campo; ordenacaoRadarDir = 'desc'; }
+  renderRadar();
+}
 
 async function radarPatch(videoId, campos) {
   if (!db) return false;
