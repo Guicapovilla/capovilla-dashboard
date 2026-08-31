@@ -286,6 +286,8 @@
       max-width: 62px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .radar-canal-chip.active .radar-canal-nome { color: hsl(var(--foreground)); font-weight: 600; }
+    .radar-paginacao { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px; }
+    .radar-paginacao button:disabled { opacity: .35; cursor: default; }
 
     /* ============ Drawer ============ */
     .drawer-bg {
@@ -569,6 +571,10 @@
         </div>
 
         <div class="lib-toolbar">
+          <div class="search-wrap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" class="search-input" id="radar-search" placeholder="Buscar por palavra-chave…" oninput="onRadarSearchInput()">
+          </div>
           <div class="filter-chips" id="radar-filtros"></div>
           <div class="seg" id="radar-tipo-seg">
             <button data-tipo="todos" onclick="setFiltroTipoRadar('todos')">Todos</button>
@@ -581,6 +587,7 @@
         </div>
         <div class="radar-canais-strip" id="radar-canais-strip"></div>
         <div class="lib-grid" id="radar-grid"></div>
+        <div class="radar-paginacao" id="radar-paginacao"></div>
       </div>
     </div>
 
@@ -1056,10 +1063,12 @@ let ideias = [];
 let radarCanais = [];
 let radarVideos = [];
 let filtroRadar = 'novos'; // 'novos' | 'todos'
-let filtroTipoRadar = 'todos'; // 'todos' | 'longo' | 'short'
+let filtroTipoRadar = 'longo'; // 'todos' | 'longo' | 'short' — Longos vem selecionado por padrão
 let canalSelecionadoRadar = 'todos'; // 'todos' | <canal_id> — seleção isolada de um concorrente
 let ordenacaoRadar = 'data'; // 'data' | 'views'
 let ordenacaoRadarDir = 'desc'; // 'desc' | 'asc'
+let radarPagina = 1;
+const RADAR_POR_PAGINA = 6;
 let pastaSelecionadaIdeia = 'todas'; // 'todas' | 'sem-pasta' | <id>
 let mesAtual = new Date(); mesAtual.setDate(1);
 let aberto = null;        // conteúdo aberto no drawer (referência viva)
@@ -1608,6 +1617,7 @@ function renderRadar() {
     $('banner-radar-texto').innerHTML = '<strong>O radar precisa do Supabase.</strong> Rode <code>setup-radar.sql</code> no SQL Editor e recarregue.';
     $('radar-filtros').innerHTML = '';
     $('radar-grid').innerHTML = '';
+    $('radar-paginacao').innerHTML = '';
     $('radar-status').textContent = '';
     return;
   }
@@ -1665,6 +1675,16 @@ function renderRadar() {
   if (canalSelecionadoRadar !== 'todos') lista = lista.filter(v => v.canal_id === canalSelecionadoRadar);
   if (filtroTipoRadar === 'longo') lista = lista.filter(v => !v.is_short);
   else if (filtroTipoRadar === 'short') lista = lista.filter(v => v.is_short);
+
+  const buscaRadar = ($('radar-search').value || '').toLowerCase().trim();
+  if (buscaRadar) {
+    const termos = buscaRadar.split(/\s+/).filter(Boolean);
+    lista = lista.filter(v => {
+      const alvo = `${v.titulo || ''} ${v.descricao || ''}`.toLowerCase();
+      return termos.every(t => alvo.includes(t));
+    });
+  }
+
   lista = [...lista].sort((a, b) => {
     const av = ordenacaoRadar === 'views' ? (a.views || 0) : (a.publicado_em || '');
     const bv = ordenacaoRadar === 'views' ? (b.views || 0) : (b.publicado_em || '');
@@ -1681,12 +1701,25 @@ function renderRadar() {
         ? 'Cadastre canais na engrenagem pra começar a acompanhar. 📡'
         : radarVideos.length === 0
           ? 'Nenhum vídeo coletado ainda. A primeira coleta roda no próximo horário agendado (ou dispare na mão no GitHub Actions).'
-          : 'Nada por aqui com esse filtro.'
+          : buscaRadar
+            ? `Nada encontrado pra "${escapeHtml(buscaRadar)}" com esse filtro.`
+            : 'Nada por aqui com esse filtro.'
     }</div>`;
+    $('radar-paginacao').innerHTML = '';
     return;
   }
 
-  $('radar-grid').innerHTML = lista.map(v => `
+  const totalPaginas = Math.max(1, Math.ceil(lista.length / RADAR_POR_PAGINA));
+  radarPagina = Math.min(Math.max(1, radarPagina), totalPaginas);
+  const pagina = lista.slice((radarPagina - 1) * RADAR_POR_PAGINA, radarPagina * RADAR_POR_PAGINA);
+
+  $('radar-paginacao').innerHTML = totalPaginas > 1 ? `
+    <button class="btn btn-outline btn-sm" onclick="mudarPaginaRadar(-1)" ${radarPagina <= 1 ? 'disabled' : ''}>‹ Anterior</button>
+    <span style="font-size:12.5px;color:hsl(var(--muted-foreground));">Página ${radarPagina} de ${totalPaginas} <span class="mono">(${lista.length} vídeos)</span></span>
+    <button class="btn btn-outline btn-sm" onclick="mudarPaginaRadar(1)" ${radarPagina >= totalPaginas ? 'disabled' : ''}>Próxima ›</button>
+  ` : '';
+
+  $('radar-grid').innerHTML = pagina.map(v => `
     <div class="lib-card" style="${v.visto ? 'opacity:.6;' : ''}">
       <a class="lib-thumb" href="${escapeHtml(v.url)}" target="_blank" rel="noopener" title="Abrir no YouTube" style="display:block;">
         ${v.thumb ? `<img src="${escapeHtml(v.thumb)}" alt="" loading="lazy">` : '<div class="no-thumb"></div>'}
@@ -1717,13 +1750,16 @@ function renderRadar() {
   `).join('');
 }
 
-function setFiltroRadar(f) { filtroRadar = f; renderRadar(); }
-function setFiltroTipoRadar(t) { filtroTipoRadar = t; renderRadar(); }
-function setCanalRadar(id) { canalSelecionadoRadar = id; renderRadar(); }
+function setFiltroRadar(f) { filtroRadar = f; radarPagina = 1; renderRadar(); }
+function setFiltroTipoRadar(t) { filtroTipoRadar = t; radarPagina = 1; renderRadar(); }
+function setCanalRadar(id) { canalSelecionadoRadar = id; radarPagina = 1; renderRadar(); }
+function onRadarSearchInput() { radarPagina = 1; renderRadar(); }
+function mudarPaginaRadar(delta) { radarPagina += delta; renderRadar(); }
 
 function setOrdenacaoRadar(campo) {
   if (ordenacaoRadar === campo) ordenacaoRadarDir = ordenacaoRadarDir === 'desc' ? 'asc' : 'desc';
   else { ordenacaoRadar = campo; ordenacaoRadarDir = 'desc'; }
+  radarPagina = 1;
   renderRadar();
 }
 
