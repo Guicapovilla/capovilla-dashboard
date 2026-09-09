@@ -176,10 +176,15 @@
     .cal-ev:active { cursor: grabbing; }
     .cal-ev.dragging { opacity: .3; }
     .cal-ev .ev-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-    .cal-ev.ev-grav { background: hsl(var(--amber) / 0.14); color: hsl(var(--amber)); border-left-color: hsl(var(--amber)); }
-    .cal-ev.ev-pub  { background: hsl(var(--info) / 0.14); color: hsl(var(--info)); border-left-color: hsl(var(--info)); }
-    .cal-ev.ev-done { background: hsl(var(--success) / 0.14); color: hsl(var(--success)); border-left-color: hsl(var(--success)); }
-    .cal-ev.ev-late { background: hsl(var(--danger) / 0.14); color: hsl(var(--danger)); border-left-color: hsl(var(--danger)); }
+    .cal-ev .ev-dot { display: none; width: 5px; height: 5px; border-radius: 999px; flex-shrink: 0; background: hsl(var(--danger)); }
+    .cal-ev.ev-late .ev-dot { display: inline-block; }
+    .cal-ev.status-ideia     { background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); border-left-color: hsl(var(--muted-foreground) / 0.5); }
+    .cal-ev.status-roteiro   { background: hsl(var(--violet) / 0.14); color: hsl(var(--violet)); border-left-color: hsl(var(--violet)); }
+    .cal-ev.status-gravacao  { background: hsl(var(--amber) / 0.14); color: hsl(var(--amber)); border-left-color: hsl(var(--amber)); }
+    .cal-ev.status-edicao   { background: hsl(var(--info) / 0.14); color: hsl(var(--info)); border-left-color: hsl(var(--info)); }
+    .cal-ev.status-agendado  { background: hsl(var(--teal) / 0.14); color: hsl(var(--teal)); border-left-color: hsl(var(--teal)); }
+    .cal-ev.status-publicado { background: hsl(var(--success) / 0.14); color: hsl(var(--success)); border-left-color: hsl(var(--success)); }
+    .cal-ev.ev-late { box-shadow: inset 0 0 0 1px hsl(var(--danger) / 0.55); }
     .cal-more { font-size: 10px; color: hsl(var(--muted-foreground)); font-weight: 500; padding-left: 3px; }
 
     /* ============ Side lists (A gravar / A publicar) ============ */
@@ -517,10 +522,12 @@
           <div class="cal-title" id="cal-title">—</div>
           <button class="btn btn-ghost btn-sm" onclick="irHoje()">Hoje</button>
           <div class="cal-legend">
-            <span><i style="background:hsl(var(--amber));"></i>Gravar</span>
-            <span><i style="background:hsl(var(--info));"></i>Publicar</span>
+            <span><i style="background:hsl(var(--violet));"></i>Roteiro</span>
+            <span><i style="background:hsl(var(--amber));"></i>Gravação</span>
+            <span><i style="background:hsl(var(--info));"></i>Edição</span>
+            <span><i style="background:hsl(var(--teal));"></i>Agendado</span>
             <span><i style="background:hsl(var(--success));"></i>Publicado</span>
-            <span><i style="background:hsl(var(--danger));"></i>Atrasado</span>
+            <span><i style="background:hsl(var(--danger));border-radius:999px;"></i>Atrasado</span>
           </div>
         </div>
         <div class="calendar" id="calendar"></div>
@@ -1142,14 +1149,14 @@ function renderCalendario() {
     const evHtml = shown.map(({ c, kind }) => {
       const done = kind === 'grav' ? STATUS_GRAVADO.includes(c.status) : c.status === 'publicado';
       const late = !done && !STATUS_EM_DIA.includes(c.status) && iso < hoje;
-      const cls = done ? 'ev-done' : late ? 'ev-late' : (kind === 'grav' ? 'ev-grav' : 'ev-pub');
+      const cls = `status-${c.status}${late ? ' ev-late' : ''}`;
       const icon = kind === 'grav'
         ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.2 3.5a.5.5 0 0 0 .8-.42V7.87a.5.5 0 0 0-.75-.43L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>'
         : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>';
       const t = c.titulo || 'Sem título';
       return `<div class="cal-ev ${cls}" draggable="true" data-id="${c.id}" data-kind="${kind}"
-        title="${kind === 'grav' ? 'Gravar' : 'Publicar'}: ${escapeHtml(t)} — arraste pra outro dia pra mudar a data"
-        onclick="event.stopPropagation(); abrirConteudo('${c.id}')">${icon}<span class="ev-label">${escapeHtml(t)}</span></div>`;
+        title="${kind === 'grav' ? 'Gravar' : 'Publicar'}: ${escapeHtml(t)} — etapa: ${STATUS_LABEL[c.status]}${late ? ' (atrasado)' : ''} — arraste pra outro dia pra mudar a data"
+        onclick="event.stopPropagation(); abrirConteudo('${c.id}')"><span class="ev-dot"></span>${icon}<span class="ev-label">${escapeHtml(t)}</span></div>`;
     }).join('');
     const mais = evs.length > 3 ? `<div class="cal-more">+${evs.length - 3}</div>` : '';
     html += `<div class="cal-day ${iso === hoje ? 'today' : ''}" data-iso="${iso}" onclick="novoConteudo('${iso}')" title="Novo conteúdo em ${fmtCurto(iso)}">
