@@ -913,6 +913,8 @@ const STATUS = [
 const STATUS_LABEL = Object.fromEntries(STATUS.map(s => [s.id, s.label]));
 // Com o vídeo agendado ou publicado, a entrega não conta mais como atraso mesmo se a data passar.
 const STATUS_EM_DIA = ['agendado', 'publicado'];
+// A partir da Edição o vídeo já foi gravado — a gravação conta como feita mesmo com a data no passado.
+const STATUS_GRAVADO = ['edicao', 'agendado', 'publicado'];
 
 const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const MESES_CURTO = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
@@ -1138,8 +1140,8 @@ function renderCalendario() {
     const evs = porDia[iso] || [];
     const shown = evs.slice(0, 3);
     const evHtml = shown.map(({ c, kind }) => {
-      const done = c.status === 'publicado';
-      const late = !STATUS_EM_DIA.includes(c.status) && iso < hoje;
+      const done = kind === 'grav' ? STATUS_GRAVADO.includes(c.status) : c.status === 'publicado';
+      const late = !done && !STATUS_EM_DIA.includes(c.status) && iso < hoje;
       const cls = done ? 'ev-done' : late ? 'ev-late' : (kind === 'grav' ? 'ev-grav' : 'ev-pub');
       const icon = kind === 'grav'
         ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.2 3.5a.5.5 0 0 0 .8-.42V7.87a.5.5 0 0 0-.75-.43L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>'
