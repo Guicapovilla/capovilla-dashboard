@@ -19,7 +19,7 @@
       --border: 240 5.9% 90%; --input: 240 5.9% 90%; --ring: 240 5.9% 10%;
       --radius: 0.5rem;
       --amber: 38 92% 50%; --amber-foreground: 38 92% 6%;
-      --success: 142 71% 45%; --danger: 0 84% 60%; --info: 217 91% 60%; --violet: 262 83% 58%; --teal: 172 66% 40%;
+      --success: 142 71% 45%; --danger: 0 84% 60%; --info: 217 91% 60%; --violet: 262 83% 58%; --teal: 172 66% 40%; --rose: 330 75% 55%;
     }
     [data-theme="dark"] {
       --background: 240 10% 3.9%; --foreground: 0 0% 98%;
@@ -30,7 +30,7 @@
       --accent: 240 3.7% 15.9%; --accent-foreground: 0 0% 98%;
       --border: 240 3.7% 15.9%; --input: 240 3.7% 15.9%; --ring: 240 4.9% 83.9%;
       --amber: 43 96% 56%; --amber-foreground: 38 92% 6%;
-      --success: 142 70% 50%; --danger: 0 72% 51%; --info: 217 91% 60%; --violet: 258 90% 66%; --teal: 172 66% 50%;
+      --success: 142 70% 50%; --danger: 0 72% 51%; --info: 217 91% 60%; --violet: 258 90% 66%; --teal: 172 66% 50%; --rose: 330 80% 65%;
     }
 
     * { box-sizing: border-box; }
@@ -184,6 +184,7 @@
     .cal-ev.status-edicao   { background: hsl(var(--teal) / 0.14); color: hsl(var(--teal)); border-left-color: hsl(var(--teal)); }
     .cal-ev.status-agendado  { background: hsl(var(--info) / 0.14); color: hsl(var(--info)); border-left-color: hsl(var(--info)); }
     .cal-ev.status-publicado { background: hsl(var(--success) / 0.14); color: hsl(var(--success)); border-left-color: hsl(var(--success)); }
+    .cal-ev.kind-tarefa { background: hsl(var(--rose) / 0.14); color: hsl(var(--rose)); border-left-color: hsl(var(--rose)); cursor: pointer; }
     .cal-ev.ev-late { box-shadow: inset 0 0 0 1px hsl(var(--danger) / 0.55); }
     .cal-more { font-size: 10px; color: hsl(var(--muted-foreground)); font-weight: 500; padding-left: 3px; }
 
@@ -487,6 +488,10 @@
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
     Dashboard
   </a>
+  <a href="tarefas.html" class="btn btn-ghost btn-sm" title="Ir para Tarefas">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v11"/><path d="M12 5v6"/><path d="M18 5v14"/></svg>
+    Tarefas
+  </a>
   <button class="btn btn-ghost btn-icon" onclick="toggleTheme()" title="Alternar tema">
     <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></svg>
   </button>
@@ -527,6 +532,7 @@
             <span><i style="background:hsl(var(--teal));"></i>Edição</span>
             <span><i style="background:hsl(var(--info));"></i>Agendado</span>
             <span><i style="background:hsl(var(--success));"></i>Publicado</span>
+            <span><i style="background:hsl(var(--rose));"></i>Tarefa</span>
             <span><i style="background:hsl(var(--danger));border-radius:999px;"></i>Atrasado</span>
           </div>
         </div>
@@ -1095,6 +1101,7 @@ let pastas = [];
 let ideias = [];
 let radarCanais = [];
 let radarVideos = [];
+let tarefasVinculadas = []; // tarefas com prazo + vinculadas a um vídeo — só essas aparecem no calendário
 let filtroRadar = 'novos'; // 'novos' | 'todos'
 let filtroTipoRadar = 'longo'; // 'todos' | 'longo' | 'short' — Longos vem selecionado por padrão
 let canalSelecionadoRadar = 'todos'; // 'todos' | <canal_id> — seleção isolada de um concorrente
@@ -1155,13 +1162,14 @@ function renderCalendario() {
   const totalDias = new Date(ano, mes + 1, 0).getDate();
   const hoje = hojeIso();
 
-  // eventos por dia: gravação e publicação
+  // eventos por dia: gravação, publicação e tarefas vinculadas a vídeo
   const porDia = {};
   const add = (iso, ev) => { (porDia[iso] = porDia[iso] || []).push(ev); };
   conteudos.forEach(c => {
     if (c.data_gravacao) add(c.data_gravacao, { c, kind: 'grav' });
     if (c.data_publicacao) add(c.data_publicacao, { c, kind: 'pub' });
   });
+  tarefasVinculadas.forEach(t => add(t.prazo, { t, kind: 'tarefa' }));
 
   let html = DIAS_SEM.map(d => `<div class="cal-header">${d}</div>`).join('');
   for (let i = 0; i < inicioSemana; i++) html += '<div class="cal-day other"></div>';
@@ -1170,7 +1178,16 @@ function renderCalendario() {
     const iso = isoLocal(new Date(ano, mes, d));
     const evs = porDia[iso] || [];
     const shown = evs.slice(0, 3);
-    const evHtml = shown.map(({ c, kind }) => {
+    const evHtml = shown.map(ev => {
+      if (ev.kind === 'tarefa') {
+        const t = ev.t;
+        const lateTarefa = t.status !== 'concluido' && iso < hoje;
+        const titulo = t.titulo || 'Sem título';
+        return `<div class="cal-ev kind-tarefa${lateTarefa ? ' ev-late' : ''}"
+          title="Tarefa: ${escapeHtml(titulo)}${lateTarefa ? ' (atrasado)' : ''} — abrir em Tarefas"
+          onclick="event.stopPropagation(); location.href='tarefas.html?id=${t.id}';"><span class="ev-dot"></span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M6 5v11"/><path d="M12 5v6"/><path d="M18 5v14"/></svg><span class="ev-label">${escapeHtml(titulo)}</span></div>`;
+      }
+      const { c, kind } = ev;
       const done = kind === 'grav' ? STATUS_GRAVADO.includes(c.status) : c.status === 'publicado';
       const late = !done && !STATUS_EM_DIA.includes(c.status) && iso < hoje;
       const cls = `status-${c.status}${late ? ' ev-late' : ''}`;
@@ -1912,6 +1929,24 @@ async function carregarRadar() {
   } catch (e) { /* radar é opcional, não derruba o resto */ }
 }
 
+// tarefas (aba separada) que tenham prazo E estejam vinculadas a um vídeo —
+// só essas aparecem no calendário, como lembrete organizacional.
+async function carregarTarefasVinculadas() {
+  if (store.mode === 'supabase') {
+    if (!db) return;
+    try {
+      const { data, error } = await db.from('tarefas').select('id,titulo,status,conteudo_id,prazo')
+        .not('conteudo_id', 'is', null).not('prazo', 'is', null);
+      if (!error) tarefasVinculadas = data || [];
+    } catch (e) { /* tarefas é opcional, não derruba o resto */ }
+  } else {
+    try {
+      const todas = JSON.parse(localStorage.getItem('capovilla_tarefas_v1') || '[]');
+      tarefasVinculadas = todas.filter(t => t.conteudo_id && t.prazo);
+    } catch (e) { tarefasVinculadas = []; }
+  }
+}
+
 function renderTudo() { renderCalendario(); renderListas(); renderLib(); renderIdeias(); renderRadar(); }
 
 // ============================================================
@@ -2300,6 +2335,7 @@ document.addEventListener('keydown', e => {
   conteudos = await store.list();
   [pastas, ideias] = await Promise.all([storePastas.list(), storeIdeias.list()]);
   await carregarRadar();
+  await carregarTarefasVinculadas();
   renderTudo();
 })();
 </script>
