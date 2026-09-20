@@ -14,6 +14,7 @@ create table if not exists public.conteudos (
   script text default '',
   notas text default '',
   thumb text default '',                -- URL ou data-URI (jpeg redimensionado pelo app)
+  thumb_ideia text default '',          -- descrição de como você imagina a thumb (texto, sem precisar gerar imagem de exemplo)
   status text not null default 'ideia', -- ideia | roteiro | gravacao | edicao | agendado | publicado
   tipo text not null default 'longo',   -- longo | short
   categoria text,                       -- viral | monetizacao | null (só usado quando status = ideia)
@@ -28,6 +29,7 @@ create table if not exists public.conteudos (
 -- (rodar este arquivo de novo é seguro, não duplica nada).
 alter table public.conteudos add column if not exists categoria text;
 alter table public.conteudos add column if not exists brolls jsonb not null default '[]'::jsonb;
+alter table public.conteudos add column if not exists thumb_ideia text default '';
 
 -- Mesmo modelo de acesso das tabelas existentes do dashboard:
 -- chave publishable (anon) pode ler e escrever.
@@ -38,3 +40,5 @@ create policy "conteudos_anon_all" on public.conteudos
   for all
   using (true)
   with check (true);
+
+notify pgrst, 'reload schema';
