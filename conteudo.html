@@ -995,7 +995,23 @@ const store = {
   async upsert(c) {
     c.updated_at = new Date().toISOString();
     if (this.mode === 'supabase') {
-      const { error } = await db.from('conteudos').upsert(c);
+      let { error } = await db.from('conteudos').upsert(c);
+      if (error && /column .* does not exist|Could not find the '([^']+)' column/i.test(error.message)) {
+        // coluna nova que ainda não existe no banco (falta rodar a migração SQL) —
+        // salva o resto dos campos em vez de perder tudo, e avisa.
+        const m = error.message.match(/'([^']+)'/);
+        const campo = m && m[1];
+        if (campo && campo in c) {
+          const resto = { ...c };
+          delete resto[campo];
+          const retry = await db.from('conteudos').upsert(resto);
+          if (!retry.error) {
+            toast(`Salvo, mas "${campo}" não sincroniza — rode a migração SQL no Supabase (veja setup-conteudos.sql)`, 'error');
+            return true;
+          }
+          error = retry.error;
+        }
+      }
       if (error) { toast('Erro ao salvar: ' + error.message, 'error'); return false; }
       return true;
     }
