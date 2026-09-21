@@ -142,7 +142,12 @@
     .kanban-card.dragging { opacity: .35; }
     .kanban-card.drag-over-top { border-top-color: hsl(var(--ring)); }
     .kanban-card.drag-over-bottom { border-bottom: 2px solid hsl(var(--ring)); }
+    .kanban-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
     .kanban-card-title { font-size: 12.5px; font-weight: 500; line-height: 1.4; overflow-wrap: anywhere; }
+    .kanban-card-actions { display: flex; gap: 2px; flex-shrink: 0; opacity: 0; transition: opacity .12s; }
+    .kanban-card:hover .kanban-card-actions { opacity: 1; }
+    .kanban-card-btn { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border-radius: 5px; color: hsl(var(--muted-foreground)); }
+    .kanban-card-btn:hover { background: hsl(var(--background)); color: hsl(var(--foreground)); }
     .kanban-card-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .kanban-prazo { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 999px; background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); white-space: nowrap; }
     .kanban-prazo.late { background: hsl(var(--danger) / 0.15); color: hsl(var(--danger)); }
@@ -325,6 +330,10 @@
     <button class="btn btn-danger-outline btn-sm" id="btn-excluir" onclick="pedirExclusao()">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
       Excluir
+    </button>
+    <button class="btn btn-outline btn-sm" id="btn-duplicar" onclick="duplicarAberto()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+      Duplicar
     </button>
     <div class="spacer"></div>
     <span class="mono" id="drawer-id" style="font-size:10px;color:hsl(var(--muted-foreground));"></span>
@@ -511,12 +520,41 @@ function cardHtml(t) {
       ${video ? `<span class="kanban-video" title="${escapeHtml(video.titulo || 'Sem título')}">🎬 ${escapeHtml(video.titulo || 'Sem título')}</span>` : ''}
     </div>` : '';
   return `<div class="kanban-card" draggable="true" data-id="${t.id}" onclick="abrirTarefa('${t.id}')">
-    <div class="kanban-card-title">${escapeHtml(t.titulo || 'Sem título')}</div>
+    <div class="kanban-card-top">
+      <div class="kanban-card-title">${escapeHtml(t.titulo || 'Sem título')}</div>
+      <div class="kanban-card-actions">
+        <button type="button" class="kanban-card-btn" onclick="event.stopPropagation(); duplicarTarefa('${t.id}')" title="Duplicar tarefa">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+        </button>
+      </div>
+    </div>
     ${meta}
   </div>`;
 }
 
 function renderTudo() { renderBoard(); }
+
+async function duplicarTarefa(id) {
+  const original = tarefas.find(x => x.id === id);
+  if (!original) return;
+  const listaMesmoStatus = tarefas.filter(x => x.status === original.status);
+  const copia = novaTarefaModelo({
+    titulo: (original.titulo || 'Sem título') + ' (cópia)',
+    descricao: original.descricao,
+    status: original.status,
+    conteudo_id: original.conteudo_id,
+    prazo: original.prazo,
+    ordem: listaMesmoStatus.length ? Math.max(...listaMesmoStatus.map(x => x.ordem || 0)) + 1 : Date.now(),
+  });
+  const ok = await store.upsert({ ...copia });
+  if (ok) {
+    tarefas.unshift(copia);
+    renderBoard();
+    toast('Tarefa duplicada');
+  } else {
+    toast('Erro ao duplicar', 'error');
+  }
+}
 
 // ============================================================
 // DRAG & DROP entre colunas
@@ -633,8 +671,15 @@ function preencherDrawer() {
   $('f-tarefa-prazo').value = t.prazo || '';
   $('f-tarefa-video-busca').value = '';
   $('drawer-id').textContent = abertoNovo ? '' : t.id.slice(0, 8).toUpperCase();
+  $('btn-duplicar').style.display = abertoNovo ? 'none' : '';
   renderStatusPillsTarefa();
   renderVideoChip();
+}
+
+async function duplicarAberto() {
+  if (!aberto || abertoNovo) return;
+  await duplicarTarefa(aberto.id);
+  fecharDrawer();
 }
 
 function renderStatusPillsTarefa() {
