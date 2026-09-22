@@ -1103,7 +1103,7 @@ let pastas = [];
 let ideias = [];
 let radarCanais = [];
 let radarVideos = [];
-let tarefasVinculadas = []; // tarefas com prazo + vinculadas a um vídeo — só essas aparecem no calendário
+let tarefasComPrazo = []; // tarefas (aba Tarefas) que têm prazo — aparecem no calendário, vinculadas a um vídeo ou não
 let filtroRadar = 'novos'; // 'novos' | 'todos'
 let filtroTipoRadar = 'longo'; // 'todos' | 'longo' | 'short' — Longos vem selecionado por padrão
 let canalSelecionadoRadar = 'todos'; // 'todos' | <canal_id> — seleção isolada de um concorrente
@@ -1171,7 +1171,7 @@ function renderCalendario() {
     if (c.data_gravacao) add(c.data_gravacao, { c, kind: 'grav' });
     if (c.data_publicacao) add(c.data_publicacao, { c, kind: 'pub' });
   });
-  tarefasVinculadas.forEach(t => add(t.prazo, { t, kind: 'tarefa' }));
+  tarefasComPrazo.forEach(t => add(t.prazo, { t, kind: 'tarefa' }));
 
   let html = DIAS_SEM.map(d => `<div class="cal-header">${d}</div>`).join('');
   for (let i = 0; i < inicioSemana; i++) html += '<div class="cal-day other"></div>';
@@ -1933,21 +1933,21 @@ async function carregarRadar() {
   } catch (e) { /* radar é opcional, não derruba o resto */ }
 }
 
-// tarefas (aba separada) que tenham prazo E estejam vinculadas a um vídeo —
-// só essas aparecem no calendário, como lembrete organizacional.
+// tarefas (aba separada) que tenham prazo — aparecem no calendário como lembrete
+// organizacional, estejam ou não vinculadas a um vídeo.
 async function carregarTarefasVinculadas() {
   if (store.mode === 'supabase') {
     if (!db) return;
     try {
       const { data, error } = await db.from('tarefas').select('id,titulo,status,conteudo_id,prazo')
-        .not('conteudo_id', 'is', null).not('prazo', 'is', null);
-      if (!error) tarefasVinculadas = data || [];
+        .not('prazo', 'is', null);
+      if (!error) tarefasComPrazo = data || [];
     } catch (e) { /* tarefas é opcional, não derruba o resto */ }
   } else {
     try {
       const todas = JSON.parse(localStorage.getItem('capovilla_tarefas_v1') || '[]');
-      tarefasVinculadas = todas.filter(t => t.conteudo_id && t.prazo);
-    } catch (e) { tarefasVinculadas = []; }
+      tarefasComPrazo = todas.filter(t => t.prazo);
+    } catch (e) { tarefasComPrazo = []; }
   }
 }
 
