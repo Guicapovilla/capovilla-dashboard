@@ -239,7 +239,7 @@
 
   <div class="page-header">
     <h1 class="page-title">Metas &amp; resultados</h1>
-    <p class="page-subtitle" id="page-subtitle">Carregando…</p>
+    <p class="page-subtitle"><span id="page-subtitle">Carregando…</span><span id="ultima-atualizacao"></span></p>
   </div>
 
   <!-- ── Metas do trimestre ── -->
@@ -965,6 +965,25 @@ async function carregarTopVideos() {
 }
 
 // ============================================================
+// Última atualização — timestamp real da última coleta (data_coleta
+// de channel_metricas, gravado a cada rodada do pipeline)
+// ============================================================
+async function carregarUltimaAtualizacao() {
+  try {
+    const { data } = await db.from('channel_metricas')
+      .select('data_coleta').order('data_coleta', { ascending: false }).limit(1);
+    const ts = data?.[0]?.data_coleta;
+    if (!ts) return;
+    const d = new Date(ts);
+    const dataFmt = d.toLocaleDateString('pt-BR');
+    const horaFmt = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    $('ultima-atualizacao').textContent = ` · dados atualizados em ${dataFmt} às ${horaFmt}`;
+  } catch (_) {
+    // não crítico — sem essa info a página segue normal
+  }
+}
+
+// ============================================================
 // Boot
 // ============================================================
 (function boot() {
@@ -981,6 +1000,7 @@ async function carregarTopVideos() {
   carregarUltimos28();
   carregarVisaoGeral();
   carregarTopVideos();
+  carregarUltimaAtualizacao();
 })();
 </script>
 </body>
