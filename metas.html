@@ -499,7 +499,10 @@ async function carregarMetas(periodo, containerId, daysLeftId, tipo) {
       if (m.metrica === 'videos_publicados' && videosCount !== null && videosCount !== undefined) atual = videosCount;
 
       const alvo = m.valor_alvo || 0;
-      const pct = alvo > 0 ? Math.min(100, Math.round((atual / alvo) * 100)) : 0;
+      // pct: percentual real (pode passar de 100 quando a meta é superada).
+      // pctBar: só pra largura da barra, que não pode passar do container.
+      const pct = alvo > 0 ? Math.round((atual / alvo) * 100) : 0;
+      const pctBar = Math.min(100, pct);
       const fmt = v => m.metrica === 'receita' ? BRL(v) : NUM(v);
 
       const barClass = pct >= expectedPct - 5 ? 'bar-ok' : (pct >= expectedPct - 20 ? 'bar-risk' : 'bar-behind');
@@ -514,7 +517,7 @@ async function carregarMetas(periodo, containerId, daysLeftId, tipo) {
           </div>
           <div class="stat-value">${fmt(atual)}</div>
           <div class="stat-sub">de ${fmt(alvo)}</div>
-          <div class="progress" style="margin-top:10px;"><div class="progress-bar ${barClass}" style="width:${pct}%"></div></div>
+          <div class="progress" style="margin-top:10px;"><div class="progress-bar ${barClass}" style="width:${pctBar}%"></div></div>
           <div class="stat-sub"><span class="ritmo ${ritmoClass}">${ritmoLabel}</span></div>
         </div>
       `;
@@ -799,7 +802,7 @@ async function carregarHistoricoTrimestres() {
     }
 
     const atual = periodoTrimestre().chave;
-    const pct = m => (m && m.valor_alvo > 0) ? Math.min(100, Math.round((m.valor_atual / m.valor_alvo) * 100)) : null;
+    const pct = m => (m && m.valor_alvo > 0) ? Math.round((m.valor_atual / m.valor_alvo) * 100) : null;
     const fmtPct = p => p === null ? '—' : `${p}%`;
 
     const rows = trimestres.map(q => {
