@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capovilla · Metas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ============ Tokens (shadcn) — mesmo sistema de conteudo.html/tarefas.html ============ */
+    :root, [data-theme="light"] {
+      --background: 0 0% 100%; --foreground: 240 10% 3.9%;
+      --card: 0 0% 100%; --card-foreground: 240 10% 3.9%;
+      --primary: 240 5.9% 10%; --primary-foreground: 0 0% 98%;
+      --secondary: 240 4.8% 95.9%; --secondary-foreground: 240 5.9% 10%;
+      --muted: 240 4.8% 95.9%; --muted-foreground: 240 3.8% 46.1%;
+      --accent: 240 4.8% 95.9%; --accent-foreground: 240 5.9% 10%;
+      --border: 240 5.9% 90%; --input: 240 5.9% 90%; --ring: 240 5.9% 10%;
+      --radius: 0.5rem;
+      --amber: 38 92% 50%; --amber-foreground: 38 92% 6%;
+      --success: 142 71% 45%; --danger: 0 84% 60%; --info: 217 91% 60%;
+    }
+    [data-theme="dark"] {
+      --background: 240 10% 3.9%; --foreground: 0 0% 98%;
+      --card: 240 8% 5.5%; --card-foreground: 0 0% 98%;
+      --primary: 0 0% 98%; --primary-foreground: 240 5.9% 10%;
+      --secondary: 240 3.7% 15.9%; --secondary-foreground: 0 0% 98%;
+      --muted: 240 3.7% 15.9%; --muted-foreground: 240 5% 64.9%;
+      --accent: 240 3.7% 15.9%; --accent-foreground: 0 0% 98%;
+      --border: 240 3.7% 15.9%; --input: 240 3.7% 15.9%; --ring: 240 4.9% 83.9%;
+      --amber: 43 96% 56%; --amber-foreground: 38 92% 6%;
+      --success: 142 70% 50%; --danger: 0 72% 51%; --info: 217 91% 60%;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      font-feature-settings: 'cv11','ss01';
+      -webkit-font-smoothing: antialiased;
+      background: hsl(var(--background)); color: hsl(var(--foreground));
+      font-size: 14px; line-height: 1.5; min-height: 100vh;
+    }
+    .mono { font-family: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace; font-feature-settings: 'tnum','zero'; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    svg { flex-shrink: 0; }
+
+    *::-webkit-scrollbar { width: 10px; height: 10px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 5px; border: 2px solid hsl(var(--background)); }
+    *::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.4); }
+
+    /* ============ Shell ============ */
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; gap: 12px;
+      height: 56px; padding: 0 24px;
+      background: hsl(var(--background) / 0.85); backdrop-filter: blur(12px);
+      border-bottom: 1px solid hsl(var(--border));
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-logo {
+      width: 30px; height: 30px; border-radius: 7px;
+      background: hsl(var(--amber)); color: hsl(var(--amber-foreground));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 14px;
+    }
+    .brand-name { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+    .brand-sub { font-size: 11px; color: hsl(var(--muted-foreground)); line-height: 1.1; }
+    .spacer { flex: 1; }
+
+    .page { max-width: 1200px; margin: 0 auto; padding: 28px 24px 80px; }
+    .page-header { margin-bottom: 28px; }
+    .page-title { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+    .page-subtitle { font-size: 13px; color: hsl(var(--muted-foreground)); margin: 4px 0 0; }
+
+    .section-title {
+      font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+      color: hsl(var(--muted-foreground)); margin: 0 0 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .section-head {
+      display: flex; align-items: center; gap: 10px; margin: 36px 0 14px;
+    }
+    .section-head .section-title { margin: 0; white-space: nowrap; }
+    .section-head-line { flex: 1; height: 1px; background: hsl(var(--border)); }
+
+    /* ============ Buttons ============ */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: 13px; font-weight: 500; line-height: 1;
+      border-radius: calc(var(--radius) - 2px); padding: 0 12px; height: 32px;
+      border: 1px solid transparent; white-space: nowrap; user-select: none;
+      transition: background-color .12s, border-color .12s, color .12s, opacity .12s;
+    }
+    .btn:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
+    .btn-ghost { color: hsl(var(--foreground)); }
+    .btn-ghost:hover { background: hsl(var(--accent)); }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+    .btn-icon { width: 32px; height: 32px; padding: 0; }
+
+    /* ============ Card / Stat ============ */
+    .card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); }
+    .card-header { padding: 16px 18px 10px; }
+    .card-title { font-size: 14px; font-weight: 600; margin: 0; }
+    .card-description { font-size: 12px; color: hsl(var(--muted-foreground)); margin-top: 3px; }
+    .card-content { padding: 0 18px 18px; }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .stat-card { padding: 18px; }
+    .stat-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
+      color: hsl(var(--muted-foreground)); display: flex; align-items: center; gap: 6px;
+    }
+    .stat-value { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin-top: 10px; }
+    .stat-sub { font-size: 11px; color: hsl(var(--muted-foreground)); margin-top: 8px; }
+    .stat-pct { font-size: 12px; font-weight: 600; font-family: 'Geist Mono', monospace; }
+
+    .progress { width: 100%; height: 6px; background: hsl(var(--secondary)); border-radius: 999px; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 999px; transition: width .3s; }
+    .bar-ok { background: hsl(var(--success)); }
+    .bar-risk { background: hsl(var(--amber)); }
+    .bar-behind { background: hsl(var(--danger)); }
+
+    .ritmo { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; }
+    .ritmo::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+    .ritmo-ok { color: hsl(var(--success)); } .ritmo-ok::before { background: hsl(var(--success)); }
+    .ritmo-risk { color: hsl(var(--amber)); } .ritmo-risk::before { background: hsl(var(--amber)); }
+    .ritmo-behind { color: hsl(var(--danger)); } .ritmo-behind::before { background: hsl(var(--danger)); }
+
+    .period-badge {
+      font-size: 11px; color: hsl(var(--muted-foreground));
+      background: hsl(var(--secondary)); padding: 2px 9px; border-radius: 999px;
+    }
+
+    /* ============ Table ============ */
+    .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .table thead tr { border-bottom: 1px solid hsl(var(--border)); }
+    .table th { text-align: left; padding: 9px 10px; font-weight: 500; color: hsl(var(--muted-foreground)); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+    .table td { padding: 11px 10px; border-bottom: 1px solid hsl(var(--border)); }
+    .table tbody tr:last-child td { border-bottom: none; }
+    .table tbody tr:hover { background: hsl(var(--accent) / 0.5); }
+    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 999px; border: 1px solid hsl(var(--border)); color: hsl(var(--muted-foreground)); }
+
+    .loading, .empty-state { color: hsl(var(--muted-foreground)); font-style: italic; padding: 20px; text-align: center; font-size: 13px; }
+    .error-msg { color: hsl(var(--danger)); background: hsl(var(--danger) / 0.08); padding: 12px 16px; border-radius: calc(var(--radius) - 2px); border: 1px solid hsl(var(--danger) / 0.2); font-size: 13px; }
+
+    /* ============ Timeline chart ============ */
+    .chart-wrap { position: relative; padding: 4px 18px 16px; }
+    .chart-svg { width: 100%; height: 160px; display: block; overflow: visible; }
+    .chart-tooltip {
+      position: absolute; pointer-events: none; opacity: 0; transition: opacity .1s;
+      background: hsl(var(--foreground)); color: hsl(var(--background));
+      font-size: 11px; padding: 5px 9px; border-radius: 6px; white-space: nowrap;
+      transform: translate(-50%, -100%); z-index: 10; font-family: 'Geist Mono', monospace;
+    }
+    .chart-crosshair { stroke: hsl(var(--muted-foreground) / 0.4); stroke-width: 1; stroke-dasharray: 3 3; pointer-events: none; opacity: 0; }
+
+    @media (max-width: 900px) {
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .page { padding: 20px 12px 60px; }
+      .topbar { padding: 0 14px; }
+      .stat-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-logo">C</div>
+    <div>
+      <div class="brand-name">Capovilla</div>
+      <div class="brand-sub">Metas &amp; resultados</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <a href="conteudo.html" class="btn btn-ghost btn-sm" title="Ir para Conteúdo">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+    Conteúdo
+  </a>
+  <a href="tarefas.html" class="btn btn-ghost btn-sm" title="Ir para Tarefas">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v11"/><path d="M12 5v6"/><path d="M18 5v14"/></svg>
+    Tarefas
+  </a>
+  <button class="btn btn-ghost btn-icon" onclick="toggleTheme()" title="Alternar tema">
+    <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></svg>
+  </button>
+</header>
+
+<div class="page">
+
+  <div class="page-header">
+    <h1 class="page-title">Metas &amp; resultados</h1>
+    <p class="page-subtitle" id="page-subtitle">Carregando…</p>
+  </div>
+
+  <!-- ── Metas do trimestre ── -->
+  <div class="section-head">
+    <div class="section-title" id="titulo-quarter">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      Metas do trimestre
+    </div>
+    <div class="section-head-line"></div>
+    <span class="period-badge" id="quarter-days-left">—</span>
+  </div>
+  <div class="stat-grid" id="metas-quarter">
+    <div class="loading">Carregando metas…</div>
+  </div>
+
+  <!-- ── Metas do ano ── -->
+  <div class="section-head">
+    <div class="section-title">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m8 14 2.5-2.5L14 15l6-6"/><path d="M4 19.5V4.5A1.5 1.5 0 0 1 5.5 3H19a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5.75a1.75 1.75 0 0 1-1.75-1.75Z"/></svg>
+      Metas do ano
+    </div>
+    <div class="section-head-line"></div>
+    <span class="period-badge" id="year-days-left">—</span>
+  </div>
+  <div class="stat-grid" id="metas-ano">
+    <div class="loading">Carregando metas…</div>
+  </div>
+
+  <!-- ── Análise de resultados ── -->
+  <div class="section-head" style="margin-top:48px;">
+    <div class="section-title">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+      Análise de resultados
+    </div>
+    <div class="section-head-line"></div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-header">
+      <div class="card-title">Timeline de faturamento</div>
+      <div class="card-description" id="timeline-sub">últimos 28 dias</div>
+    </div>
+    <div class="chart-wrap">
+      <div id="timeline-chart"><div class="loading">Carregando timeline…</div></div>
+    </div>
+  </div>
+
+  <div class="stat-grid" style="margin-bottom:14px;" id="ultimos28">
+    <div class="loading">Carregando…</div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-header"><div class="card-title">Visão geral do canal</div></div>
+    <div class="card-content">
+      <div class="stat-grid" id="visao-geral">
+        <div class="loading">Carregando…</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Top vídeos por receita</div>
+      <div class="card-description" id="top-videos-sub">—</div>
+    </div>
+    <div id="top-videos"><div class="loading">Carregando vídeos…</div></div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const $ = id => document.getElementById(id);
+
+// ============================================================
+// Supabase
+// ============================================================
+const SUPABASE_URL = 'https://ryspohcflrxjwwghvvqc.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_OzoD3gbIn4GoJ6szjwdkhw_KFGAGNsh';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ============================================================
+// Utils
+// ============================================================
+const BRL = v => (v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const NUM = v => (v || 0).toLocaleString('pt-BR');
+const compact = n => {
+  n = n || 0;
+  if (n >= 1e6) return (n / 1e6).toFixed(1).replace('.0', '') + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1).replace('.0', '') + 'k';
+  return String(n);
+};
+const MONTHS = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const isoDate = d => d.toISOString().split('T')[0];
+const fmtDay = iso => {
+  const d = new Date(iso + 'T00:00:00');
+  return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+};
+const erro = (id, msg) => { $(id).innerHTML = `<div class="error-msg">Erro: ${msg}</div>`; };
+
+// ============================================================
+// Tema
+// ============================================================
+function toggleTheme() {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  themeIcon(next);
+}
+function themeIcon(t) {
+  $('theme-icon').innerHTML = t === 'dark'
+    ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>'
+    : '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>';
+}
+(function initTheme() {
+  const saved = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  themeIcon(saved);
+})();
+
+// ============================================================
+// Períodos
+// ============================================================
+function periodoTrimestre() {
+  const hoje = new Date();
+  const q = Math.floor(hoje.getMonth() / 3) + 1;
+  const y = hoje.getFullYear();
+  const start = new Date(y, (q - 1) * 3, 1);
+  const end = new Date(y, (q - 1) * 3 + 3, 0);
+  const totalDays = Math.round((end - start) / 86400000) + 1;
+  const elapsed = Math.min(totalDays, Math.round((hoje - start) / 86400000) + 1);
+  const daysLeft = Math.max(0, totalDays - elapsed);
+  return { chave: `${y}-Q${q}`, label: `Q${q} ${y}`, start, end, totalDays, elapsed, daysLeft };
+}
+function periodoAno() {
+  const hoje = new Date();
+  const y = hoje.getFullYear();
+  const start = new Date(y, 0, 1);
+  const end = new Date(y, 11, 31);
+  const totalDays = Math.round((end - start) / 86400000) + 1;
+  const elapsed = Math.round((hoje - start) / 86400000) + 1;
+  const daysLeft = Math.max(0, totalDays - elapsed);
+  return { chave: `${y}`, label: `Ano ${y}`, start, end, totalDays, elapsed, daysLeft };
+}
+
+const ICONS = {
+  receita: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+  videos_publicados: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect width="15" height="14" x="1" y="5" rx="2" ry="2"/></svg>',
+  inscritos: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+};
+const LABELS = { receita: 'Receita', videos_publicados: 'Vídeos longos', inscritos: 'Inscritos novos' };
+
+// ============================================================
+// Metas (trimestre / ano) — valor_atual vem do coletor Python;
+// vídeos longos é recalculado aqui direto no Supabase (sempre fresco,
+// não depende de esperar a próxima coleta diária rodar)
+// ============================================================
+async function carregarMetas(periodo, containerId, daysLeftId) {
+  $(daysLeftId).textContent = `${periodo.daysLeft} dias restantes`;
+
+  try {
+    const startISO = isoDate(periodo.start);
+    const hojeISO = isoDate(new Date());
+
+    const [{ data: metas, error }, { data: chanRows }, { count: videosCount }] = await Promise.all([
+      db.from('metas').select('*').eq('quarter', periodo.chave),
+      db.from('channel_metricas').select('receita_brl').gte('data', startISO).lte('data', hojeISO),
+      db.from('videos').select('video_id', { count: 'exact', head: true })
+        .gte('data_publicacao', startISO).lte('data_publicacao', hojeISO)
+        .eq('tipo_video', 'longo'),
+    ]);
+
+    if (error) return erro(containerId, error.message);
+    if (!metas || metas.length === 0) {
+      $(containerId).innerHTML = `<div class="empty-state">Nenhuma meta cadastrada para ${periodo.chave}.</div>`;
+      return;
+    }
+
+    const receitaChannel = (chanRows || []).reduce((s, r) => s + (r.receita_brl || 0), 0);
+    const temReceitaChannel = (chanRows || []).length > 0;
+    const expectedPct = Math.round((periodo.elapsed / periodo.totalDays) * 100);
+
+    const html = metas.map(m => {
+      let atual = m.valor_atual || 0;
+      if (m.metrica === 'receita' && temReceitaChannel) atual = receitaChannel;
+      if (m.metrica === 'videos_publicados' && videosCount !== null && videosCount !== undefined) atual = videosCount;
+
+      const alvo = m.valor_alvo || 0;
+      const pct = alvo > 0 ? Math.min(100, Math.round((atual / alvo) * 100)) : 0;
+      const fmt = v => m.metrica === 'receita' ? BRL(v) : NUM(v);
+
+      const barClass = pct >= expectedPct - 5 ? 'bar-ok' : (pct >= expectedPct - 20 ? 'bar-risk' : 'bar-behind');
+      const ritmoClass = pct >= expectedPct - 5 ? 'ritmo-ok' : (pct >= expectedPct - 20 ? 'ritmo-risk' : 'ritmo-behind');
+      const ritmoLabel = pct >= 100 ? 'Meta batida' : (pct >= expectedPct - 5 ? 'No ritmo' : (pct >= expectedPct - 20 ? 'Levemente atrás' : 'Muito atrás'));
+
+      return `
+        <div class="card stat-card">
+          <div class="row" style="display:flex;align-items:center;justify-content:space-between;">
+            <div class="stat-label">${ICONS[m.metrica] || ''}${LABELS[m.metrica] || m.metrica}</div>
+            <span class="stat-pct">${pct}%</span>
+          </div>
+          <div class="stat-value">${fmt(atual)}</div>
+          <div class="stat-sub">de ${fmt(alvo)}</div>
+          <div class="progress" style="margin-top:10px;"><div class="progress-bar ${barClass}" style="width:${pct}%"></div></div>
+          <div class="stat-sub"><span class="ritmo ${ritmoClass}">${ritmoLabel}</span></div>
+        </div>
+      `;
+    }).join('');
+    $(containerId).innerHTML = html;
+  } catch (err) {
+    erro(containerId, err.message);
+  }
+}
+
+// ============================================================
+// Timeline de faturamento (últimos 28 dias) — SVG com hover
+// ============================================================
+async function carregarTimeline() {
+  const wrap = $('timeline-chart');
+  try {
+    const since = new Date(); since.setDate(since.getDate() - 27);
+    const { data, error } = await db.from('channel_metricas')
+      .select('data,receita_brl')
+      .gte('data', isoDate(since))
+      .order('data', { ascending: true });
+
+    if (error) return erro('timeline-chart', error.message);
+
+    // Preenche todos os 28 dias (mesmo sem coleta) com 0, pra timeline contínua
+    const porDia = {};
+    (data || []).forEach(r => { porDia[r.data] = (porDia[r.data] || 0) + (r.receita_brl || 0); });
+    const dias = [];
+    for (let i = 27; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const iso = isoDate(d);
+      dias.push({ data: iso, receita: porDia[iso] || 0 });
+    }
+
+    if (!data || data.length === 0) {
+      wrap.innerHTML = '<div class="empty-state">Nenhum dado de receita coletado ainda nos últimos 28 dias.</div>';
+      return;
+    }
+
+    renderTimelineChart(wrap, dias);
+  } catch (err) {
+    erro('timeline-chart', err.message);
+  }
+}
+
+function renderTimelineChart(wrap, dias) {
+  const W = 900, H = 160, padL = 4, padR = 4, padT = 12, padB = 20;
+  const vals = dias.map(d => d.receita);
+  const max = Math.max(...vals, 1);
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const x = i => padL + (i / (dias.length - 1)) * innerW;
+  const y = v => padT + innerH - (v / max) * innerH;
+
+  const linePts = dias.map((d, i) => `${x(i)},${y(d.receita)}`).join(' ');
+  const areaPts = `${padL},${padT + innerH} ${linePts} ${padL + innerW},${padT + innerH}`;
+
+  const successColor = 'hsl(var(--success))';
+
+  const svg = `
+    <svg class="chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" id="tl-svg">
+      <polygon points="${areaPts}" fill="${successColor}" opacity="0.12"></polygon>
+      <polyline points="${linePts}" fill="none" stroke="${successColor}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></polyline>
+      <line id="tl-crosshair" class="chart-crosshair" x1="0" y1="${padT}" x2="0" y2="${padT + innerH}"></line>
+      <circle id="tl-dot" r="3.5" fill="${successColor}" opacity="0"></circle>
+      <rect x="0" y="0" width="${W}" height="${H}" fill="transparent" id="tl-hitbox" style="cursor:crosshair;"></rect>
+    </svg>
+    <div class="chart-tooltip" id="tl-tooltip"></div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:hsl(var(--muted-foreground));margin-top:2px;">
+      <span>${fmtDay(dias[0].data)}</span>
+      <span>${fmtDay(dias[dias.length - 1].data)}</span>
+    </div>
+  `;
+  wrap.innerHTML = svg;
+
+  const svgEl = $('tl-svg');
+  const hitbox = $('tl-hitbox');
+  const tooltip = $('tl-tooltip');
+  const crosshair = $('tl-crosshair');
+  const dot = $('tl-dot');
+
+  hitbox.addEventListener('mousemove', e => {
+    const rect = svgEl.getBoundingClientRect();
+    const relX = ((e.clientX - rect.left) / rect.width) * W;
+    let i = Math.round(((relX - padL) / innerW) * (dias.length - 1));
+    i = Math.max(0, Math.min(dias.length - 1, i));
+    const d = dias[i];
+    const px = x(i), py = y(d.receita);
+
+    crosshair.setAttribute('x1', px); crosshair.setAttribute('x2', px);
+    crosshair.style.opacity = 1;
+    dot.setAttribute('cx', px); dot.setAttribute('cy', py);
+    dot.style.opacity = 1;
+
+    const wrapRect = wrap.getBoundingClientRect();
+    const tipX = rect.left - wrapRect.left + (px / W) * rect.width;
+    const tipY = rect.top - wrapRect.top + (py / H) * rect.height;
+    tooltip.style.left = tipX + 'px';
+    tooltip.style.top = (tipY - 8) + 'px';
+    tooltip.style.opacity = 1;
+    tooltip.innerHTML = `${fmtDay(d.data)} · ${BRL(d.receita)}`;
+  });
+  hitbox.addEventListener('mouseleave', () => {
+    crosshair.style.opacity = 0;
+    dot.style.opacity = 0;
+    tooltip.style.opacity = 0;
+  });
+}
+
+// ============================================================
+// Últimos 28 dias — resumo
+// ============================================================
+async function carregarUltimos28() {
+  try {
+    const since = new Date(); since.setDate(since.getDate() - 27);
+    const { data, error } = await db.from('channel_metricas')
+      .select('receita_brl,views').gte('data', isoDate(since));
+    if (error) return erro('ultimos28', error.message);
+
+    const receita = (data || []).reduce((s, r) => s + (r.receita_brl || 0), 0);
+    const views = (data || []).reduce((s, r) => s + (r.views || 0), 0);
+    const dias = (data || []).length || 1;
+    const media = receita / dias;
+
+    const card = (label, value) => `
+      <div class="card stat-card">
+        <div class="stat-label">${label}</div>
+        <div class="stat-value">${value}</div>
+      </div>
+    `;
+    $('ultimos28').innerHTML =
+      card('Views · 28d', compact(views)) +
+      card('Receita · 28d', BRL(receita)) +
+      card('Média / dia', BRL(media));
+  } catch (err) {
+    erro('ultimos28', err.message);
+  }
+}
+
+// ============================================================
+// Visão geral do canal
+// ============================================================
+async function carregarVisaoGeral() {
+  try {
+    const [{ data: canal }, { count: totalVideos }, { data: ultimaColeta }] = await Promise.all([
+      db.from('canal').select('inscritos,nome,atualizado_em').limit(1),
+      db.from('videos').select('video_id', { count: 'exact', head: true }),
+      db.from('videos_metricas').select('data_coleta').order('data_coleta', { ascending: false }).limit(1),
+    ]);
+
+    let viewsTotais = null;
+    const dataColeta = ultimaColeta?.[0]?.data_coleta;
+    if (dataColeta) {
+      const { data: rows } = await db.from('videos_metricas').select('views').eq('data_coleta', dataColeta);
+      viewsTotais = (rows || []).reduce((s, r) => s + (r.views || 0), 0);
+    }
+
+    const inscritos = canal?.[0]?.inscritos;
+    const card = (label, value, sub) => `
+      <div class="card stat-card">
+        <div class="stat-label">${label}</div>
+        <div class="stat-value">${value}</div>
+        ${sub ? `<div class="stat-sub">${sub}</div>` : ''}
+      </div>
+    `;
+    $('visao-geral').innerHTML =
+      card('Inscritos', inscritos != null ? NUM(inscritos) : '—', canal?.[0]?.atualizado_em ? `atualizado ${new Date(canal[0].atualizado_em).toLocaleDateString('pt-BR')}` : '') +
+      card('Views totais', viewsTotais != null ? compact(viewsTotais) : '—', dataColeta ? `soma da última coleta (${dataColeta})` : '') +
+      card('Vídeos publicados', totalVideos != null ? NUM(totalVideos) : '—', 'inclui shorts');
+  } catch (err) {
+    erro('visao-geral', err.message);
+  }
+}
+
+// ============================================================
+// Top vídeos por receita
+// ============================================================
+async function carregarTopVideos() {
+  try {
+    const { data: ultimaColeta, error: e1 } = await db.from('videos_metricas')
+      .select('data_coleta').order('data_coleta', { ascending: false }).limit(1);
+    if (e1) return erro('top-videos', e1.message);
+    if (!ultimaColeta || ultimaColeta.length === 0) {
+      $('top-videos').innerHTML = '<div class="empty-state">Nenhuma métrica coletada ainda.</div>';
+      return;
+    }
+
+    const dataColeta = ultimaColeta[0].data_coleta;
+    $('top-videos-sub').textContent = `Coleta: ${dataColeta}`;
+
+    const { data: metricas, error: e2 } = await db.from('videos_metricas')
+      .select('video_id,views,rpm,receita_estimada')
+      .eq('data_coleta', dataColeta)
+      .order('receita_estimada', { ascending: false })
+      .limit(5);
+    if (e2) return erro('top-videos', e2.message);
+
+    const ids = metricas.map(m => m.video_id);
+    const { data: videos, error: e3 } = await db.from('videos')
+      .select('video_id,titulo,console').in('video_id', ids);
+    if (e3) return erro('top-videos', e3.message);
+
+    const videoMap = Object.fromEntries((videos || []).map(v => [v.video_id, v]));
+    const rows = metricas.map(m => {
+      const v = videoMap[m.video_id] || { titulo: '(sem título)', console: '?' };
+      return `
+        <tr>
+          <td style="font-weight:500;max-width:380px;">${v.titulo}</td>
+          <td><span class="badge">${v.console || 'geral'}</span></td>
+          <td class="mono" style="text-align:right;">${NUM(m.views)}</td>
+          <td class="mono" style="text-align:right;">${BRL(m.rpm)}</td>
+          <td class="mono" style="text-align:right;font-weight:600;">${BRL(m.receita_estimada)}</td>
+        </tr>
+      `;
+    }).join('');
+
+    $('top-videos').innerHTML = `
+      <table class="table">
+        <thead><tr><th>Título</th><th>Console</th><th style="text-align:right;">Views</th><th style="text-align:right;">RPM</th><th style="text-align:right;">Receita</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  } catch (err) {
+    erro('top-videos', err.message);
+  }
+}
+
+// ============================================================
+// Boot
+// ============================================================
+(function boot() {
+  const Q = periodoTrimestre();
+  const A = periodoAno();
+  $('page-subtitle').textContent = `${Q.label} · ${Q.daysLeft} dias restantes no trimestre`;
+  $('titulo-quarter').lastChild.textContent = ` Metas do trimestre — ${Q.label}`;
+
+  carregarMetas(Q, 'metas-quarter', 'quarter-days-left');
+  carregarMetas(A, 'metas-ano', 'year-days-left');
+  carregarTimeline();
+  carregarUltimos28();
+  carregarVisaoGeral();
+  carregarTopVideos();
+})();
+</script>
+</body>
+</html>
