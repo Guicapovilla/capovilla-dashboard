@@ -708,9 +708,14 @@ async function carregarUltimos28() {
 // ============================================================
 async function carregarVisaoGeral() {
   try {
-    const [{ data: canal }, { count: totalVideos }, { data: ultimaColeta }] = await Promise.all([
-      db.from('canal').select('inscritos,nome,atualizado_em').limit(1),
+    const [{ data: canal }, { count: totalVideos }, { count: videosLongos }, { count: videosShorts }, { data: ultimaColeta }] = await Promise.all([
+      // order + limit(1): a tabela `canal` tem uma linha antiga sobrando de antes
+      // da coleta atual existir — sem ordenar, .limit(1) podia pegar ela em vez
+      // da linha que a pipeline atualiza todo dia.
+      db.from('canal').select('inscritos,nome,atualizado_em').order('atualizado_em', { ascending: false }).limit(1),
       db.from('videos').select('video_id', { count: 'exact', head: true }),
+      db.from('videos').select('video_id', { count: 'exact', head: true }).eq('tipo_video', 'longo'),
+      db.from('videos').select('video_id', { count: 'exact', head: true }).eq('tipo_video', 'short'),
       db.from('videos_metricas').select('data_coleta').order('data_coleta', { ascending: false }).limit(1),
     ]);
 
@@ -722,6 +727,11 @@ async function carregarVisaoGeral() {
     }
 
     const inscritos = canal?.[0]?.inscritos;
+    const longos = videosLongos || 0;
+    const shorts = videosShorts || 0;
+    const semClassificacao = Math.max(0, (totalVideos || 0) - longos - shorts);
+    const videosSub = `${longos} longos · ${shorts} shorts` + (semClassificacao > 0 ? ` · ${semClassificacao} sem classificação (importados antes da coleta atual)` : '');
+
     const card = (label, value, sub) => `
       <div class="card stat-card">
         <div class="stat-label">${label}</div>
@@ -732,7 +742,7 @@ async function carregarVisaoGeral() {
     $('visao-geral').innerHTML =
       card('Inscritos', inscritos != null ? NUM(inscritos) : '—', canal?.[0]?.atualizado_em ? `atualizado ${new Date(canal[0].atualizado_em).toLocaleDateString('pt-BR')}` : '') +
       card('Views totais', viewsTotais != null ? compact(viewsTotais) : '—', dataColeta ? `soma da última coleta (${dataColeta})` : '') +
-      card('Vídeos publicados', totalVideos != null ? NUM(totalVideos) : '—', 'inclui shorts');
+      card('Vídeos publicados', totalVideos != null ? NUM(totalVideos) : '—', videosSub);
   } catch (err) {
     erro('visao-geral', err.message);
   }
