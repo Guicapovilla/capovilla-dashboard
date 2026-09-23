@@ -40,7 +40,7 @@ Quadro kanban simples ([`tarefas.html`](tarefas.html)). Usa a tabela `tarefas` n
 
 Os números vêm das tabelas `metas`, `channel_metricas`, `videos` e `videos_metricas`, alimentadas pela coleta diária do repositório [`analytics-capovilla`](https://github.com/Guicapovilla/analytics-capovilla) (GitHub Actions, roda todo dia às 10h UTC). Receita e vídeos longos publicados são recalculados direto no Supabase a cada carregamento da página (sempre atual); inscritos novos vêm do valor já calculado pelo coletor via YouTube Analytics API.
 
-Sem meta cadastrada para o período, a página avisa — cadastre direto na tabela `metas` do Supabase (`quarter`, `metrica`, `valor_alvo`).
+**Editar os alvos:** botão "Editar" ao lado de "Metas do trimestre" / "Metas do ano" abre um formulário pra ajustar receita, inscritos e vídeos-alvo — salva direto no Supabase, sem mexer em nada além do alvo (o realizado continua vindo só da coleta automática). Sem meta cadastrada ainda pro período, aparece um botão "Cadastrar metas" no lugar. Isso escreve na tabela com a mesma anon key já usada pra ler — rode [`setup-metas.sql`](setup-metas.sql) uma vez no SQL Editor do Supabase pra liberar a escrita.
 
 ## Radar de concorrentes
 

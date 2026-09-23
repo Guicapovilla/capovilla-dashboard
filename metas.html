@@ -97,6 +97,8 @@
     .btn:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
     .btn-ghost { color: hsl(var(--foreground)); }
     .btn-ghost:hover { background: hsl(var(--accent)); }
+    .btn-outline { background: hsl(var(--background)); color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
+    .btn-outline:hover { background: hsl(var(--accent)); }
     .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
     .btn-icon { width: 32px; height: 32px; padding: 0; }
 
@@ -165,6 +167,48 @@
       .topbar { padding: 0 14px; }
       .stat-grid { grid-template-columns: 1fr; }
     }
+
+    /* ============ Edição de metas ============ */
+    .btn-edit-metas {
+      margin-left: auto; color: hsl(var(--muted-foreground));
+      display: inline-flex; align-items: center; gap: 5px; font-size: 11px;
+      background: none; border: none; cursor: pointer; padding: 2px 4px;
+    }
+    .btn-edit-metas:hover { color: hsl(var(--foreground)); }
+    .modal-bg {
+      display: none; position: fixed; inset: 0; z-index: 100;
+      background: hsl(0 0% 0% / 0.5); backdrop-filter: blur(2px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-bg.show { display: flex; }
+    .modal {
+      background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius);
+      width: 100%; max-width: 380px; padding: 20px;
+    }
+    .modal-title { font-size: 15px; font-weight: 600; margin: 0 0 3px; }
+    .modal-sub { font-size: 12px; color: hsl(var(--muted-foreground)); margin: 0 0 18px; }
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500;
+      color: hsl(var(--muted-foreground)); margin-bottom: 6px;
+    }
+    .field input {
+      width: 100%; height: 34px; padding: 0 10px; font-size: 14px; font-family: inherit;
+      background: hsl(var(--background)); color: hsl(var(--foreground));
+      border: 1px solid hsl(var(--border)); border-radius: calc(var(--radius) - 2px);
+    }
+    .field input:focus { outline: 2px solid hsl(var(--ring)); outline-offset: -1px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+    .btn-primary { background: hsl(var(--amber)); color: hsl(var(--amber-foreground)); font-weight: 600; }
+    .btn-primary:hover { background: hsl(var(--amber) / 0.88); }
+    .btn-primary:disabled { opacity: 0.6; cursor: default; }
+    .modal-error {
+      font-size: 12px; color: hsl(var(--danger)); background: hsl(var(--danger) / 0.08);
+      border: 1px solid hsl(var(--danger) / 0.2); border-radius: calc(var(--radius) - 2px);
+      padding: 8px 10px; margin-top: 12px; line-height: 1.5; display: none;
+    }
+    .modal-error code { font-family: 'Geist Mono', monospace; background: hsl(var(--danger) / 0.12); padding: 1px 4px; border-radius: 3px; }
+    .modal-error.show { display: block; }
   </style>
 </head>
 <body>
@@ -206,6 +250,10 @@
     </div>
     <div class="section-head-line"></div>
     <span class="period-badge" id="quarter-days-left">—</span>
+    <button class="btn-edit-metas" onclick="abrirEditarMetas('quarter')" title="Editar metas do trimestre">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+      Editar
+    </button>
   </div>
   <div class="stat-grid" id="metas-quarter">
     <div class="loading">Carregando metas…</div>
@@ -219,6 +267,10 @@
     </div>
     <div class="section-head-line"></div>
     <span class="period-badge" id="year-days-left">—</span>
+    <button class="btn-edit-metas" onclick="abrirEditarMetas('ano')" title="Editar metas do ano">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+      Editar
+    </button>
   </div>
   <div class="stat-grid" id="metas-ano">
     <div class="loading">Carregando metas…</div>
@@ -264,6 +316,34 @@
     <div id="top-videos"><div class="loading">Carregando vídeos…</div></div>
   </div>
 
+</div>
+
+<!-- ── Modal de edição de metas ── -->
+<div class="modal-bg" id="modal-metas-bg" onclick="if(event.target===this) fecharModalMetas()">
+  <form class="modal" id="modal-metas-form" onsubmit="return salvarMetas(event)">
+    <div class="modal-title" id="modal-metas-titulo">Editar metas</div>
+    <p class="modal-sub" id="modal-metas-sub">Ajusta o alvo de cada métrica. O realizado continua vindo da coleta automática.</p>
+
+    <div class="field">
+      <label>Receita alvo (R$)</label>
+      <input type="number" id="input-alvo-receita" min="0" step="0.01" inputmode="decimal" required>
+    </div>
+    <div class="field">
+      <label>Inscritos novos (alvo)</label>
+      <input type="number" id="input-alvo-inscritos" min="0" step="1" inputmode="numeric" required>
+    </div>
+    <div class="field">
+      <label>Vídeos longos (alvo)</label>
+      <input type="number" id="input-alvo-videos" min="0" step="1" inputmode="numeric" required>
+    </div>
+
+    <div class="modal-error" id="modal-metas-erro"></div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="fecharModalMetas()">Cancelar</button>
+      <button type="submit" class="btn btn-primary btn-sm" id="modal-metas-salvar">Salvar</button>
+    </div>
+  </form>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -349,12 +429,16 @@ const ICONS = {
 };
 const LABELS = { receita: 'Receita', videos_publicados: 'Vídeos longos', inscritos: 'Inscritos novos' };
 
+// Cache do último carregamento de cada período, pra alimentar o modal de edição
+// sem precisar buscar de novo (chave: 'quarter' | 'ano').
+const metasState = {};
+
 // ============================================================
 // Metas (trimestre / ano) — valor_atual vem do coletor Python;
 // vídeos longos é recalculado aqui direto no Supabase (sempre fresco,
 // não depende de esperar a próxima coleta diária rodar)
 // ============================================================
-async function carregarMetas(periodo, containerId, daysLeftId) {
+async function carregarMetas(periodo, containerId, daysLeftId, tipo) {
   $(daysLeftId).textContent = `${periodo.daysLeft} dias restantes`;
 
   try {
@@ -370,8 +454,16 @@ async function carregarMetas(periodo, containerId, daysLeftId) {
     ]);
 
     if (error) return erro(containerId, error.message);
+    metasState[tipo] = { periodo, metas: metas || [] };
     if (!metas || metas.length === 0) {
-      $(containerId).innerHTML = `<div class="empty-state">Nenhuma meta cadastrada para ${periodo.chave}.</div>`;
+      $(containerId).innerHTML = `
+        <div class="empty-state">
+          Nenhuma meta cadastrada para ${periodo.chave}.
+          <div style="margin-top:8px;">
+            <button type="button" class="btn btn-outline btn-sm" style="display:inline-flex;" onclick="abrirEditarMetas('${tipo}')">Cadastrar metas</button>
+          </div>
+        </div>
+      `;
       return;
     }
 
@@ -410,6 +502,78 @@ async function carregarMetas(periodo, containerId, daysLeftId) {
     erro(containerId, err.message);
   }
 }
+
+// ============================================================
+// Modal de edição de metas — escreve valor_alvo direto no Supabase
+// (a coleta automática só toca valor_atual, então isso nunca conflita)
+// ============================================================
+function abrirEditarMetas(tipo) {
+  const estado = metasState[tipo];
+  if (!estado) return;
+  const { periodo, metas } = estado;
+
+  const porMetrica = Object.fromEntries((metas || []).map(m => [m.metrica, m]));
+  $('modal-metas-titulo').textContent = `Editar metas — ${periodo.label}`;
+  $('modal-metas-sub').textContent = `Ajusta o alvo de cada métrica pra ${periodo.chave}. O realizado continua vindo da coleta automática.`;
+  $('input-alvo-receita').value = porMetrica.receita?.valor_alvo ?? '';
+  $('input-alvo-inscritos').value = porMetrica.inscritos?.valor_alvo ?? '';
+  $('input-alvo-videos').value = porMetrica.videos_publicados?.valor_alvo ?? '';
+  $('modal-metas-form').dataset.tipo = tipo;
+  $('modal-metas-erro').classList.remove('show');
+  $('modal-metas-bg').classList.add('show');
+  $('input-alvo-receita').focus();
+}
+
+function fecharModalMetas() {
+  $('modal-metas-bg').classList.remove('show');
+}
+
+async function salvarMetas(ev) {
+  ev.preventDefault();
+  const tipo = $('modal-metas-form').dataset.tipo;
+  const estado = metasState[tipo];
+  if (!estado) return false;
+  const { periodo } = estado;
+
+  const alvoReceita = parseFloat($('input-alvo-receita').value);
+  const alvoInscritos = parseInt($('input-alvo-inscritos').value, 10);
+  const alvoVideos = parseInt($('input-alvo-videos').value, 10);
+
+  const registros = [
+    { quarter: periodo.chave, metrica: 'receita', valor_alvo: alvoReceita || 0 },
+    { quarter: periodo.chave, metrica: 'inscritos', valor_alvo: alvoInscritos || 0 },
+    { quarter: periodo.chave, metrica: 'videos_publicados', valor_alvo: alvoVideos || 0 },
+  ];
+
+  const salvar = $('modal-metas-salvar');
+  const errBox = $('modal-metas-erro');
+  salvar.disabled = true;
+  salvar.textContent = 'Salvando…';
+  errBox.classList.remove('show');
+
+  const { error } = await db.from('metas').upsert(registros, { onConflict: 'quarter,metrica' });
+
+  salvar.disabled = false;
+  salvar.textContent = 'Salvar';
+
+  if (error) {
+    errBox.innerHTML = error.code === '42501' || /row-level security/i.test(error.message || '')
+      ? `Sem permissão de escrita no Supabase. Rode <code>setup-metas.sql</code> no SQL Editor do Supabase (uma vez só) e tenta de novo.`
+      : `Erro ao salvar: ${error.message}`;
+    errBox.classList.add('show');
+    return false;
+  }
+
+  fecharModalMetas();
+  const containerId = tipo === 'quarter' ? 'metas-quarter' : 'metas-ano';
+  const daysLeftId = tipo === 'quarter' ? 'quarter-days-left' : 'year-days-left';
+  carregarMetas(periodo, containerId, daysLeftId, tipo);
+  return false;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') fecharModalMetas();
+});
 
 // ============================================================
 // Timeline de faturamento (últimos 28 dias) — SVG com hover
@@ -636,8 +800,8 @@ async function carregarTopVideos() {
   $('page-subtitle').textContent = `${Q.label} · ${Q.daysLeft} dias restantes no trimestre`;
   $('titulo-quarter').lastChild.textContent = ` Metas do trimestre — ${Q.label}`;
 
-  carregarMetas(Q, 'metas-quarter', 'quarter-days-left');
-  carregarMetas(A, 'metas-ano', 'year-days-left');
+  carregarMetas(Q, 'metas-quarter', 'quarter-days-left', 'quarter');
+  carregarMetas(A, 'metas-ano', 'year-days-left', 'ano');
   carregarTimeline();
   carregarUltimos28();
   carregarVisaoGeral();
