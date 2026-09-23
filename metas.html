@@ -276,6 +276,18 @@
     <div class="loading">Carregando metas…</div>
   </div>
 
+  <!-- ── Histórico de trimestres ── -->
+  <div class="section-head" style="margin-top:36px;">
+    <div class="section-title">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+      Histórico de trimestres
+    </div>
+    <div class="section-head-line"></div>
+  </div>
+  <div class="card" style="margin-bottom:14px;">
+    <div id="historico-trimestres"><div class="loading">Carregando histórico…</div></div>
+  </div>
+
   <!-- ── Análise de resultados ── -->
   <div class="section-head" style="margin-top:48px;">
     <div class="section-title">
@@ -292,6 +304,16 @@
     </div>
     <div class="chart-wrap">
       <div id="timeline-chart"><div class="loading">Carregando timeline…</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-header">
+      <div class="card-title">Receita por mês</div>
+      <div class="card-description" id="mensal-sub">desde o início da coleta</div>
+    </div>
+    <div class="chart-wrap">
+      <div id="mensal-chart"><div class="loading">Carregando…</div></div>
     </div>
   </div>
 
@@ -674,6 +696,147 @@ function renderTimelineChart(wrap, dias) {
 }
 
 // ============================================================
+// Receita por mês — barras (histórico completo da coleta)
+// ============================================================
+const fmtMes = ym => {
+  const [y, m] = ym.split('-');
+  return `${MONTHS[parseInt(m, 10) - 1]}/${y.slice(2)}`;
+};
+
+async function carregarReceitaMensal() {
+  const wrap = $('mensal-chart');
+  try {
+    const { data, error } = await db.from('channel_metricas')
+      .select('data,receita_brl').order('data', { ascending: true });
+    if (error) return erro('mensal-chart', error.message);
+    if (!data || data.length === 0) {
+      wrap.innerHTML = '<div class="empty-state">Nenhum dado de receita coletado ainda.</div>';
+      return;
+    }
+
+    const porMes = {};
+    data.forEach(r => {
+      const mes = r.data.slice(0, 7); // "2026-07"
+      porMes[mes] = (porMes[mes] || 0) + (r.receita_brl || 0);
+    });
+    const meses = Object.keys(porMes).sort().map(mes => ({ mes, receita: porMes[mes] }));
+
+    $('mensal-sub').textContent = meses.length > 1
+      ? `${fmtMes(meses[0].mes)} – ${fmtMes(meses[meses.length - 1].mes)}`
+      : fmtMes(meses[0].mes);
+
+    renderBarChart(wrap, meses);
+  } catch (err) {
+    erro('mensal-chart', err.message);
+  }
+}
+
+function renderBarChart(wrap, meses) {
+  const W = 900, H = 160, padL = 4, padR = 4, padT = 12, padB = 20;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const max = Math.max(...meses.map(m => m.receita), 1);
+  const n = meses.length;
+  const gap = n > 1 ? 10 : 0;
+  const barW = Math.max(6, (innerW - gap * (n - 1)) / n);
+  const successColor = 'hsl(var(--success))';
+
+  const bars = meses.map((m, i) => {
+    const x = padL + i * (barW + gap);
+    const h = Math.max(2, (m.receita / max) * innerH);
+    const y = padT + innerH - h;
+    return `<rect data-i="${i}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barW.toFixed(2)}" height="${h.toFixed(2)}" rx="3" fill="${successColor}" opacity="0.85" style="cursor:pointer;transition:opacity .1s;"></rect>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <svg class="chart-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" id="bar-svg">${bars}</svg>
+    <div class="chart-tooltip" id="bar-tooltip"></div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:hsl(var(--muted-foreground));margin-top:2px;">
+      <span>${fmtMes(meses[0].mes)}</span>
+      <span>${fmtMes(meses[meses.length - 1].mes)}</span>
+    </div>
+  `;
+
+  const svgEl = $('bar-svg');
+  const tooltip = $('bar-tooltip');
+  svgEl.querySelectorAll('rect[data-i]').forEach(rect => {
+    rect.addEventListener('mouseenter', () => {
+      const m = meses[parseInt(rect.dataset.i, 10)];
+      const rectBox = rect.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      tooltip.style.left = (rectBox.left - wrapRect.left + rectBox.width / 2) + 'px';
+      tooltip.style.top = (rectBox.top - wrapRect.top - 8) + 'px';
+      tooltip.style.opacity = 1;
+      tooltip.innerHTML = `${fmtMes(m.mes)} · ${BRL(m.receita)}`;
+      rect.style.opacity = 1;
+    });
+    rect.addEventListener('mouseleave', () => {
+      tooltip.style.opacity = 0;
+      rect.style.opacity = 0.85;
+    });
+  });
+}
+
+// ============================================================
+// Histórico de trimestres — meta vs. realizado de cada trimestre
+// que já passou pela tabela `metas` (inclui o atual)
+// ============================================================
+async function carregarHistoricoTrimestres() {
+  const containerId = 'historico-trimestres';
+  try {
+    const { data, error } = await db.from('metas').select('*');
+    if (error) return erro(containerId, error.message);
+
+    const porTrimestre = {};
+    (data || []).forEach(m => {
+      if (!/^\d{4}-Q[1-4]$/.test(m.quarter)) return; // ignora as linhas anuais (quarter = "2026")
+      (porTrimestre[m.quarter] ||= {})[m.metrica] = m;
+    });
+
+    const trimestres = Object.keys(porTrimestre).sort();
+    if (!trimestres.length) {
+      $(containerId).innerHTML = '<div class="empty-state">Nenhum histórico de trimestre ainda.</div>';
+      return;
+    }
+
+    const atual = periodoTrimestre().chave;
+    const pct = m => (m && m.valor_alvo > 0) ? Math.min(100, Math.round((m.valor_atual / m.valor_alvo) * 100)) : null;
+    const fmtPct = p => p === null ? '—' : `${p}%`;
+
+    const rows = trimestres.map(q => {
+      const receita = porTrimestre[q].receita;
+      const inscritos = porTrimestre[q].inscritos;
+      const videos = porTrimestre[q].videos_publicados;
+      const label = q + (q === atual ? ' <span class="badge">atual</span>' : '');
+      return `
+        <tr>
+          <td style="font-weight:500;white-space:nowrap;">${label}</td>
+          <td class="mono" style="text-align:right;">${receita ? BRL(receita.valor_atual) : '—'}</td>
+          <td class="mono" style="text-align:right;color:hsl(var(--muted-foreground));">${fmtPct(pct(receita))}</td>
+          <td class="mono" style="text-align:right;">${inscritos ? NUM(inscritos.valor_atual) : '—'}</td>
+          <td class="mono" style="text-align:right;color:hsl(var(--muted-foreground));">${fmtPct(pct(inscritos))}</td>
+          <td class="mono" style="text-align:right;">${videos ? NUM(videos.valor_atual) : '—'}</td>
+          <td class="mono" style="text-align:right;color:hsl(var(--muted-foreground));">${fmtPct(pct(videos))}</td>
+        </tr>
+      `;
+    }).join('');
+
+    $(containerId).innerHTML = `
+      <table class="table">
+        <thead><tr>
+          <th>Trimestre</th>
+          <th style="text-align:right;">Receita</th><th style="text-align:right;">%</th>
+          <th style="text-align:right;">Inscritos</th><th style="text-align:right;">%</th>
+          <th style="text-align:right;">Vídeos longos</th><th style="text-align:right;">%</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  } catch (err) {
+    erro(containerId, err.message);
+  }
+}
+
+// ============================================================
 // Últimos 28 dias — resumo
 // ============================================================
 async function carregarUltimos28() {
@@ -812,7 +975,9 @@ async function carregarTopVideos() {
 
   carregarMetas(Q, 'metas-quarter', 'quarter-days-left', 'quarter');
   carregarMetas(A, 'metas-ano', 'year-days-left', 'ano');
+  carregarHistoricoTrimestres();
   carregarTimeline();
+  carregarReceitaMensal();
   carregarUltimos28();
   carregarVisaoGeral();
   carregarTopVideos();
