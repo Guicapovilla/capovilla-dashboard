@@ -317,25 +317,6 @@
     </div>
   </div>
 
-  <div class="section-head" style="margin-top:36px;">
-    <div class="section-title">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9a3 3 0 0 1 0 6"/><path d="M22 9a3 3 0 0 0 0 6"/><path d="M6 19V9a6 6 0 0 1 12 0v10"/><path d="M18 19v2"/><path d="M6 19v2"/></svg>
-      Comissão de afiliado
-    </div>
-    <div class="section-head-line"></div>
-    <button class="btn-edit-metas" onclick="abrirModalComissao()" title="Lançar comissão de um mês">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-      Lançar mês
-    </button>
-  </div>
-  <div class="card" style="margin-bottom:14px;">
-    <div class="card-header">
-      <div class="card-title">Comissão por mês</div>
-      <div class="card-description">Lançado manualmente a partir do relatório de receita do YouTube Studio (comissão de shopping/afiliado + estornos)</div>
-    </div>
-    <div id="comissao-tabela"><div class="loading">Carregando…</div></div>
-  </div>
-
   <div class="stat-grid" style="margin-bottom:14px;" id="ultimos28">
     <div class="loading">Carregando…</div>
   </div>
@@ -383,34 +364,6 @@
     <div class="modal-actions">
       <button type="button" class="btn btn-ghost btn-sm" onclick="fecharModalMetas()">Cancelar</button>
       <button type="submit" class="btn btn-primary btn-sm" id="modal-metas-salvar">Salvar</button>
-    </div>
-  </form>
-</div>
-
-<!-- ── Modal de lançamento de comissão de afiliado ── -->
-<div class="modal-bg" id="modal-comissao-bg" onclick="if(event.target===this) fecharModalComissao()">
-  <form class="modal" id="modal-comissao-form" onsubmit="return salvarComissao(event)">
-    <div class="modal-title" id="modal-comissao-titulo">Lançar comissão do mês</div>
-    <p class="modal-sub">Valores tirados do relatório de receita do YouTube Studio.</p>
-
-    <div class="field">
-      <label>Mês</label>
-      <input type="month" id="input-comissao-mes" required>
-    </div>
-    <div class="field">
-      <label>Comissão estimada (R$)</label>
-      <input type="number" id="input-comissao-estimada" min="0" step="0.01" inputmode="decimal" required>
-    </div>
-    <div class="field">
-      <label>Comissão extornada (R$)</label>
-      <input type="number" id="input-comissao-extornada" min="0" step="0.01" inputmode="decimal" required>
-    </div>
-
-    <div class="modal-error" id="modal-comissao-erro"></div>
-
-    <div class="modal-actions">
-      <button type="button" class="btn btn-ghost btn-sm" onclick="fecharModalComissao()">Cancelar</button>
-      <button type="submit" class="btn btn-primary btn-sm" id="modal-comissao-salvar">Salvar</button>
     </div>
   </form>
 </div>
@@ -644,124 +597,8 @@ async function salvarMetas(ev) {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { fecharModalMetas(); fecharModalComissao(); }
+  if (e.key === 'Escape') fecharModalMetas();
 });
-
-// ============================================================
-// Comissão de afiliado (YouTube Shopping) — lançado manualmente
-// a partir do relatório de receita do YouTube Studio (a YouTube
-// Analytics API não expõe esse dado, só a UI do Studio)
-// ============================================================
-let comissaoState = [];
-
-async function carregarComissoes() {
-  const containerId = 'comissao-tabela';
-  try {
-    const { data, error } = await db.from('comissao_afiliado').select('*').order('mes', { ascending: false });
-    if (error) return erro(containerId, error.message);
-    comissaoState = data || [];
-
-    if (comissaoState.length === 0) {
-      $(containerId).innerHTML = `
-        <div class="empty-state">
-          Nenhuma comissão lançada ainda.
-          <div style="margin-top:8px;">
-            <button type="button" class="btn btn-outline btn-sm" style="display:inline-flex;" onclick="abrirModalComissao()">Lançar mês</button>
-          </div>
-        </div>
-      `;
-      return;
-    }
-
-    const rows = comissaoState.map(c => {
-      const estimada = c.comissao_estimada || 0;
-      const extornada = c.comissao_extornada || 0;
-      const liquido = estimada - extornada;
-      const pctExtorno = estimada > 0 ? Math.round((extornada / estimada) * 100) : 0;
-      return `
-        <tr>
-          <td style="font-weight:500;white-space:nowrap;">${fmtMes(c.mes)}</td>
-          <td class="mono" style="text-align:right;">${BRL(estimada)}</td>
-          <td class="mono" style="text-align:right;color:hsl(var(--danger));">${BRL(extornada)}</td>
-          <td class="mono" style="text-align:right;color:hsl(var(--muted-foreground));">${pctExtorno}%</td>
-          <td class="mono" style="text-align:right;font-weight:600;">${BRL(liquido)}</td>
-          <td style="text-align:right;">
-            <button type="button" class="btn btn-ghost btn-icon" style="width:26px;height:26px;" onclick="abrirModalComissao('${c.mes}')" title="Editar">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-            </button>
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-    $(containerId).innerHTML = `
-      <table class="table">
-        <thead><tr>
-          <th>Mês</th>
-          <th style="text-align:right;">Comissão estimada</th>
-          <th style="text-align:right;">Comissão extornada</th>
-          <th style="text-align:right;">% extornado</th>
-          <th style="text-align:right;">Líquido</th>
-          <th></th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    `;
-  } catch (err) {
-    erro(containerId, err.message);
-  }
-}
-
-function abrirModalComissao(mes) {
-  const existente = mes ? comissaoState.find(c => c.mes === mes) : null;
-  const hoje = new Date();
-  const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
-
-  $('modal-comissao-titulo').textContent = existente ? `Editar comissão — ${fmtMes(existente.mes)}` : 'Lançar comissão do mês';
-  $('input-comissao-mes').value = existente ? existente.mes : mesAtual;
-  $('input-comissao-estimada').value = existente ? existente.comissao_estimada : '';
-  $('input-comissao-extornada').value = existente ? existente.comissao_extornada : '';
-  $('modal-comissao-erro').classList.remove('show');
-  $('modal-comissao-bg').classList.add('show');
-  $('input-comissao-estimada').focus();
-}
-
-function fecharModalComissao() {
-  $('modal-comissao-bg').classList.remove('show');
-}
-
-async function salvarComissao(ev) {
-  ev.preventDefault();
-  const mes = $('input-comissao-mes').value;
-  const comissaoEstimada = parseFloat($('input-comissao-estimada').value) || 0;
-  const comissaoExtornada = parseFloat($('input-comissao-extornada').value) || 0;
-
-  const salvar = $('modal-comissao-salvar');
-  const errBox = $('modal-comissao-erro');
-  salvar.disabled = true;
-  salvar.textContent = 'Salvando…';
-  errBox.classList.remove('show');
-
-  const { error } = await db.from('comissao_afiliado').upsert(
-    { mes, comissao_estimada: comissaoEstimada, comissao_extornada: comissaoExtornada, atualizado_em: new Date().toISOString() },
-    { onConflict: 'mes' }
-  );
-
-  salvar.disabled = false;
-  salvar.textContent = 'Salvar';
-
-  if (error) {
-    errBox.innerHTML = error.code === '42501' || /row-level security/i.test(error.message || '')
-      ? `Sem permissão de escrita no Supabase. Rode <code>setup-comissao-afiliado.sql</code> no SQL Editor do Supabase (uma vez só) e tenta de novo.`
-      : `Erro ao salvar: ${error.message}`;
-    errBox.classList.add('show');
-    return false;
-  }
-
-  fecharModalComissao();
-  carregarComissoes();
-  return false;
-}
 
 // ============================================================
 // Timeline de faturamento (últimos 28 dias) — SVG com hover
@@ -1163,7 +1000,6 @@ async function carregarUltimaAtualizacao() {
   carregarHistoricoTrimestres();
   carregarTimeline();
   carregarReceitaMensal();
-  carregarComissoes();
   carregarUltimos28();
   carregarVisaoGeral();
   carregarTopVideos();
