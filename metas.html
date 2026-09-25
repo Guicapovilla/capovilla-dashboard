@@ -315,6 +315,7 @@
     <div class="chart-wrap">
       <div id="mensal-chart"><div class="loading">Carregando…</div></div>
     </div>
+    <div id="mensal-tabela"></div>
   </div>
 
   <div class="stat-grid" style="margin-bottom:14px;" id="ultimos28">
@@ -722,16 +723,48 @@ async function carregarReceitaMensal() {
       const mes = r.data.slice(0, 7); // "2026-07"
       porMes[mes] = (porMes[mes] || 0) + (r.receita_brl || 0);
     });
-    const meses = Object.keys(porMes).sort().map(mes => ({ mes, receita: porMes[mes] }));
+    const meses = Object.keys(porMes).sort().map((mes, i, arr) => {
+      const receita = porMes[mes];
+      const anterior = i > 0 ? porMes[arr[i - 1]] : null;
+      const variacao = anterior && anterior > 0 ? ((receita - anterior) / anterior) * 100 : null;
+      return { mes, receita, variacao };
+    });
 
     $('mensal-sub').textContent = meses.length > 1
       ? `${fmtMes(meses[0].mes)} – ${fmtMes(meses[meses.length - 1].mes)}`
       : fmtMes(meses[0].mes);
 
     renderBarChart(wrap, meses);
+    renderTabelaMensal($('mensal-tabela'), meses);
   } catch (err) {
     erro('mensal-chart', err.message);
   }
+}
+
+function renderTabelaMensal(container, meses) {
+  const rows = meses.map(m => {
+    const variacaoHtml = m.variacao === null
+      ? '<span style="color:hsl(var(--muted-foreground));">—</span>'
+      : `<span class="ritmo ${m.variacao >= 0 ? 'ritmo-ok' : 'ritmo-behind'}">${m.variacao >= 0 ? '+' : ''}${m.variacao.toFixed(1)}%</span>`;
+    return `
+      <tr>
+        <td style="font-weight:500;white-space:nowrap;">${fmtMes(m.mes)}</td>
+        <td class="mono" style="text-align:right;">${BRL(m.receita)}</td>
+        <td style="text-align:right;">${variacaoHtml}</td>
+      </tr>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <table class="table">
+      <thead><tr>
+        <th>Mês</th>
+        <th style="text-align:right;">Receita</th>
+        <th style="text-align:right;">Variação vs. mês anterior</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
 }
 
 function renderBarChart(wrap, meses) {
