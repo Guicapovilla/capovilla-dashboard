@@ -37,10 +37,13 @@ Quadro kanban simples ([`tarefas.html`](tarefas.html)). Usa a tabela `tarefas` n
 - **Últimos 28 dias** — views, receita e média por dia.
 - **Visão geral do canal** — inscritos, views totais e vídeos publicados.
 - **Top vídeos por receita** — top 5 da última coleta.
+- **Comissão de afiliado** — comissão estimada e extornada do YouTube Shopping, lançadas manualmente mês a mês (esse dado não sai pela YouTube Analytics API, só aparece no relatório de receita do YouTube Studio).
 
 Os números vêm das tabelas `metas`, `channel_metricas`, `videos` e `videos_metricas`, alimentadas pela coleta diária do repositório [`analytics-capovilla`](https://github.com/Guicapovilla/analytics-capovilla) (GitHub Actions, roda todo dia às 10h UTC). Receita e vídeos longos publicados são recalculados direto no Supabase a cada carregamento da página (sempre atual); inscritos novos vêm do valor já calculado pelo coletor via YouTube Analytics API.
 
 **Editar os alvos:** botão "Editar" ao lado de "Metas do trimestre" / "Metas do ano" abre um formulário pra ajustar receita, inscritos e vídeos-alvo — salva direto no Supabase, sem mexer em nada além do alvo (o realizado continua vindo só da coleta automática). Sem meta cadastrada ainda pro período, aparece um botão "Cadastrar metas" no lugar. Isso escreve na tabela com a mesma anon key já usada pra ler — rode [`setup-metas.sql`](setup-metas.sql) uma vez no SQL Editor do Supabase pra liberar a escrita.
+
+**Lançar comissão de afiliado:** botão "Lançar mês" na seção "Comissão de afiliado" abre um formulário com mês, comissão estimada e comissão extornada (tira os dois valores do relatório de receita do YouTube Studio). O dashboard calcula o líquido e o % extornado sozinho. Rode [`setup-comissao-afiliado.sql`](setup-comissao-afiliado.sql) uma vez no SQL Editor do Supabase pra criar a tabela e liberar a escrita.
 
 ## Radar de concorrentes
 
